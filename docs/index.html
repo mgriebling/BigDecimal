@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a title="  Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="index.html"> Docs</a> (100% documented)</p>
+        <div class="header-right">
+          <form role="search" action="search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="index.html"> Reference</a>
+        <img id="carat" src="img/carat.png" alt=""/>
+          Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Extensions/String.html">String</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Structs/BigDecimal.html">BigDecimal</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/BigDecimal/Encoding.html">– Encoding</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/BigDecimal/DisplayMode.html">– DisplayMode</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/Rounding.html">Rounding</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/Rounding/Mode.html">– Mode</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/UInt128.html">UInt128</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            
+            <h2><b>BigDecimal</b></h2>
+
+<h3><b>Contents:</b></h3>
+
+<ul>
+<li><a href="#use">Usage</a></li>
+<li><a href="#basic">Basics</a>
+<ul>
+    <li><a href="#basic1">Creating BigDecimal&rsquo;s</a></li>
+    <li><a href="#basic2">Converting BigDecimal&rsquo;s</a></li>
+    <li><a href="#basic6">Comparing BigDecimal&rsquo;s</a></li>
+    <li><a href="#basic3">Exact Arithmetic</a></li>
+    <li><a href="#basic5">Rounded Arithmetic</a></li>
+    <li><a href="#basic4">Precise division</a></li>
+</ul></li>
+<li><a href="#data">Data Encoding</a></li>
+<li><a href="#fmt">Decimal Formats</a></li>
+<li><a href="#inf">About Infinities</a></li>
+<li><a href="#nan">About NaN&rsquo;s</a></li>
+<li><a href="#ref">References</a></li>
+<li><a href="#ack">Acknowledgement</a></li>
+</ul>
+
+<p>The BigDecimal package provides arbitrary-precision decimal arithmetic in Swift.
+Its functionality falls in the following categories:</p>
+
+<ul>
+<li>Arithmetic: addition, subtraction, multiplication, division, remainder and exponentiation</li>
+<li>Rounding and scaling according to one of the rounding modes
+<ul>
+    <li>CEILING</li>
+    <li>FLOOR</li>
+    <li>UP</li>
+    <li>DOWN</li>
+    <li>HALF_EVEN</li>
+    <li>HALF_DOWN</li>
+    <li>HALF_UP
+</ul>
+
+<p><li>Comparison: the six standard operators == != &lt; &lt;= &gt; &gt;=</li>
+<li>Conversion: to String, to Double, to Decimal (the Swift Foundation type), to Decimal32 / 64 / 128</li>
+</li>
+<li>Support for Decimal32, Decimal64 and Decimal128 values stored as UInt32, UInt64 and UInt128 values respectively,
+using Densely Packed Decimal (DPD) encoding or Binary Integer Decimal (BID) encoding</li>
+<li>Supports the IEEE 754 concepts of Infinity and NaN (Not a Number)</li>
+</ul></p>
+
+<p>BigDecimal requires Swift 5. It also requires that the Int type be a 64 bit type.
+The BigDecimal package depends on the BigInt package</p>
+<pre class="highlight plaintext"><code>dependencies: [
+    .package(url: "https://github.com/leif-ibsen/BigInt", from: "1.6.0"),
+],
+</code></pre>
+
+<h2 id="use"><b>Usage</b></h2>
+
+<p>In your project&rsquo;s Package.swift file add a dependency like<br/></p>
+<pre class="highlight plaintext"><code>dependencies: [
+    .package(url: "https://github.com/leif-ibsen/BigDecimal", from: "1.0.1"),
+]
+</code></pre>
+
+<h2 id="basic"><b>Basics</b></h2>
+
+<h3 id="basic1"><b>Creating BigDecimal&rsquo;s</b></h3>
+      
+<pre class="highlight plaintext"><code>// From an integer
+let x1 = BigDecimal(270) // = 270
+let x2 = BigDecimal(270, -2)  // = 2.70
+let x3 = BigDecimal(314159265, -8) // = 3.14159265
+
+// From a BInt
+let x4 = BigDecimal(BInt(314159265), -8) // = 3.14159265
+let x5 = BigDecimal(BInt(100), -3) // = 0.100
+
+// From a string literal
+let rnd1 = Rounding(.HALF_EVEN, 2)
+let x6 = BigDecimal("0.123").round(rnd1) // = 0.12
+let x7 = BigDecimal("3.14159265") // = 3.14159265
+
+// From a double
+let rnd2 = Rounding(.HALF_EVEN, 9)
+let x8 = BigDecimal(0.1).round(rnd2)  // = 0.100000000
+let x9 = BigDecimal(0.1) // = 0.1000000000000000055511151231257827021181583404541015625
+let x10 = BigDecimal(3.14159265) // = 3.141592650000000208621031561051495373249053955078125
+let x11 = BigDecimal(3.14159265).round(rnd2) // = 3.14159265
+
+// From Decimal32 / 64 / 128 encoded values
+let x32 = BigDecimal(UInt32(0x223000f0), .DPD) // = 1.70
+let x64 = BigDecimal(UInt64(0x22300000000000f0), .DPD) // = 1.70
+let x128 = BigDecimal(UInt128(0x2207800000000000, 0x00000000000000f0), .DPD) // = 1.70
+</code></pre>
+
+<p>Because Double values cannot represent all decimal values exactly,
+one sees that BigDecimal(0.1) is not exactly equal to 1 / 10 as one might expect.
+On the other hand, BigDecimal(&ldquo;0.1&rdquo;) is in fact exactly equal to 1 / 10.</p>
+
+<h3 id="basic2"><b>Converting BigDecimal&rsquo;s</b></h3>
+
+<p>BigDecimal values can be converted to String values, Double values, Decimal (the Swift Foundation type) values, and Decimal32 / 64 / 128 values.</p>
+
+<h4><b>To String</b></h4>
+<pre class="highlight plaintext"><code>let x1 = BigDecimal("2.1").pow(3)
+print(x1.asString()) // = 9.261
+</code></pre>
+
+<h4><b>To Double</b></h4>
+<pre class="highlight plaintext"><code>let x2 = BigDecimal("2.1").pow(3)
+print(x2.asDouble()) // = 9.261
+</code></pre>
+
+<h4><b>To Decimal (the Swift Foundation type)</b></h4>
+<pre class="highlight plaintext"><code>let x3 = BigDecimal("1.70")
+let xd: Decimal = x3.asDecimal()
+print(xd) // = 1.70
+</code></pre>
+
+<h4><b>To Decimal32 / 64 / 128</b></h4>
+<pre class="highlight plaintext"><code>let x4 = BigDecimal("1.70")
+let x32: UInt32 = x4.asDecimal32(.DPD)
+let x64: UInt64 = x4.asDecimal64(.DPD)
+let x128: UInt128 = x4.asDecimal128(.DPD)
+print(String(x32, radix: 16))  // = 223000f0
+print(String(x64, radix: 16))  // = 22300000000000f0
+print(String(x128, radix: 16)) // = 220780000000000000000000000000f0
+</code></pre>
+
+<h3 id="basic6"><b>Comparing BigDecimal&rsquo;s</b></h3>
+
+<p>The six standard operators == != &lt; &lt;= &gt; &gt;= are available to compare values. The two operands may either be two
+BigDecimal&rsquo;s or a BigDecimal and an integer. If neither of the operands is NaN, the operators perform as expected.
+For example is <em>BigDecimal.InfinityN</em> less than any finite number which in turn is less than <em>BigDecimal.InfinityP</em>.</p>
+
+<p>Please see the section <em>About NaN&rsquo;s</em> for the rules governing comparison involving NaN&rsquo;s.</p>
+
+<p>The static function <em>BigDecimal.maximum(x, y)</em> returns NaN if either x or y is NaN, else it returns the larger of x and y.</p>
+
+<p>The static function <em>BigDecimal.minimum(x, y)</em> returns NaN if either x or y is NaN, else it returns the smaller of x and y.</p>
+
+<h3 id="basic3"><b>Exact Arithmetic</b></h3>
+
+<p>The &lsquo;+&rsquo;, &lsquo;-&rsquo;, and &lsquo;*&rsquo; operators always produce exact results. The &lsquo;/&rsquo; operator truncates the exact result to an integer.</p>
+<pre class="highlight plaintext"><code>let a = BigDecimal("25.1")
+let b = BigDecimal("12.0041")
+
+print(a + b) // = 37.1041
+print(a - b) // = 13.0959
+print(a * b) // = 301.30291
+print(a / b) // = 2
+</code></pre>
+
+<p>The <em>quotientAndRemainder</em> function produces an integer quotient and exact remainder</p>
+<pre class="highlight plaintext"><code>print(a.quotientAndRemainder(b)) // = (quotient: 2, remainder: 1.0918)
+</code></pre>
+
+<h3 id="basic5"><b>Rounded Arithmetic</b></h3>
+
+<p>Rounding is controlled by Rounding objects that contain a rounding mode and a precision, which is the number of digits in the rounded result.</p>
+
+<p>The rounding modes are</p>
+
+<ul>
+<li>CEILING - round towards +infinity</li>
+<li>FLOOR - round towards -infinity</li>
+<li>UP - round away from 0</li>
+<li>DOWN - round towards 0</li>
+<li>HALF_DOWN - round to nearest, tie towards 0</li>
+<li>HALF_UP - round to nearest, tie away from 0</li>
+<li>HALF_EVEN - round to nearest, tie to even</li>
+</ul>
+
+<p>The <em>add</em>, <em>subtract</em> and <em>multiply</em> methods have a Rounding parameter that controls how the result is rounded.</p>
+
+<h4><b>Examples</b></h4>
+<pre class="highlight plaintext"><code>let a = BigDecimal("25.1E-2")
+let b = BigDecimal("12.0041E-3")
+let rnd = Rounding(.CEILING, 3)
+
+print(a + b) // = 0.2630041
+print(a.add(b, rnd)) // = 0.264
+print(a - b) // = 0.2389959
+print(a.subtract(b, rnd)) // = 0.239
+print(a * b) // = 0.0030130291
+print(a.multiply(b, rnd)) // = 0.00302
+</code></pre>
+
+<h3 id="basic4"><b>Precise division</b></h3>
+
+<p>The <em>divide</em> method, that has an optional rounding parameter, performs division.
+If the quotient has finite decimal expansion, the rounding parameter may or may not be present, it is used if it is there.
+If the quotient has infinite decimal expansion, the rounding parameter must be present and is used to round the result.</p>
+
+<h4><b>Examples</b></h4>
+<pre class="highlight plaintext"><code>let x1 = BigDecimal(3)
+let x2 = BigDecimal(48)
+print(x1.divide(x2))  // = 0.0625
+let rnd = Rounding(.CEILING, 2)
+print(x1.divide(x2, rnd))  // = 0.063
+
+let x3 = BigDecimal(3)
+let x4 = BigDecimal(49)
+print(x3.divide(x4))       // = NaN because the quotient has infinite decimal expansion 0.06122448...
+print(x3.divide(x4, rnd))  // = 0.062
+</code></pre>
+
+<h2 id="data"><b>Data Encoding</b></h2>
+
+<p>BigDecimal&rsquo;s can be encoded as Data objects (perhaps for long term storage) using the <em>asData</em> method,
+and they can be regenerated from their Data encoding using the appropriate initializer.
+The encoding rules are:</p>
+
+<ul>
+    <li>The encoding contains nine or more bytes. The first eight bytes is a Big Endian encoding of the signed exponent.
+        The remaining bytes is a Big Endian encoding of the signed significand.</li>
+    <li>NaN&rsquo;s are encoded as a single byte = 0</li>
+    <li>InfinityP is encoded as a single byte = 1</li>
+    <li>InfinityN is encoded as a single byte = 2</li>
+</ul>
+
+<h4><b>Examples</b></h4>
+<pre class="highlight plaintext"><code>let x1 = BigDecimal(1000, 3) // = 1000000
+print(Bytes(x1.asData()))   // = [0, 0, 0, 0, 0, 0, 0, 3, 3, 232]
+
+let x2 = BigDecimal(1000, -3) // = 1.000
+print(Bytes(x2.asData()))   // = [255, 255, 255, 255, 255, 255, 255, 253, 3, 232]
+
+let x3 = BigDecimal(-1000, 3) // = -1000000
+print(Bytes(x3.asData()))   // = [0, 0, 0, 0, 0, 0, 0, 3, 252, 24]
+
+let x4 = BigDecimal(-1000, -3) // = -1.000
+print(Bytes(x4.asData()))   // = [255, 255, 255, 255, 255, 255, 255, 253, 252, 24]
+</code></pre>
+
+<h2 id="fmt"><b>Decimal Formats</b></h2>
+
+<p>Decimal values can be represented not only as BigDecimal&rsquo;s but also as Double values,
+Decimal (the Swift Foundation type) values, and Decimal32 / 64 / 128 values.
+The strategy for working with other than BigDecimal values can be summarized as follows:</p>
+
+<ul>
+<li>convert the input values to BigDecimal&rsquo;s using the appropriate initializer</li>
+<li>compute the results</li>
+<li>convert the results back to the desired output format using the appropriate conversion function</li>
+</ul>
+
+<p>As an example, suppose you must compute the average value of three values a, b and c which are encoded as Decimal32 values using Densely Packed Decimal (DPD) encoding.
+The result x must likewise be a Decimal32 value encoded using DPD.</p>
+<pre class="highlight plaintext"><code>// Input values
+let a = UInt32(0x223e1117)  // = 7042.17 DPD encoded
+let b = UInt32(0x22300901)  // =   22.01 DPD encoded
+let c = UInt32(0xa230cc00)  // = -330.00 DPD encoded
+
+// Convert to BigDecimal's
+let A = BigDecimal(a, .DPD)
+let B = BigDecimal(b, .DPD)
+let C = BigDecimal(c, .DPD)
+
+// Compute result
+let X = (A + B + C).divide(3, Rounding.decimal32)
+print(X)                    // = 2244.727
+
+// Convert result back to Decimal32
+let x = X.asDecimal32(.DPD)
+print(String(x, radix: 16)) // = 2a2513a7 (= 2244.727 DPD encoded)
+</code></pre>
+
+<h2 id="inf"><b>About Infinities</b></h2>
+
+<p>The two constants <em>BigDecimal.InfinityP</em> and <em>BigDecimal.InfinityN</em> represent +Infinity and -Infinity respectively. InfinityN compares less than every finite number,
+and every finite number compares less than InfinityP. Arithmetic operations involving infinite values is illustrated by the examples below:</p>
+<pre class="highlight plaintext"><code>let InfP = BigDecimal.InfinityP // Just to save some writing
+let InfN = BigDecimal.InfinityN
+
+print(InfP + 3)     // +Infinity
+print(InfN + 3)     // -Infinity
+print(InfP + InfP)  // +Infinity
+print(InfP - InfP)  // NaN
+print(InfP * 3)     // +Infinity
+print(InfP * InfP)  // +Infinity
+print(InfP * InfN)  // -Infinity
+print(InfP * 0)     // NaN
+print(InfP / 3)     // +Infinity
+print(InfP / 0)     // +Infinity
+print(1 / InfP)     // 0
+print(1 / InfN)     // 0
+print(InfP / InfP)  // NaN
+print(InfP &lt; InfP)  // false
+print(InfP == InfP) // true
+print(InfP != InfP) // false
+print(InfP &gt; InfP)  // false
+print(Rounding.decimal32.round(InfP))    // +Infinity
+print(InfP.scale(4))    // +Infinity
+print(InfP.scale(-4))   // +Infinity
+print(InfP.withExponent(10, .CEILING))   // NaN
+</code></pre>
+
+<h2 id="nan"><b>About NaN&rsquo;s</b></h2>
+
+<p>The IEEE 754 standard specifies two NaN&rsquo;s, a quiet NaN (qNaN) and a signaling NaN (sNaN).
+The constant <em>BigDecimal.NaN</em> corresponds to the quiet NaN. There is no corresponding signaling NaN.</p>
+
+<p>Arithmetic operations where one or more input is NaN, return NaN as result.
+Comparing NaN values is illustrated by the example below:</p>
+<pre class="highlight plaintext"><code>let NaN = BigDecimal.NaN // Just to save some writing
+
+print(3 &lt; NaN)      // false
+print(NaN &lt; 3)      // false
+print(NaN &lt; NaN)    // false
+print(3 &lt;= NaN)     // false
+print(NaN &lt;= 3)     // false
+print(NaN &lt;= NaN)   // false
+print(3 &gt; NaN)      // false
+print(NaN &gt; 3)      // false
+print(NaN &gt; NaN)    // false
+print(3 &gt;= NaN)     // false
+print(NaN &gt;= 3)     // false
+print(NaN &gt;= NaN)   // false
+print(3 == NaN)     // false
+print(NaN == 3)     // false
+print(NaN == NaN)   // false
+print(3 != NaN)     // true
+print(NaN != 3)     // true
+print(NaN != NaN)   // true !!!
+</code></pre>
+
+<p>Because NaN != NaN is true, sorting a collection of BigDecimal&rsquo;s doesn&rsquo;t work if the collection contains one or more NaN&rsquo;s.
+This is so, even if BigDecimal conforms to the Comparable protocol.</p>
+
+<p>There is a static boolean variable <em>BigDecimal.NaNFlag</em> which is set to <em>true</em> whenever a NaN value is generated.
+It can be set to <em>false</em> by application code. Therefore, to check if a sequence of code generates NaN,
+set NaNFlag to <em>false</em> before the code and check it after the code. Since a BigDecimal has a stored property <em>isNaN</em>,
+it is of course also possible to check for a NaN value at any time.</p>
+
+<h2 id="ref"><b>References</b></h2>
+
+<p>Algorithms from the following books and papers have been used in the implementation.
+There are references in the source code where appropriate.</p>
+
+<ul>
+<li>[GRANLUND] - Moller and Granlund: Improved Division by Invariant Integers, 2011</li>
+<li>[IEEE] - IEEE Standard for Floating-Point Arithmetic, 2019</li>
+<li>[KNUTH] - Donald E. Knuth: Seminumerical Algorithms, Addison-Wesley 1971</li>
+</ul>
+
+<h2 id="ack"><b>Acknowledgement</b></h2>
+
+<p>Most of the unit test cases come from General Decimal Arithmetic - <a href="http://speleotrove.com/decimal">http://speleotrove.com/decimal</a></p>
+
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2023 <a class="link" href="" target="_blank" rel="external noopener"></a>. All rights reserved. (Last updated: 2023-02-07)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>
