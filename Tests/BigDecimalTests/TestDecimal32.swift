@@ -10,6 +10,7 @@
 //
 
 import XCTest
+@testable import BigDecimal
 import BigInt
 
 class TestDecimal32: XCTestCase {

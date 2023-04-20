@@ -10,6 +10,7 @@
 //
 
 import XCTest
+@testable import BigDecimal
 
 class TestRoundDiv: XCTestCase {
 

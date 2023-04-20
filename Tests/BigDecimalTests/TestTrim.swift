@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import BigDecimal
 
 class TestTrim: XCTestCase {
 

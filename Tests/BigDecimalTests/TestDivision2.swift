@@ -11,6 +11,7 @@
 // ddDivide and dqDivide
 
 import XCTest
+@testable import BigDecimal
 
 class TestDivision2: XCTestCase {
 

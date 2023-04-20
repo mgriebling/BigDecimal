@@ -11,6 +11,7 @@
 // ddRemainder
 
 import XCTest
+@testable import BigDecimal
 
 final class TestRemainder: XCTestCase {
 

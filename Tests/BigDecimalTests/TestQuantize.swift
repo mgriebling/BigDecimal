@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import BigDecimal
 
 final class TestQuantize: XCTestCase {
 

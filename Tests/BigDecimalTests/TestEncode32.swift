@@ -11,6 +11,7 @@
 // dsEncode
 
 import XCTest
+@testable import BigDecimal
 
 final class TestEncode32: XCTestCase {
 

@@ -6,6 +6,7 @@
 //
 
 import XCTest
+@testable import BigDecimal
 import BigInt
 
 final class TestData: XCTestCase {

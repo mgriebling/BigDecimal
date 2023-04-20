@@ -45,14 +45,14 @@ BigDecimal requires Swift 5. It also requires that the Int type be a 64 bit type
 The BigDecimal package depends on the BigInt package
 
 	dependencies: [
-		.package(url: "https://github.com/leif-ibsen/BigInt", from: "1.6.0"),
+		.package(url: "https://github.com/leif-ibsen/BigInt", from: "1.11.0"),
 	],
 
 <h2 id="use"><b>Usage</b></h2>
 In your project's Package.swift file add a dependency like<br/>
 
 	dependencies: [
-		.package(url: "https://github.com/leif-ibsen/BigDecimal", from: "1.0.1"),
+		.package(url: "https://github.com/leif-ibsen/BigDecimal", from: "1.1.0"),
 	]
 
 <h2 id="basic"><b>Basics</b></h2>

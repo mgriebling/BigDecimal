@@ -11,6 +11,7 @@
 // min, max, ddMin, ddMax, dqMin, dqMax
 
 import XCTest
+@testable import BigDecimal
 
 final class TestMinMax: XCTestCase {
 
