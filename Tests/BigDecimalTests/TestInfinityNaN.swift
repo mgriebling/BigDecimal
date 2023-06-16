@@ -296,22 +296,22 @@ final class TestInfinityNaN: XCTestCase {
     }
 
     func testNaN() throws {
-        XCTAssertFalse(BigDecimal.NaN < BigDecimal(1))
-        XCTAssertFalse(BigDecimal.NaN <= BigDecimal(1))
-        XCTAssertFalse(BigDecimal.NaN > BigDecimal(1))
-        XCTAssertFalse(BigDecimal.NaN >= BigDecimal(1))
-        XCTAssertFalse(BigDecimal.NaN == BigDecimal(1))
-        XCTAssertTrue(BigDecimal.NaN != BigDecimal(1))
-        XCTAssertTrue(BigDecimal.NaN != BigDecimal.NaN)
+        XCTAssertFalse(BigDecimal.nan < BigDecimal(1))
+        XCTAssertFalse(BigDecimal.nan <= BigDecimal(1))
+        XCTAssertFalse(BigDecimal.nan > BigDecimal(1))
+        XCTAssertFalse(BigDecimal.nan >= BigDecimal(1))
+        XCTAssertFalse(BigDecimal.nan == BigDecimal(1))
+        XCTAssertTrue(BigDecimal.nan != BigDecimal(1))
+        XCTAssertTrue(BigDecimal.nan != BigDecimal.nan)
         XCTAssertFalse(BigDecimal.NaNFlag)
-        XCTAssertTrue(BigDecimal(BigDecimal.NaN.asString()).isNaN)
+        XCTAssertTrue(BigDecimal(BigDecimal.nan.asString()).isNaN)
         XCTAssertTrue(BigDecimal.NaNFlag)
     }
 
     func testRound() throws {
-        XCTAssertEqual(Rounding.decimal32.round(BigDecimal.InfinityP), BigDecimal.InfinityP)
-        XCTAssertEqual(Rounding.decimal32.round(BigDecimal.InfinityN), BigDecimal.InfinityN)
-        XCTAssertTrue(Rounding.decimal32.round(BigDecimal.NaN).isNaN)
+        XCTAssertEqual(Rounding.decimal32.round(BigDecimal.infinity), BigDecimal.infinity)
+        XCTAssertEqual(Rounding.decimal32.round(BigDecimal.infinityN), BigDecimal.infinityN)
+        XCTAssertTrue(Rounding.decimal32.round(BigDecimal.nan).isNaN)
         XCTAssertTrue(BigDecimal.NaNFlag)
     }
 
@@ -352,7 +352,7 @@ final class TestInfinityNaN: XCTestCase {
 
     func testQuantize() throws {
         for t in testsQuantize {
-            XCTAssertEqual(BigDecimal(t.x).quantize(BigDecimal(t.y), Rounding.Mode.HALF_EVEN).asString(), t.result)
+            XCTAssertEqual(BigDecimal(t.x).quantize(BigDecimal(t.y), Rounding.Mode.halfEven).asString(), t.result)
         }
         XCTAssertTrue(BigDecimal.NaNFlag)
     }

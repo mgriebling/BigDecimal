@@ -23,7 +23,7 @@ class TestConversion: XCTestCase {
     }
     
     func doTest2(_ x: BigDecimal) throws {
-        XCTAssertEqual(BigDecimal(x.asString()), BigDecimal(x.asString(.PLAIN)))
+        XCTAssertEqual(BigDecimal(x.asString()), BigDecimal(x.asString(.plain)))
     }
 
     func doTest2(_ s: String) throws {
@@ -31,13 +31,13 @@ class TestConversion: XCTestCase {
     }
 
     func test1() throws {
-        try doTest1(BigDecimal.ZERO)
-        try doTest1(BigDecimal.ONE)
-        try doTest1(BigDecimal.TEN)
+        try doTest1(BigDecimal.zero)
+        try doTest1(BigDecimal.one)
+        try doTest1(BigDecimal.ten)
         try doTest1(BigDecimal(Int.max))
         try doTest1(BigDecimal(Int.min))
-        try doTest1(BigDecimal.InfinityP)
-        try doTest1(BigDecimal.InfinityN)
+        try doTest1(BigDecimal.infinity)
+        try doTest1(BigDecimal.infinityN)
         try doTest2(BigDecimal(Int.max))
         try doTest2(BigDecimal(Int.min))
         try doTest2(BigDecimal(0.1))

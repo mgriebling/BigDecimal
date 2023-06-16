@@ -25,13 +25,13 @@ Its functionality falls in the following categories:
 <li>Arithmetic: addition, subtraction, multiplication, division, remainder and exponentiation</li>
 <li>Rounding and scaling according to one of the rounding modes
 <ul>
-	<li>CEILING</li>
-	<li>FLOOR</li>
-	<li>UP</li>
-	<li>DOWN</li>
-	<li>HALF_EVEN</li>
-	<li>HALF_DOWN</li>
-	<li>HALF_UP
+	<li>ceiling</li>
+	<li>floor</li>
+	<li>up</li>
+	<li>down</li>
+	<li>halfEven</li>
+	<li>halfDown</li>
+	<li>halfUp
 </ul>
 <li>Comparison: the six standard operators == != < <= > >=</li>
 <li>Conversion: to String, to Double, to Decimal (the Swift Foundation type), to Decimal32 / 64 / 128</li>
@@ -68,21 +68,21 @@ In your project's Package.swift file add a dependency like<br/>
 	let x5 = BigDecimal(BInt(100), -3) // = 0.100
   
 	// From a string literal
-	let rnd1 = Rounding(.HALF_EVEN, 2)
+	let rnd1 = Rounding(.halfEven, 2)
 	let x6 = BigDecimal("0.123").round(rnd1) // = 0.12
 	let x7 = BigDecimal("3.14159265") // = 3.14159265
   
 	// From a double
-	let rnd2 = Rounding(.HALF_EVEN, 9)
+	let rnd2 = Rounding(.halfEven, 9)
 	let x8 = BigDecimal(0.1).round(rnd2)  // = 0.100000000
 	let x9 = BigDecimal(0.1) // = 0.1000000000000000055511151231257827021181583404541015625
 	let x10 = BigDecimal(3.14159265) // = 3.141592650000000208621031561051495373249053955078125
 	let x11 = BigDecimal(3.14159265).round(rnd2) // = 3.14159265
 
 	// From Decimal32 / 64 / 128 encoded values
-	let x32 = BigDecimal(UInt32(0x223000f0), .DPD) // = 1.70
-	let x64 = BigDecimal(UInt64(0x22300000000000f0), .DPD) // = 1.70
-	let x128 = BigDecimal(UInt128(0x2207800000000000, 0x00000000000000f0), .DPD) // = 1.70
+	let x32 = BigDecimal(UInt32(0x223000f0), .dpd) // = 1.70
+	let x64 = BigDecimal(UInt64(0x22300000000000f0), .dpd) // = 1.70
+	let x128 = BigDecimal(UInt128(0x2207800000000000, 0x00000000000000f0), .dpd) // = 1.70
 
 Because Double values cannot represent all decimal values exactly,
 one sees that BigDecimal(0.1) is not exactly equal to 1 / 10 as one might expect.
@@ -104,9 +104,9 @@ BigDecimal values can be converted to String values, Double values, Decimal (the
 
 <h4><b>To Decimal32 / 64 / 128</b></h4>
 	let x4 = BigDecimal("1.70")
-	let x32: UInt32 = x4.asDecimal32(.DPD)
-	let x64: UInt64 = x4.asDecimal64(.DPD)
-	let x128: UInt128 = x4.asDecimal128(.DPD)
+	let x32: UInt32 = x4.asDecimal32(.dpd)
+	let x64: UInt64 = x4.asDecimal64(.dpd)
+	let x128: UInt128 = x4.asDecimal128(.dpd)
 	print(String(x32, radix: 16))  // = 223000f0
 	print(String(x64, radix: 16))  // = 22300000000000f0
 	print(String(x128, radix: 16)) // = 220780000000000000000000000000f0
@@ -115,7 +115,7 @@ BigDecimal values can be converted to String values, Double values, Decimal (the
 
 The six standard operators == != < <= > >= are available to compare values. The two operands may either be two
 BigDecimal's or a BigDecimal and an integer. If neither of the operands is NaN, the operators perform as expected.
-For example is *BigDecimal.InfinityN* less than any finite number which in turn is less than *BigDecimal.InfinityP*.
+For example is *BigDecimal.infinityN* less than any finite number which in turn is less than *BigDecimal.infinity*.
 
 Please see the section *About NaN's* for the rules governing comparison involving NaN's.
 
@@ -145,20 +145,20 @@ Rounding is controlled by Rounding objects that contain a rounding mode and a pr
 
 The rounding modes are
 <ul>
-<li>CEILING - round towards +infinity</li>
-<li>FLOOR - round towards -infinity</li>
-<li>UP - round away from 0</li>
-<li>DOWN - round towards 0</li>
-<li>HALF_DOWN - round to nearest, tie towards 0</li>
-<li>HALF_UP - round to nearest, tie away from 0</li>
-<li>HALF_EVEN - round to nearest, tie to even</li>
+<li>ceiling - round towards +infinity</li>
+<li>floor - round towards -infinity</li>
+<li>up - round away from 0</li>
+<li>down - round towards 0</li>
+<li>halfDown - round to nearest, tie towards 0</li>
+<li>halfUp - round to nearest, tie away from 0</li>
+<li>halfEven - round to nearest, tie to even</li>
 </ul>
 The *add*, *subtract* and *multiply* methods have a Rounding parameter that controls how the result is rounded.
 <h4><b>Examples</b></h4>
 
 	let a = BigDecimal("25.1E-2")
 	let b = BigDecimal("12.0041E-3")
-	let rnd = Rounding(.CEILING, 3)
+	let rnd = Rounding(.ceiling, 3)
 	
 	print(a + b) // = 0.2630041
 	print(a.add(b, rnd)) // = 0.264
@@ -178,7 +178,7 @@ If the quotient has infinite decimal expansion, the rounding parameter must be p
 	let x1 = BigDecimal(3)
 	let x2 = BigDecimal(48)
 	print(x1.divide(x2))  // = 0.0625
-	let rnd = Rounding(.CEILING, 2)
+	let rnd = Rounding(.ceiling, 2)
 	print(x1.divide(x2, rnd))  // = 0.063
 	
 	let x3 = BigDecimal(3)
@@ -194,8 +194,8 @@ The encoding rules are:
 	<li>The encoding contains nine or more bytes. The first eight bytes is a Big Endian encoding of the signed exponent.
 		The remaining bytes is a Big Endian encoding of the signed significand.</li>
 	<li>NaN's are encoded as a single byte = 0</li>
-	<li>InfinityP is encoded as a single byte = 1</li>
-	<li>InfinityN is encoded as a single byte = 2</li>
+	<li>infinity is encoded as a single byte = 1</li>
+	<li>infinityN is encoded as a single byte = 2</li>
 </ul>
 <h4><b>Examples</b></h4>
 	let x1 = BigDecimal(1000, 3) // = 1000000
@@ -230,24 +230,24 @@ The result x must likewise be a Decimal32 value encoded using DPD.
 	let c = UInt32(0xa230cc00)  // = -330.00 DPD encoded
 	
 	// Convert to BigDecimal's
-	let A = BigDecimal(a, .DPD)
-	let B = BigDecimal(b, .DPD)
-	let C = BigDecimal(c, .DPD)
+	let A = BigDecimal(a, .dpd)
+	let B = BigDecimal(b, .dpd)
+	let C = BigDecimal(c, .dpd)
 	
 	// Compute result
 	let X = (A + B + C).divide(3, Rounding.decimal32)
 	print(X)                    // = 2244.727
 	
 	// Convert result back to Decimal32
-	let x = X.asDecimal32(.DPD)
+	let x = X.asDecimal32(.dpd)
 	print(String(x, radix: 16)) // = 2a2513a7 (= 2244.727 DPD encoded)
 	
 <h2 id="inf"><b>About Infinities</b></h2>
-The two constants *BigDecimal.InfinityP* and *BigDecimal.InfinityN* represent +Infinity and -Infinity respectively. InfinityN compares less than every finite number,
-and every finite number compares less than InfinityP. Arithmetic operations involving infinite values is illustrated by the examples below:
+The two constants *BigDecimal.infinity* and *BigDecimal.infinityN* represent +Infinity and -Infinity respectively. infinityN compares less than every finite number,
+and every finite number compares less than infinity. Arithmetic operations involving infinite values is illustrated by the examples below:
 
-	let InfP = BigDecimal.InfinityP // Just to save some writing
-	let InfN = BigDecimal.InfinityN
+	let InfP = BigDecimal.infinity // Just to save some writing
+	let InfN = BigDecimal.infinityN
 	
 	print(InfP + 3)     // +Infinity
 	print(InfN + 3)     // -Infinity
@@ -269,7 +269,7 @@ and every finite number compares less than InfinityP. Arithmetic operations invo
 	print(Rounding.decimal32.round(InfP))    // +Infinity
 	print(InfP.scale(4))    // +Infinity
 	print(InfP.scale(-4))   // +Infinity
-	print(InfP.withExponent(10, .CEILING))   // NaN
+	print(InfP.withExponent(10, .ceiling))   // NaN
 
 
 <h2 id="nan"><b>About NaN's</b></h2>

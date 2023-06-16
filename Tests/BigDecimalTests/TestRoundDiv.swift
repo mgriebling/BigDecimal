@@ -54,47 +54,47 @@ class TestRoundDiv: XCTestCase {
         test("12345", "5.1"),
     ]
 
-    let res11: [String] = [ // .DOWN results
+    let res11: [String] = [ // .down results
         "12345", "12343", "12332", "12222", "11222", "3088.7", "3086.2", "3088.6", "3086.1", "2519.3", "2473.9", "2469.4", "2469.0", "2469", "2468.9", "2468.5", "2464.0", "2420.5",]
-    let res12: [String] = [ // .HALF_DOWN results
+    let res12: [String] = [ // .halfDown results
         "12345", "12344", "12333", "12223", "11223", "3088.7", "3086.2", "3088.7", "3086.2", "2519.4", "2473.9", "2469.5", "2469.0", "2469", "2469.0", "2468.5", "2464.1", "2420.6",]
-    let res13: [String] = [ // .HALF_EVEN results
+    let res13: [String] = [ // .halfEven results
         "12345", "12344", "12333", "12223", "11223", "3088.8", "3086.2", "3088.7", "3086.2", "2519.4", "2473.9", "2469.5", "2469.0", "2469", "2469.0", "2468.5", "2464.1", "2420.6",]
-    let res14: [String] = [ // .HALF_UP results
+    let res14: [String] = [ // .halfUp results
         "12345", "12344", "12333", "12223", "11223", "3088.8", "3086.3", "3088.7", "3086.2", "2519.4", "2473.9", "2469.5", "2469.0", "2469", "2469.0", "2468.5", "2464.1", "2420.6",]
-    let res15: [String] = [ // .UP results
+    let res15: [String] = [ // .up results
         "12345", "12344", "12333", "12223", "11223", "3088.8", "3086.3", "3088.7", "3086.2", "2519.4", "2474.0", "2469.5", "2469.1", "2469", "2469.0", "2468.6", "2464.1", "2420.6",]
-    let res16: [String] = [ // .FLOOR results
+    let res16: [String] = [ // .floor results
         "12345", "12343", "12332", "12222", "11222", "3088.7", "3086.2", "3088.6", "3086.1", "2519.3", "2473.9", "2469.4", "2469.0", "2469", "2468.9", "2468.5", "2464.0", "2420.5",]
-    let res17: [String] = [ // .CEILING results
+    let res17: [String] = [ // .ceiling results
         "12345", "12344", "12333", "12223", "11223", "3088.8", "3086.3", "3088.7", "3086.2", "2519.4", "2474.0", "2469.5", "2469.1", "2469", "2469.0", "2468.6", "2464.1", "2420.6",]
 
     func test1() throws {
-        let rnd1 = Rounding(.DOWN, 5)
+        let rnd1 = Rounding(.down, 5)
         for i in 0 ..< tests1.count {
             XCTAssertEqual(BigDecimal(tests1[i].x).divide(BigDecimal(tests1[i].y), rnd1).asString(), res11[i])
         }
-        let rnd2 = Rounding(.HALF_DOWN, 5)
+        let rnd2 = Rounding(.halfDown, 5)
         for i in 0 ..< tests1.count {
             XCTAssertEqual(BigDecimal(tests1[i].x).divide(BigDecimal(tests1[i].y), rnd2).asString(), res12[i])
         }
-        let rnd3 = Rounding(.HALF_EVEN, 5)
+        let rnd3 = Rounding(.halfEven, 5)
         for i in 0 ..< tests1.count {
             XCTAssertEqual(BigDecimal(tests1[i].x).divide(BigDecimal(tests1[i].y), rnd3).asString(), res13[i])
         }
-        let rnd4 = Rounding(.HALF_UP, 5)
+        let rnd4 = Rounding(.halfUp, 5)
         for i in 0 ..< tests1.count {
             XCTAssertEqual(BigDecimal(tests1[i].x).divide(BigDecimal(tests1[i].y), rnd4).asString(), res14[i])
         }
-        let rnd5 = Rounding(.UP, 5)
+        let rnd5 = Rounding(.up, 5)
         for i in 0 ..< tests1.count {
             XCTAssertEqual(BigDecimal(tests1[i].x).divide(BigDecimal(tests1[i].y), rnd5).asString(), res15[i])
         }
-        let rnd6 = Rounding(.FLOOR, 5)
+        let rnd6 = Rounding(.floor, 5)
         for i in 0 ..< tests1.count {
             XCTAssertEqual(BigDecimal(tests1[i].x).divide(BigDecimal(tests1[i].y), rnd6).asString(), res16[i])
         }
-        let rnd7 = Rounding(.CEILING, 5)
+        let rnd7 = Rounding(.ceiling, 5)
         for i in 0 ..< tests1.count {
             XCTAssertEqual(BigDecimal(tests1[i].x).divide(BigDecimal(tests1[i].y), rnd7).asString(), res17[i])
         }
@@ -111,47 +111,47 @@ class TestRoundDiv: XCTestCase {
         test("555555", "-1000000"),
     ]
     
-    let res21: [String] = [ // .DOWN results
+    let res21: [String] = [ // .down results
         "0.6666", "-0.6666", "0.3333", "-0.3333", "0.5555", "-0.5555", "0.5555", "-0.5555",]
     let res22: [String] = [ // .HALF_DOWN results
         "0.6667", "-0.6667", "0.3333", "-0.3333", "0.5555", "-0.5555", "0.5556", "-0.5556",]
-    let res23: [String] = [ // .HALF_EVEN results
+    let res23: [String] = [ // .halfEven results
         "0.6667", "-0.6667", "0.3333", "-0.3333", "0.5556", "-0.5556", "0.5556", "-0.5556",]
-    let res24: [String] = [ // .HALF_UP results
+    let res24: [String] = [ // .halfUp results
         "0.6667", "-0.6667", "0.3333", "-0.3333", "0.5556", "-0.5556", "0.5556", "-0.5556",]
-    let res25: [String] = [ // .UP results
+    let res25: [String] = [ // .up results
         "0.6667", "-0.6667", "0.3334", "-0.3334", "0.5556", "-0.5556", "0.5556", "-0.5556",]
-    let res26: [String] = [ // .FLOOR results
+    let res26: [String] = [ // .floor results
         "0.6666", "-0.6667", "0.3333", "-0.3334", "0.5555", "-0.5556", "0.5555", "-0.5556",]
     let res27: [String] = [ // .CEILING results
         "0.6667", "-0.6666", "0.3334", "-0.3333", "0.5556", "-0.5555", "0.5556", "-0.5555",]
 
     func test2() throws {
-        let rnd1 = Rounding(.DOWN, 4)
+        let rnd1 = Rounding(.down, 4)
         for i in 0 ..< tests2.count {
             XCTAssertEqual(BigDecimal(tests2[i].x).divide(BigDecimal(tests2[i].y), rnd1).asString(), res21[i])
         }
-        let rnd2 = Rounding(.HALF_DOWN, 4)
+        let rnd2 = Rounding(.halfDown, 4)
         for i in 0 ..< tests2.count {
             XCTAssertEqual(BigDecimal(tests2[i].x).divide(BigDecimal(tests2[i].y), rnd2).asString(), res22[i])
         }
-        let rnd3 = Rounding(.HALF_EVEN, 4)
+        let rnd3 = Rounding(.halfEven, 4)
         for i in 0 ..< tests2.count {
             XCTAssertEqual(BigDecimal(tests2[i].x).divide(BigDecimal(tests2[i].y), rnd3).asString(), res23[i])
         }
-        let rnd4 = Rounding(.HALF_UP, 4)
+        let rnd4 = Rounding(.halfUp, 4)
         for i in 0 ..< tests2.count {
             XCTAssertEqual(BigDecimal(tests2[i].x).divide(BigDecimal(tests2[i].y), rnd4).asString(), res24[i])
         }
-        let rnd5 = Rounding(.UP, 4)
+        let rnd5 = Rounding(.up, 4)
         for i in 0 ..< tests2.count {
             XCTAssertEqual(BigDecimal(tests2[i].x).divide(BigDecimal(tests2[i].y), rnd5).asString(), res25[i])
         }
-        let rnd6 = Rounding(.FLOOR, 4)
+        let rnd6 = Rounding(.floor, 4)
         for i in 0 ..< tests2.count {
             XCTAssertEqual(BigDecimal(tests2[i].x).divide(BigDecimal(tests2[i].y), rnd6).asString(), res26[i])
         }
-        let rnd7 = Rounding(.CEILING, 4)
+        let rnd7 = Rounding(.ceiling, 4)
         for i in 0 ..< tests2.count {
             XCTAssertEqual(BigDecimal(tests2[i].x).divide(BigDecimal(tests2[i].y), rnd7).asString(), res27[i])
         }

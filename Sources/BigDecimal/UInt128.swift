@@ -7,7 +7,7 @@
 
 import BigInt
 
-/// Helper structure for representing Decimal128 values encoded either as DPD or as BID
+/// Helper structure for representing Decimal128 values encoded either as dpd or as bid
 public struct UInt128: CustomStringConvertible {
    
 

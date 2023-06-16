@@ -28,7 +28,7 @@ class TestDecimal64Encoding: XCTestCase {
         let result: String
         let enc: BigDecimal.Encoding
 
-        init(_ input: UInt64, _ result: String, _ enc: BigDecimal.Encoding = .DPD) {
+        init(_ input: UInt64, _ result: String, _ enc: BigDecimal.Encoding = .dpd) {
             self.input = input
             self.result = result
             self.enc = enc

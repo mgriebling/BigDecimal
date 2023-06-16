@@ -28,7 +28,7 @@ class TestDivision1: XCTestCase {
         for _ in 0 ..< 6 {
             var powerOf5 = 1
             for _ in 0 ..< 6 {
-                XCTAssertFalse(BigDecimal.ONE.divide(BigDecimal(powerOf2 * powerOf5)).isNaN)
+                XCTAssertFalse(BigDecimal.one.divide(BigDecimal(powerOf2 * powerOf5)).isNaN)
                 XCTAssertFalse((BigDecimal(powerOf2).divide(BigDecimal(powerOf5)).isNaN))
                 XCTAssertFalse((BigDecimal(powerOf5).divide(BigDecimal(powerOf5)).isNaN))
                 powerOf5 *= 5
@@ -77,7 +77,7 @@ class TestDivision1: XCTestCase {
     }
     
     func testTralingZero() throws {
-        let mc = Rounding(.FLOOR, 3)
+        let mc = Rounding(.floor, 3)
         let testCases = [
             [BigDecimal("19"), BigDecimal("100"), BigDecimal("0.19")],
             [BigDecimal("21"), BigDecimal("110"), BigDecimal("0.190")],
@@ -114,8 +114,8 @@ class TestDivision1: XCTestCase {
             [c,         b, BigDecimal("3.142")],
             [c_minus,   b, BigDecimal("-3.142")],
         ]
-        let mode: [Rounding.Mode] = [.UP, .UP, .DOWN, .DOWN, .CEILING, .CEILING, .FLOOR, .FLOOR,
-                                     .HALF_UP, .HALF_UP, .DOWN, .DOWN, .HALF_EVEN, .HALF_EVEN, .HALF_EVEN, .HALF_EVEN]
+        let mode: [Rounding.Mode] = [.up, .up, .down, .down, .ceiling, .ceiling, .floor, .floor,
+                                     .halfUp, .halfUp, .down, .down, .halfEven, .halfEven, .halfEven, .halfEven]
         for i in 0 ..< testCases.count {
             let test = testCases[i]
             let quo = test[0].divide(test[1], Rounding(mode[i], 4))
@@ -140,7 +140,7 @@ class TestDivision1: XCTestCase {
         let precision = [3, 3, 9, 1, 1, 1, 1, 1]
         for i in 0 ..< testCases.count {
             let test = testCases[i]
-            let quo = test[0].divide(test[1], Rounding(.HALF_UP, precision[i]))
+            let quo = test[0].divide(test[1], Rounding(.halfUp, precision[i]))
             if !equals(quo, test[2]) {
                 XCTFail()
             }

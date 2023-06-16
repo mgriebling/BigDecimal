@@ -21,13 +21,13 @@ final class TestDecimal: XCTestCase {
         XCTAssertTrue(x0.isZero)
         let d1 = Decimal(1.0)
         let x1 = BigDecimal(d1)
-        XCTAssertEqual(x1, BigDecimal.ONE)
+        XCTAssertEqual(x1, BigDecimal.one)
         let dm1 = Decimal(-1.0)
         let xm1 = BigDecimal(dm1)
-        XCTAssertEqual(xm1, -BigDecimal.ONE)
+        XCTAssertEqual(xm1, -BigDecimal.one)
         let d10 = Decimal(10.0)
         let x10 = BigDecimal(d10)
-        XCTAssertEqual(x10, BigDecimal.TEN)
+        XCTAssertEqual(x10, BigDecimal.ten)
         XCTAssertFalse(BigDecimal.NaNFlag)
     }
 
@@ -62,7 +62,7 @@ final class TestDecimal: XCTestCase {
         let d = Decimal.nan
         let x = BigDecimal(d)
         XCTAssertTrue(x.isNaN)
-        let d1 = BigDecimal.NaN.asDecimal()
+        let d1 = BigDecimal.nan.asDecimal()
         XCTAssertEqual(d1, Decimal.nan)
         XCTAssertTrue(BigDecimal.NaNFlag)
     }

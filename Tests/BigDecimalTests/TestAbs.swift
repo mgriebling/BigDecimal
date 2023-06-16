@@ -98,35 +98,35 @@ class TestAbs: XCTestCase {
     ]
 
     func test15() throws {
-        let rnd = Rounding(.HALF_UP, 15)
+        let rnd = Rounding(.halfUp, 15)
         for t in tests15 {
             XCTAssertEqual(BigDecimal(t.x).round(rnd).abs, BigDecimal(t.abs))
         }
     }
 
     func test9() throws {
-        let rnd = Rounding(.HALF_UP, 9)
+        let rnd = Rounding(.halfUp, 9)
         for t in tests9 {
             XCTAssertEqual(BigDecimal(t.x).round(rnd).abs, BigDecimal(t.abs))
         }
     }
 
     func test7() throws {
-        let rnd = Rounding(.HALF_UP, 7)
+        let rnd = Rounding(.halfUp, 7)
         for t in tests7 {
             XCTAssertEqual(BigDecimal(t.x).round(rnd).abs, BigDecimal(t.abs))
         }
     }
 
     func test6() throws {
-        let rnd = Rounding(.HALF_UP, 6)
+        let rnd = Rounding(.halfUp, 6)
         for t in tests6 {
             XCTAssertEqual(BigDecimal(t.x).round(rnd).abs, BigDecimal(t.abs))
         }
     }
 
     func test3() throws {
-        let rnd = Rounding(.HALF_UP, 3)
+        let rnd = Rounding(.halfUp, 3)
         for t in tests3 {
             XCTAssertEqual(BigDecimal(t.x).round(rnd).abs, BigDecimal(t.abs))
         }

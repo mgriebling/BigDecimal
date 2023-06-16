@@ -14,7 +14,7 @@ struct Decimal128 {
     static let minusInf = UInt128(0xf800000000000000, 0x000000000000000)
     static let maxSignificand = UInt128(0x1ed09bead87c0, 0x378d8e63ffffffff)
     
-    init(_ value: UInt128, _ encoding: BigDecimal.Encoding = .DPD) {
+    init(_ value: UInt128, _ encoding: BigDecimal.Encoding = .dpd) {
         self.sign = value.hi & 0x8000000000000000 != 0
         let x = value.hi >> 58 & 0x1f
         if x == 0x1f {
@@ -34,7 +34,7 @@ struct Decimal128 {
             var sig = UInt128(0, 0)
             let bb = (value.hi >> 61) & 0x3
             switch encoding {
-            case .BID:
+            case .bid:
                 if bb == 3 {
                     exp = (value.hi >> 47) & 0x3fff
                     sig.hi = 0x2000000000000 | (value.hi & 0x7fffffffffff)
@@ -43,7 +43,7 @@ struct Decimal128 {
                     sig.hi = value.hi & 0x1ffffffffffff
                 }
                 sig.lo = value.lo
-            case .DPD:
+            case .dpd:
                 if bb == 3 {
                     exp = ((value.hi >> 46) & 0xfff) | (((value.hi >> 59) & 0x3) << 12)
                     sig.lo = 8 + (value.hi >> 58) & 0x1
@@ -131,14 +131,14 @@ struct Decimal128 {
         if self.isNan {
             return BigDecimal.flagNaN()
         } else if self.isInfinite {
-            return self.sign ? BigDecimal.InfinityN : BigDecimal.InfinityP
+            return self.sign ? BigDecimal.infinityN : BigDecimal.infinity
         } else {
             let sig = BInt([self.significand.lo, self.significand.hi])
             return BigDecimal(self.sign ? -sig : sig, Int(self.exponent) - 6176)
         }
     }
 
-    func asUInt128(_ encoding: BigDecimal.Encoding = .DPD) -> UInt128 {
+    func asUInt128(_ encoding: BigDecimal.Encoding = .dpd) -> UInt128 {
         if self.isNan {
             return Decimal128.nan
         } else if self.isInfinite {
@@ -148,7 +148,7 @@ struct Decimal128 {
         assert(!self.significand.gt(Decimal128.maxSignificand))
         var value = UInt128(self.sign ? UInt64(0x8000000000000000) : UInt64(0x0000000000000000), UInt64(0x0000000000000000))
         switch encoding {
-        case .BID:
+        case .bid:
             if self.significand.hi < 0x2000000000000 {
                 value.hi |= self.exponent << 49
             } else {
@@ -156,7 +156,7 @@ struct Decimal128 {
             }
             value.lo = self.significand.lo
             value.hi |= self.significand.hi
-        case.DPD:
+        case.dpd:
             var sig = self.significand
             let d1 = sig.div1000()
             let d2 = sig.div1000()

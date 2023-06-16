@@ -77,14 +77,14 @@ class TestAddition: XCTestCase {
 
     func test1() throws {
         for i in 0 ..< tests1.count {
-            let rnd = Rounding(.HALF_UP, tests1.count - i)
+            let rnd = Rounding(.halfUp, tests1.count - i)
             XCTAssertEqual(rnd.round(BigDecimal(tests1[i].x) + BigDecimal(tests1[i].y)).asString(), tests1[i].result)
             XCTAssertEqual(BigDecimal(tests1[i].x).add(BigDecimal(tests1[i].y), rnd).asString(), tests1[i].result)
         }
     }
     
     func test2() throws {
-        let rnd = Rounding(.HALF_UP, 16)
+        let rnd = Rounding(.halfUp, 16)
         XCTAssertEqual(rnd.round(BigDecimal("1E16") + BigDecimal("-5000000.000010001")).asString(), "9999999995000000")
         XCTAssertEqual(rnd.round(BigDecimal("1E16") + BigDecimal("-5000000.000000001")).asString(), "9999999995000000")
         XCTAssertEqual(BigDecimal("1E16").add(BigDecimal("-5000000.000010001"), rnd).asString(), "9999999995000000")
@@ -139,7 +139,7 @@ class TestAddition: XCTestCase {
     ]
 
     func test3() throws {
-        let rnd = Rounding(.HALF_UP, 9)
+        let rnd = Rounding(.halfUp, 9)
         for t in tests3 {
             XCTAssertEqual(rnd.round(BigDecimal(t.x) + BigDecimal(t.y)).asString(), t.result)
             XCTAssertEqual(BigDecimal(t.x).add(BigDecimal(t.y), rnd).asString(), t.result)
@@ -210,7 +210,7 @@ class TestAddition: XCTestCase {
     ]
     
     func test5() throws {
-        let rnd = Rounding(.HALF_UP, 16)
+        let rnd = Rounding(.halfUp, 16)
         for t in tests5 {
             XCTAssertEqual((rnd.round(BigDecimal(t.x) + BigDecimal(t.y))).asString(), t.result)
             XCTAssertEqual(BigDecimal(t.x).add(BigDecimal(t.y), rnd).asString(), t.result)

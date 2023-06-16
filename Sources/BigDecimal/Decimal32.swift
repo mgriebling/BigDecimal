@@ -14,7 +14,7 @@ struct Decimal32 {
     static let minusInf = UInt32(0xf8000000)
     static let maxSignificand = 9999999
 
-    init(_ value: UInt32, _ encoding: BigDecimal.Encoding = .DPD) {
+    init(_ value: UInt32, _ encoding: BigDecimal.Encoding = .dpd) {
         self.sign = value & 0x80000000 != 0
         let x = value >> 26 & 0x1f
         if x == 0x1f {
@@ -34,7 +34,7 @@ struct Decimal32 {
             var sig = UInt32(0)
             let bb = (value >> 29) & 0x3
             switch encoding {
-            case .BID:
+            case .bid:
                 if bb == 3 {
                     exp = (value >> 21) & 0xff
                     sig = 0x800000 | (value & 0x1fffff)
@@ -42,7 +42,7 @@ struct Decimal32 {
                     exp = (value >> 23) & 0xff
                     sig = value & 0x7fffff
                 }
-            case .DPD:
+            case .dpd:
                 if bb == 3 {
                     exp = ((value >> 20) & 0x3f) | (((value >> 27) & 0x3) << 6)
                     sig = 8 + (value >> 26) & 0x1
@@ -110,13 +110,13 @@ struct Decimal32 {
         if self.isNan {
             return BigDecimal.flagNaN()
         } else if self.isInfinite {
-            return self.sign ? BigDecimal.InfinityN : BigDecimal.InfinityP
+            return self.sign ? BigDecimal.infinityN : BigDecimal.infinity
         } else {
             return BigDecimal(BInt(self.sign ? -Int(self.significand) : Int(self.significand)), Int(self.exponent) - 101)
         }
     }
 
-    func asUInt32(_ encoding: BigDecimal.Encoding = .DPD) -> UInt32 {
+    func asUInt32(_ encoding: BigDecimal.Encoding = .dpd) -> UInt32 {
         if self.isNan {
             return Decimal32.nan
         } else if self.isInfinite {
@@ -126,7 +126,7 @@ struct Decimal32 {
         assert(self.significand <= 0x98967f)
         var value = self.sign ? UInt32(0x80000000) : UInt32(0x00000000)
         switch encoding {
-        case .BID:
+        case .bid:
             if self.significand < 0x800000 {
                 value |= self.exponent << 23
                 value |= self.significand
@@ -134,7 +134,7 @@ struct Decimal32 {
                 value |= ((0x3 << 8) | self.exponent) << 21
                 value |= self.significand & 0x1fffff
             }
-        case .DPD:
+        case .dpd:
             let d1 = self.significand % 1000
             let d2 = (self.significand / 1000) % 1000
             let d3 = self.significand / 1000000

@@ -14,7 +14,7 @@ struct Decimal64 {
     static let minusInf = UInt64(0xf800000000000000)
     static let maxSignificand = 9999999999999999
 
-    init(_ value: UInt64, _ enc: BigDecimal.Encoding = .DPD) {
+    init(_ value: UInt64, _ enc: BigDecimal.Encoding = .dpd) {
         self.sign = value & 0x8000000000000000 != 0
         let x = value >> 58 & 0x1f
         if x == 0x1f {
@@ -34,7 +34,7 @@ struct Decimal64 {
             var sig = UInt64(0)
             let bb = (value >> 61) & 0x3
             switch enc {
-            case .BID:
+            case .bid:
                 if bb == 3 {
                     exp = (value >> 51) & 0x3ff
                     sig = 0x20000000000000 | (value & 0x7ffffffffffff)
@@ -42,7 +42,7 @@ struct Decimal64 {
                     exp = (value >> 53) & 0x3ff
                     sig = value & 0x1fffffffffffff
                 }
-            case .DPD:
+            case .dpd:
                 if bb == 3 {
                     exp = ((value >> 50) & 0xff) | (((value >> 59) & 0x3) << 8)
                     sig = 8 + (value >> 58) & 0x1
@@ -115,13 +115,13 @@ struct Decimal64 {
         if self.isNan {
             return BigDecimal.flagNaN()
         } else if self.isInfinite {
-            return self.sign ? BigDecimal.InfinityN : BigDecimal.InfinityP
+            return self.sign ? BigDecimal.infinityN : BigDecimal.infinity
         } else {
             return BigDecimal(BInt(self.sign ? -Int(self.significand) : Int(self.significand)), Int(self.exponent) - 398)
         }
     }
     
-    func asUInt64(_ encoding: BigDecimal.Encoding = .DPD) -> UInt64 {
+    func asUInt64(_ encoding: BigDecimal.Encoding = .dpd) -> UInt64 {
         if self.isNan {
             return Decimal64.nan
         } else if self.isInfinite {
@@ -131,7 +131,7 @@ struct Decimal64 {
         assert(self.significand <= 0x2386f26fc0ffff)
         var value = self.sign ? UInt64(0x8000000000000000) : UInt64(0x0000000000000000)
         switch encoding {
-        case .BID:
+        case .bid:
             if self.significand < 0x20000000000000 {
                 value |= self.exponent << 53
                 value |= self.significand
@@ -139,7 +139,7 @@ struct Decimal64 {
                 value |= ((0x3 << 10) | self.exponent) << 51
                 value |= self.significand & 0x7ffffffffffff
             }
-        case .DPD:
+        case .dpd:
             let d1 = self.significand % 1000
             let d2 = (self.significand / 1000) % 1000
             let d3 = (self.significand / 1000000) % 1000

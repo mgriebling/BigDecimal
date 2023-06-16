@@ -50,9 +50,9 @@ final class TestEncode128: XCTestCase {
 
     func test1() {
         for t in tests1 {
-            XCTAssertEqual(Decimal128(t.dec, .DPD).asBigDecimal().asString(), t.x)
-            XCTAssertEqual(Decimal128(BigDecimal(t.x)).asUInt128(.DPD).hi, t.dec.hi)
-            XCTAssertEqual(Decimal128(BigDecimal(t.x)).asUInt128(.DPD).lo, t.dec.lo)
+            XCTAssertEqual(Decimal128(t.dec, .dpd).asBigDecimal().asString(), t.x)
+            XCTAssertEqual(Decimal128(BigDecimal(t.x)).asUInt128(.dpd).hi, t.dec.hi)
+            XCTAssertEqual(Decimal128(BigDecimal(t.x)).asUInt128(.dpd).lo, t.dec.lo)
         }
         XCTAssertFalse(BigDecimal.NaNFlag)
     }
@@ -70,7 +70,7 @@ final class TestEncode128: XCTestCase {
 
     func test2() {
         for t in tests2 {
-            XCTAssertEqual(Decimal128(t.dec, .DPD).asBigDecimal().asString(), t.x)
+            XCTAssertEqual(Decimal128(t.dec, .dpd).asBigDecimal().asString(), t.x)
         }
         XCTAssertFalse(BigDecimal.NaNFlag)
     }
@@ -88,10 +88,10 @@ final class TestEncode128: XCTestCase {
 
     func test3() {
         for t in tests3 {
-            let bd = Decimal128(t.dec, .DPD).asBigDecimal()
+            let bd = Decimal128(t.dec, .dpd).asBigDecimal()
             XCTAssertTrue(bd.isInfinite || bd.isNaN)
         }
-        XCTAssertTrue(Decimal128(BigDecimal.NaN).asBigDecimal().isNaN)
+        XCTAssertTrue(Decimal128(BigDecimal.nan).asBigDecimal().isNaN)
         XCTAssertTrue(BigDecimal.NaNFlag)
     }
 

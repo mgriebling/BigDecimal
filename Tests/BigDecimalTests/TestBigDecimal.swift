@@ -62,13 +62,13 @@ class TestBigDecimal: XCTestCase {
     func testDivide1() throws {
         let divd1 = BigDecimal(value, -2)
         var divd2 = BigDecimal("2.335")
-        var divd3 = divd1.divide(divd2, Rounding(.UP, 7))
+        var divd3 = divd1.divide(divd2, Rounding(.up, 7))
         XCTAssertEqual(divd3.asString(), "52873.27")
         XCTAssertEqual(divd3.exponent, divd1.exponent)
         XCTAssertEqual(divd3.significand.asString(), "5287327")
 
         divd2 = BigDecimal(123.4)
-        divd3 = divd1.divide(divd2, Rounding(.DOWN, 6))
+        divd3 = divd1.divide(divd2, Rounding(.down, 6))
         XCTAssertEqual(divd3.asString(), "1000.47")
         XCTAssertEqual(divd3.exponent, -2)
         XCTAssertEqual(divd3.significand.asInt(), 100047)
@@ -78,11 +78,11 @@ class TestBigDecimal: XCTestCase {
     func testDivide2() throws {
         let divd1 = BigDecimal(value2, -4)
         var divd2 = BigDecimal("0.0023")
-        var divd3 = divd1.divide(divd2, Rounding(.HALF_UP, 12))
+        var divd3 = divd1.divide(divd2, Rounding(.halfUp, 12))
         XCTAssertEqual(divd3.asString(), "536285217.391")
         XCTAssertEqual(divd3.exponent, -3)
         divd2 = BigDecimal(1345.5E-02)
-        divd3 = divd1.divide(divd2, Rounding(.DOWN, 5))
+        divd3 = divd1.divide(divd2, Rounding(.down, 5))
         XCTAssertEqual(divd3.asString(), "91672")
         XCTAssertEqual(divd3.exponent, 0)
         XCTAssertFalse(BigDecimal.NaNFlag)
@@ -220,11 +220,11 @@ class TestBigDecimal: XCTestCase {
         let a = "-12380945E+61"
         let aNumber = BigDecimal(a)
         let precision = 6
-        let rm = Rounding.Mode.HALF_DOWN
+        let rm = Rounding.Mode.halfDown
 
         let mcIntRm = Rounding(rm, precision)
-        let mcStr = Rounding(.HALF_DOWN, 6)
-        let mcInt = Rounding(.HALF_UP, precision)
+        let mcStr = Rounding(.halfDown, 6)
+        let mcInt = Rounding(.halfUp, precision)
         let res = aNumber.abs.round(mcInt)
         XCTAssertTrue(equals(res, BigDecimal("1.23809E+68")))
         XCTAssertEqual(mcIntRm, mcStr)
@@ -348,9 +348,9 @@ class TestBigDecimal: XCTestCase {
         x32 = (-BigDecimal.MAX32).asDecimal32(enc)
         d32 = Decimal32(x32, enc).asBigDecimal()
         XCTAssertEqual(-BigDecimal.MAX32, d32)
-        x32 = (BigDecimal.MAX32 + BigDecimal.ONE).asDecimal32(enc)
+        x32 = (BigDecimal.MAX32 + BigDecimal.one).asDecimal32(enc)
         XCTAssertTrue(Decimal32(x32, enc).asBigDecimal().isNaN)
-        x32 = (-BigDecimal.MAX32 - BigDecimal.ONE).asDecimal32(enc)
+        x32 = (-BigDecimal.MAX32 - BigDecimal.one).asDecimal32(enc)
         XCTAssertTrue(Decimal32(x32, enc).asBigDecimal().isNaN)
     }
 
@@ -361,9 +361,9 @@ class TestBigDecimal: XCTestCase {
         x64 = (-BigDecimal.MAX64).asDecimal64(enc)
         d64 = Decimal64(x64, enc).asBigDecimal()
         XCTAssertEqual(-BigDecimal.MAX64, d64)
-        x64 = (BigDecimal.MAX64 + BigDecimal.ONE).asDecimal64(enc)
+        x64 = (BigDecimal.MAX64 + BigDecimal.one).asDecimal64(enc)
         XCTAssertTrue(Decimal64(x64, enc).asBigDecimal().isNaN)
-        x64 = (-BigDecimal.MAX64 - BigDecimal.ONE).asDecimal64(enc)
+        x64 = (-BigDecimal.MAX64 - BigDecimal.one).asDecimal64(enc)
         XCTAssertTrue(Decimal64(x64, enc).asBigDecimal().isNaN)
     }
 
@@ -374,19 +374,19 @@ class TestBigDecimal: XCTestCase {
         x128 = (-BigDecimal.MAX128).asDecimal128(enc)
         d128 = Decimal128(x128, enc).asBigDecimal()
         XCTAssertEqual(-BigDecimal.MAX128, d128)
-        x128 = (BigDecimal.MAX128 + BigDecimal.ONE).asDecimal128(enc)
+        x128 = (BigDecimal.MAX128 + BigDecimal.one).asDecimal128(enc)
         XCTAssertTrue(Decimal128(x128, enc).asBigDecimal().isNaN)
-        x128 = (-BigDecimal.MAX128 - BigDecimal.ONE).asDecimal128(enc)
+        x128 = (-BigDecimal.MAX128 - BigDecimal.one).asDecimal128(enc)
         XCTAssertTrue(Decimal128(x128, enc).asBigDecimal().isNaN)
     }
 
     func testMax() throws {
-        try doTestMax32(.BID)
-        try doTestMax32(.DPD)
-        try doTestMax64(.BID)
-        try doTestMax64(.DPD)
-        try doTestMax128(.BID)
-        try doTestMax128(.DPD)
+        try doTestMax32(.bid)
+        try doTestMax32(.dpd)
+        try doTestMax64(.bid)
+        try doTestMax64(.dpd)
+        try doTestMax128(.bid)
+        try doTestMax128(.dpd)
         XCTAssertTrue(BigDecimal.NaNFlag)
     }
     
@@ -396,10 +396,10 @@ class TestBigDecimal: XCTestCase {
         XCTAssertEqual(BigDecimal.MIN32, d32)
         x32 = (BigDecimal.MIN32 / BigDecimal(2)).asDecimal32(enc)
         d32 = Decimal32(x32, enc).asBigDecimal()
-        XCTAssertEqual(BigDecimal.ZERO, d32)
+        XCTAssertEqual(BigDecimal.zero, d32)
         x32 = (BigDecimal.MIN32 - BigDecimal.MIN32.ulp).asDecimal32(enc)
         d32 = Decimal32(x32, enc).asBigDecimal()
-        XCTAssertEqual(BigDecimal.ZERO, d32)
+        XCTAssertEqual(BigDecimal.zero, d32)
     }
 
     func doTestMin64(_ enc: BigDecimal.Encoding) throws {
@@ -408,10 +408,10 @@ class TestBigDecimal: XCTestCase {
         XCTAssertEqual(BigDecimal.MIN64, d64)
         x64 = (BigDecimal.MIN64 / BigDecimal(2)).asDecimal64(enc)
         d64 = Decimal64(x64, enc).asBigDecimal()
-        XCTAssertEqual(BigDecimal.ZERO, d64)
+        XCTAssertEqual(BigDecimal.zero, d64)
         x64 = (BigDecimal.MIN64 - BigDecimal.MIN64.ulp).asDecimal64(enc)
         d64 = Decimal64(x64, enc).asBigDecimal()
-        XCTAssertEqual(BigDecimal.ZERO, d64)
+        XCTAssertEqual(BigDecimal.zero, d64)
     }
 
     func doTestMin128(_ enc: BigDecimal.Encoding) throws {
@@ -420,19 +420,19 @@ class TestBigDecimal: XCTestCase {
         XCTAssertEqual(BigDecimal.MIN128, d128)
         x128 = (BigDecimal.MIN128 / BigDecimal(2)).asDecimal128(enc)
         d128 = Decimal128(x128, enc).asBigDecimal()
-        XCTAssertEqual(BigDecimal.ZERO, d128)
+        XCTAssertEqual(BigDecimal.zero, d128)
         x128 = (BigDecimal.MIN128 - BigDecimal.MIN128.ulp).asDecimal128(enc)
         d128 = Decimal128(x128, enc).asBigDecimal()
-        XCTAssertEqual(BigDecimal.ZERO, d128)
+        XCTAssertEqual(BigDecimal.zero, d128)
     }
 
     func testMin() throws {
-        try doTestMin32(.BID)
-        try doTestMin32(.DPD)
-        try doTestMin64(.BID)
-        try doTestMin64(.DPD)
-        try doTestMin128(.BID)
-        try doTestMin128(.DPD)
+        try doTestMin32(.bid)
+        try doTestMin32(.dpd)
+        try doTestMin64(.bid)
+        try doTestMin64(.dpd)
+        try doTestMin128(.bid)
+        try doTestMin128(.dpd)
         XCTAssertFalse(BigDecimal.NaNFlag)
     }
 

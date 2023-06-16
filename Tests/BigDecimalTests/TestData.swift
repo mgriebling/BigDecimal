@@ -38,8 +38,8 @@ final class TestData: XCTestCase {
     }
 
     func test1() throws {
-        doTest(BigDecimal.InfinityP)
-        doTest(BigDecimal.InfinityN)
+        doTest(BigDecimal.infinity)
+        doTest(BigDecimal.infinityN)
         doTest1(BInt(0))
         doTest1(BInt(1))
         doTest1(BInt(-1))

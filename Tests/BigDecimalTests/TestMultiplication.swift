@@ -82,7 +82,7 @@ class TestMultiplication: XCTestCase {
         let x1 = BigDecimal("30269.587755640502150977251770554")
         let x2 = BigDecimal("4.8046009735990873395936309640543")
         for i in 0 ..< result1.count {
-            let rnd = Rounding(.HALF_UP, i + 1)
+            let rnd = Rounding(.halfUp, i + 1)
             XCTAssertEqual(rnd.round(x1 * x2).asString(), result1[i])
             XCTAssertEqual(x1.multiply(x2, rnd).asString(), result1[i])
         }

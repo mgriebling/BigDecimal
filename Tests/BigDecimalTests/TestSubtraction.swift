@@ -132,7 +132,7 @@ class TestSubtraction: XCTestCase {
     ]
 
     func test2() throws {
-        let rnd = Rounding(.HALF_EVEN, 16)
+        let rnd = Rounding(.halfEven, 16)
         for t in tests2 {
             XCTAssertEqual(rnd.round(BigDecimal(t.x) - BigDecimal(t.y)).asString(), t.result)
             XCTAssertEqual(BigDecimal(t.x).subtract(BigDecimal(t.y), rnd).asString(), t.result)

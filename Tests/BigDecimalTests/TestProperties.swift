@@ -20,13 +20,13 @@ class TestProperties: XCTestCase {
 
     func doTest1(_ x: BigDecimal) {
         if x.isNegative {
-            XCTAssertEqual(x.abs, x * (-BigDecimal.ONE))
+            XCTAssertEqual(x.abs, x * (-BigDecimal.one))
             XCTAssertEqual(x.signum, -1)
         } else if x.isPositive {
             XCTAssertEqual(x.abs, x)
             XCTAssertEqual(x.signum, 1)
         } else {
-            XCTAssertEqual(x.abs, BigDecimal.ZERO)
+            XCTAssertEqual(x.abs, BigDecimal.zero)
             XCTAssertEqual(x.signum, 0)
         }
         XCTAssertEqual(x.trim, x)

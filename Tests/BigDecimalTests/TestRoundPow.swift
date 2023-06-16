@@ -49,47 +49,47 @@ class TestRoundPow: XCTestCase {
         test("75", 3),
     ]
 
-    let res1: [String] = [ // .DOWN results
+    let res1: [String] = [ // .down results
         "3.4877E-21", "4.3056E-17", "5.3152E-13", "6.5617E-9", "0.000081004", "1", "12345", "1.5239E+8", "1.8813E+12", "2.3225E+16", "2.8671E+20", "1.7222E+5", "4.2187E+5",]
-    let res2: [String] = [ // .HALF_DOWN results
+    let res2: [String] = [ // .halfDown results
         "3.4877E-21", "4.3056E-17", "5.3153E-13", "6.5617E-9", "0.000081004", "1", "12345", "1.5240E+8", "1.8814E+12", "2.3225E+16", "2.8672E+20", "1.7222E+5", "4.2187E+5",]
-    let res3: [String] = [ // .HALF_EVEN results
+    let res3: [String] = [ // .halfEven results
         "3.4877E-21", "4.3056E-17", "5.3153E-13", "6.5617E-9", "0.000081004", "1", "12345", "1.5240E+8", "1.8814E+12", "2.3225E+16", "2.8672E+20", "1.7222E+5", "4.2188E+5",]
-    let res4: [String] = [ // .HALF_UP results
+    let res4: [String] = [ // .halfUp results
         "3.4877E-21", "4.3056E-17", "5.3153E-13", "6.5617E-9", "0.000081004", "1", "12345", "1.5240E+8", "1.8814E+12", "2.3225E+16", "2.8672E+20", "1.7223E+5", "4.2188E+5",]
-    let res5: [String] = [ // .UP results
+    let res5: [String] = [ // .up results
         "3.4878E-21", "4.3057E-17", "5.3153E-13", "6.5618E-9", "0.000081005", "1", "12345", "1.5240E+8", "1.8814E+12", "2.3226E+16", "2.8672E+20", "1.7223E+5", "4.2188E+5",]
-    let res6: [String] = [ // .FLOOR results
+    let res6: [String] = [ // .floor results
         "3.4877E-21", "4.3056E-17", "5.3152E-13", "6.5617E-9", "0.000081004", "1", "12345", "1.5239E+8", "1.8813E+12", "2.3225E+16", "2.8671E+20", "1.7222E+5", "4.2187E+5",]
-    let res7: [String] = [ // .CEILING results
+    let res7: [String] = [ // .ceiling results
         "3.4878E-21", "4.3057E-17", "5.3153E-13", "6.5618E-9", "0.000081005", "1", "12345", "1.5240E+8", "1.8814E+12", "2.3226E+16", "2.8672E+20", "1.7223E+5", "4.2188E+5",]
 
     func test1() throws {
-        let rnd1 = Rounding(.DOWN, 5)
+        let rnd1 = Rounding(.down, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd1).asString(), res1[i])
         }
-        let rnd2 = Rounding(.HALF_DOWN, 5)
+        let rnd2 = Rounding(.halfDown, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd2).asString(), res2[i])
         }
-        let rnd3 = Rounding(.HALF_EVEN, 5)
+        let rnd3 = Rounding(.halfEven, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd3).asString(), res3[i])
         }
-        let rnd4 = Rounding(.HALF_UP, 5)
+        let rnd4 = Rounding(.halfUp, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd4).asString(), res4[i])
         }
-        let rnd5 = Rounding(.UP, 5)
+        let rnd5 = Rounding(.up, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd5).asString(), res5[i])
         }
-        let rnd6 = Rounding(.FLOOR, 5)
+        let rnd6 = Rounding(.floor, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd6).asString(), res6[i])
         }
-        let rnd7 = Rounding(.CEILING, 5)
+        let rnd7 = Rounding(.ceiling, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd7).asString(), res7[i])
         }

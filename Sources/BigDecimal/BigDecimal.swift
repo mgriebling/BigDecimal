@@ -19,8 +19,8 @@ infix operator ** : ExponentiationPrecedence
 /// A signed decimal value of unbounded precision.
 /// A BigDecimal value is represented as a signed *BInt* significand and a signed *Int* exponent.
 /// The value of a BigDecimal is *significand* \* 10^*exponent*</br>
-/// There are three special BigDecimal values: *NaN* designating Not a Number,</br>
-/// *InfinityP* deignating +Infinity and *InfinityN* designating -Infinity.
+/// There are three special BigDecimal values: *nan* designating Not a Number,</br>
+/// *infinity* deignating +Infinity and *infinityN* designating -Infinity.
 public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hashable {
     
     // Conversion table from 3 decimal digits to 10 bits
@@ -208,9 +208,9 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
 
         public var description: String {
             switch self {
-            case .BID:
+            case .bid:
                 return "Binary Integer Decimal encoding"
-            case .DPD:
+            case .dpd:
                 return "Densely Packed Decimal encoding"
             }
         }
@@ -219,10 +219,10 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
         // MARK: Enum Values
         
         /// Binary Integer Decimal encoding
-        case BID
+        case bid
         
         /// Densely Packed Decimal encoding
-        case DPD
+        case dpd
     }
 
     /// The BigDecimal display modes
@@ -230,35 +230,33 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
 
         public var description: String {
             switch self {
-            case .SCIENTIFIC:
+            case .scientific:
                 return "Display possibly using exponential notation"
-            case .ENGINEERING:
+            case .engineering:
                 return "Display possibly using exponential notation - exponents divisible by 3"
-            case .PLAIN:
+            case .plain:
                 return "Plain display without exponential notation"
             }
         }
 
-
         // MARK: - Enum values
-
         /// Display value possibly using exponential notation
-        case SCIENTIFIC
+        case scientific
         
         /// Display value possibly using exponential notation - exponents divisible by 3
-        case ENGINEERING
+        case engineering
         
         /// Display value without exponential notation
-        case PLAIN
+        case plain
     }
 
     static func parseString(_ s: String) -> BigDecimal {
         if s == "NaN" {
             return BigDecimal.flagNaN()
         } else if s == "+Infinity" {
-            return BigDecimal.InfinityP
+            return BigDecimal.infinity
         } else if s == "-Infinity" {
-            return BigDecimal.InfinityN
+            return BigDecimal.infinityN
         }
         enum State {
             case start
@@ -277,7 +275,7 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
         var negExponent = false
         for c in s {
             switch c {
-            case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9":
+              case "0"..."9":
                 if state == .start {
                     state = .inInteger
                     digits += 1
@@ -297,21 +295,18 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
                     expDigits += 1
                     exp.append(c)
                 }
-                break
             case ".":
                 if state == .start || state == .inInteger {
                     state = .inFraction
                 } else {
                     return BigDecimal.flagNaN()
                 }
-                break
             case "E", "e":
                 if state == .inInteger || state == .inFraction {
                     state = .startExponent
                 } else {
                     return BigDecimal.flagNaN()
                 }
-                break
             case "+":
                 if state == .start {
                     state = .inInteger
@@ -320,7 +315,6 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
                 } else {
                     return BigDecimal.flagNaN()
                 }
-                break
             case "-":
                 if state == .start {
                     state = .inInteger
@@ -331,7 +325,6 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
                 } else {
                     return BigDecimal.flagNaN()
                 }
-                break
             default:
                 return BigDecimal.flagNaN()
             }
@@ -353,24 +346,24 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
     
     static func flagNaN() -> BigDecimal {
         BigDecimal.NaNFlag = true
-        return BigDecimal.NaN
+        return BigDecimal.nan
     }
 
     
     // MARK: - Constants
     
     /// BigDecimal(0)
-    public static let ZERO = BigDecimal(0)
+    public static let zero = BigDecimal(0)
     /// BigDecimal(1)
-    public static let ONE = BigDecimal(1)
+    public static let one = BigDecimal(1)
     /// BigDecimal(10)
-    public static let TEN = BigDecimal(10)
+    public static let ten = BigDecimal(10)
     /// BigDecimal('NaN')
-    public static let NaN = BigDecimal(false, false, true)
+    public static let nan = BigDecimal(false, false, true)
     /// BigDecimal('+Infinity')
-    public static let InfinityP = BigDecimal(true, false, false)
+    public static let infinity = BigDecimal(true, false, false)
     /// BigDecimal('-Infinity')
-    public static let InfinityN = BigDecimal(false, true, false)
+    public static let infinityN = BigDecimal(false, true, false)
 
     
     // MARK: - Initializers
@@ -421,9 +414,9 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
         switch d.count {
         case 1:
             if d[0] == 1 {
-                self = BigDecimal.InfinityP
+                self = BigDecimal.infinity
             } else if d[0] == 2 {
-                self = BigDecimal.InfinityN
+                self = BigDecimal.infinityN
             } else {
                 self = BigDecimal.flagNaN()
             }
@@ -458,7 +451,7 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
         if d.isNaN {
             self = BigDecimal.flagNaN()
         } else if d.isInfinite {
-            self = d > 0.0 ? BigDecimal.InfinityP : BigDecimal.InfinityN
+            self = d > 0.0 ? BigDecimal.infinity : BigDecimal.infinityN
         } else {
             let bits = d.bitPattern
             var exponent = Int((bits >> 52) & 0x7ff)
@@ -525,8 +518,8 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
     ///
     /// - Parameters:
     ///   - value: The encoded value
-    ///   - encoding: The encoding, default is .DPD
-    public init(_ value: UInt32, _ encoding: BigDecimal.Encoding = .DPD) {
+    ///   - encoding: The encoding, default is .dpd
+    public init(_ value: UInt32, _ encoding: BigDecimal.Encoding = .dpd) {
         self = Decimal32(value, encoding).asBigDecimal()
     }
 
@@ -534,8 +527,8 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
     ///
     /// - Parameters:
     ///   - value: The encoded value
-    ///   - encoding: The encoding, default is .DPD
-    public init(_ value: UInt64, _ encoding: BigDecimal.Encoding = .DPD) {
+    ///   - encoding: The encoding, default is .dpd
+    public init(_ value: UInt64, _ encoding: BigDecimal.Encoding = .dpd) {
         self = Decimal64(value, encoding).asBigDecimal()
     }
 
@@ -543,8 +536,8 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
     ///
     /// - Parameters:
     ///   - value: The encoded value
-    ///   - encoding: The encoding, default is .DPD
-    public init(_ value: UInt128, _ encoding: BigDecimal.Encoding = .DPD) {
+    ///   - encoding: The encoding, default is .dpd
+    public init(_ value: UInt128, _ encoding: BigDecimal.Encoding = .dpd) {
         self = Decimal128(value, encoding).asBigDecimal()
     }
 
@@ -574,7 +567,7 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
         if self.isNaN {
             return BigDecimal.flagNaN()
         } else if self.isInfinite {
-            return BigDecimal.InfinityP
+            return BigDecimal.infinity
         } else {
             return BigDecimal(self.significand.abs, self.exponent)
         }
@@ -652,7 +645,7 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
     /// - Parameters:
     ///   - mode: The display mode - *SCIENTIFIC* is default
     /// - Returns: *self* encoded as a string in accordance with the display mode
-    public func asString(_ mode: DisplayMode = .SCIENTIFIC) -> String {
+    public func asString(_ mode: DisplayMode = .scientific) -> String {
         if self.isNaN {
             return "NaN"
         } else if self.isInfinite {
@@ -660,10 +653,7 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
         }
         var exp = self.precision + self.exponent - 1
         var s = self.significand.abs.asString()
-        if mode == .PLAIN || (self.exponent <= 0 && exp >= -6) {
-
-            // .PLAIN notation
-            
+        if mode == .plain || (self.exponent <= 0 && exp >= -6) {
             if self.exponent > 0 {
                 if !self.significand.isZero {
                     for _ in 0 ..< self.exponent {
@@ -681,10 +671,8 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
                     s.insert("0", at: s.startIndex)
                 }
             }
-        } else if mode == .SCIENTIFIC {
-            
+        } else if mode == .scientific {
             // .SCIENTIFIC notation
-            
             if s.count > 1 {
                 s.insert(".", at: s.index(s.startIndex, offsetBy: 1))
             }
@@ -694,9 +682,7 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
             }
             s.append(exp.description)
         } else {
-
-            // .ENGINEERING notation
-            
+            // .engineering notation
             switch exp % 3 {
             case 1, -2:
                 if self.isZero {
@@ -713,7 +699,6 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
                     }
                     exp -= 1
                 }
-                break
             case -1, 2:
                 if self.isZero {
                     s.append(".0")
@@ -729,12 +714,10 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
                     }
                     exp -= 2
                 }
-                break
             default:
                 if !self.isZero && s.count > 1 {
                     s.insert(".", at: s.index(s.startIndex, offsetBy: 1))
                 }
-                break
             }
             if exp > 0 {
                 s.append("E+")
@@ -866,27 +849,27 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
     /// *self* as a Decimal32 value
     ///
     /// - Parameters:
-    ///   - encoding: The encoding of the result - DPD is the default
+    ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal32 value
-    public func asDecimal32(_ encoding: BigDecimal.Encoding = .DPD) -> UInt32 {
+    public func asDecimal32(_ encoding: BigDecimal.Encoding = .dpd) -> UInt32 {
         return Decimal32(self).asUInt32(encoding)
     }
     
     /// *self* as a Decimal64 value
     ///
     /// - Parameters:
-    ///   - encoding: The encoding of the result - DPD is the default
+    ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal64 value
-    public func asDecimal64(_ encoding: BigDecimal.Encoding = .DPD) -> UInt64 {
+    public func asDecimal64(_ encoding: BigDecimal.Encoding = .dpd) -> UInt64 {
         return Decimal64(self).asUInt64(encoding)
     }
     
     /// *self* as a Decimal128 value
     ///
     /// - Parameters:
-    ///   - encoding: The encoding of the result - DPD is the default
+    ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal128 value
-    public func asDecimal128(_ encoding: BigDecimal.Encoding = .DPD) -> UInt128 {
+    public func asDecimal128(_ encoding: BigDecimal.Encoding = .dpd) -> UInt128 {
         return Decimal128(self).asUInt128(encoding)
     }
 
@@ -1000,22 +983,18 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
             m -= 1
         }
         switch ctx.mode {
-        case .CEILING:
+        case .ceiling:
             q = q.isNegative ? q : q + 1
+        case .down:
             break
-        case .DOWN:
-            break
-        case .FLOOR:
+        case .floor:
             q = q.isNegative ? q - 1 : q
-            break
-        case .HALF_DOWN, .HALF_EVEN, .HALF_UP:
+        case .halfDown, .halfEven, .halfUp:
             if r >= 5 || r <= -5 {
                 q = q.isNegative ? q - 1 : q + 1
             }
-            break
-        case .UP:
+        case .up:
             q = q.isNegative ? q - 1 : q + 1
-            break
         }
         return BigDecimal(q, self.exponent - d.exponent - m)
     }
@@ -1052,13 +1031,13 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
             return BigDecimal.flagNaN()
         } else if self.isInfinite {
             if n < 0 {
-                return BigDecimal.ZERO
+                return BigDecimal.zero
             } else {
-                return n == 0 ? BigDecimal.ONE : (self.isPositive || n & 1 == 0 ? BigDecimal.InfinityP : BigDecimal.InfinityN)
+                return n == 0 ? BigDecimal.one : (self.isPositive || n & 1 == 0 ? BigDecimal.infinity : BigDecimal.infinityN)
             }
         }
         if n < 0 {
-            return self.isZero ? BigDecimal.InfinityP : BigDecimal.ONE.divide(BigDecimal(self.significand ** (-n), self.exponent * (-n)), rnd)
+            return self.isZero ? BigDecimal.infinity : BigDecimal.one.divide(BigDecimal(self.significand ** (-n), self.exponent * (-n)), rnd)
         } else {
             let x = BigDecimal(self.significand ** n, self.exponent * n)
             return rnd == nil ? x : rnd!.round(x)
@@ -1152,7 +1131,7 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
         if x.isNaN {
             return BigDecimal.flagNaN()
         } else if x.isInfinite {
-            return x.isNegative ? BigDecimal.InfinityP : BigDecimal.InfinityN
+            return x.isNegative ? BigDecimal.infinity : BigDecimal.infinityN
         } else {
             return BigDecimal(-x.significand, x.exponent)
         }
@@ -1229,7 +1208,7 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
             if x.isZero || y.isZero {
                 return BigDecimal.flagNaN()
             } else {
-                return x.signum == y.signum ? BigDecimal.InfinityP : BigDecimal.InfinityN
+                return x.signum == y.signum ? BigDecimal.infinity : BigDecimal.infinityN
             }
         }
         return BigDecimal(x.significand * y.significand, x.exponent + y.exponent)
@@ -1331,16 +1310,16 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
             if d.isInfinite {
                 return (true, BigDecimal.flagNaN(), BigDecimal.flagNaN())
             } else if d.isNegative {
-                return (true, (self.isPositive ? BigDecimal.InfinityN : BigDecimal.InfinityP), BigDecimal.flagNaN())
+                return (true, (self.isPositive ? BigDecimal.infinityN : BigDecimal.infinity), BigDecimal.flagNaN())
             } else {
-                return (true, (self.isNegative ? BigDecimal.InfinityN : BigDecimal.InfinityP), BigDecimal.flagNaN())
+                return (true, (self.isNegative ? BigDecimal.infinityN : BigDecimal.infinity), BigDecimal.flagNaN())
             }
         } else if d.isInfinite {
-            return (true, BigDecimal.ZERO, self)
+            return (true, BigDecimal.zero, self)
         } else if d.isZero {
-            return self.isZero ? (true, BigDecimal.flagNaN(), BigDecimal.flagNaN()) : (self.isPositive ? (true, BigDecimal.InfinityP, BigDecimal.flagNaN()) : (true, BigDecimal.InfinityN, BigDecimal.flagNaN()))
+            return self.isZero ? (true, BigDecimal.flagNaN(), BigDecimal.flagNaN()) : (self.isPositive ? (true, BigDecimal.infinity, BigDecimal.flagNaN()) : (true, BigDecimal.infinityN, BigDecimal.flagNaN()))
         } else {
-            return (false, BigDecimal.ZERO, BigDecimal.ZERO)
+            return (false, BigDecimal.zero, BigDecimal.zero)
         }
     }
 
@@ -1720,7 +1699,7 @@ public struct BigDecimal: LosslessStringConvertible, Comparable, Equatable, Hash
     /// - Returns: Same value as *self* possibly rounded, with same exponent as *other*
     public func quantize(_ other: BigDecimal, _ mode: Rounding.Mode) -> BigDecimal {
         if self.isInfinite && other.isInfinite {
-            return self.isPositive ? BigDecimal.InfinityP : BigDecimal.InfinityN
+            return self.isPositive ? BigDecimal.infinity : BigDecimal.infinityN
         } else if other.isInfinite {
             return BigDecimal.flagNaN()
         } else {

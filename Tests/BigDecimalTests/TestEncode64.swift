@@ -49,8 +49,8 @@ final class TestEncode64: XCTestCase {
 
     func test1() {
         for t in tests1 {
-            XCTAssertEqual(Decimal64(t.dec, .DPD).asBigDecimal().asString(), t.x)
-            XCTAssertEqual(Decimal64(BigDecimal(t.x)).asUInt64(.DPD), t.dec)
+            XCTAssertEqual(Decimal64(t.dec, .dpd).asBigDecimal().asString(), t.x)
+            XCTAssertEqual(Decimal64(BigDecimal(t.x)).asUInt64(.dpd), t.dec)
         }
         XCTAssertFalse(BigDecimal.NaNFlag)
     }
@@ -68,7 +68,7 @@ final class TestEncode64: XCTestCase {
 
     func test2() {
         for t in tests2 {
-            XCTAssertEqual(Decimal64(t.dec, .DPD).asBigDecimal().asString(), t.x)
+            XCTAssertEqual(Decimal64(t.dec, .dpd).asBigDecimal().asString(), t.x)
         }
         XCTAssertFalse(BigDecimal.NaNFlag)
     }
@@ -86,10 +86,10 @@ final class TestEncode64: XCTestCase {
 
     func test3() {
         for t in tests3 {
-            let bd = Decimal64(t.dec, .DPD).asBigDecimal()
+            let bd = Decimal64(t.dec, .dpd).asBigDecimal()
             XCTAssertTrue(bd.isInfinite || bd.isNaN)
         }
-        XCTAssertTrue(Decimal64(BigDecimal.NaN).asBigDecimal().isNaN)
+        XCTAssertTrue(Decimal64(BigDecimal.nan).asBigDecimal().isNaN)
         XCTAssertTrue(BigDecimal.NaNFlag)
     }
 

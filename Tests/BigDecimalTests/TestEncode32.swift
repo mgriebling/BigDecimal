@@ -49,7 +49,7 @@ final class TestEncode32: XCTestCase {
 
     func test1() {
         for t in tests1 {
-            XCTAssertEqual(Decimal32(t.dec, .DPD).asBigDecimal().asString(), t.x)
+            XCTAssertEqual(Decimal32(t.dec, .dpd).asBigDecimal().asString(), t.x)
             XCTAssertEqual(BigDecimal(t.dec).asString(), t.x)
         }
         XCTAssertFalse(BigDecimal.NaNFlag)
@@ -68,7 +68,7 @@ final class TestEncode32: XCTestCase {
 
     func test2() {
         for t in tests2 {
-            XCTAssertEqual(Decimal32(t.dec, .DPD).asBigDecimal().asString(), t.x)
+            XCTAssertEqual(Decimal32(t.dec, .dpd).asBigDecimal().asString(), t.x)
         }
         XCTAssertFalse(BigDecimal.NaNFlag)
     }
@@ -86,10 +86,10 @@ final class TestEncode32: XCTestCase {
 
     func test3() {
         for t in tests3 {
-            let bd = Decimal32(t.dec, .DPD).asBigDecimal()
+            let bd = Decimal32(t.dec, .dpd).asBigDecimal()
             XCTAssertTrue(bd.isInfinite || bd.isNaN)
         }
-        XCTAssertTrue(Decimal32(BigDecimal.NaN).asBigDecimal().isNaN)
+        XCTAssertTrue(Decimal32(BigDecimal.nan).asBigDecimal().isNaN)
         XCTAssertTrue(BigDecimal.NaNFlag)
     }
 

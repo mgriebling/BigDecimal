@@ -109,7 +109,7 @@ final class TestAsString: XCTestCase {
     func test1() throws {
         for t in tests1 {
             XCTAssertEqual(BigDecimal(t.x).asString(), t.sciRes)
-            XCTAssertEqual(BigDecimal(t.x).asString(.ENGINEERING), t.engRes)
+            XCTAssertEqual(BigDecimal(t.x).asString(.engineering), t.engRes)
         }
     }
 
@@ -145,7 +145,7 @@ final class TestAsString: XCTestCase {
     func test2() throws {
         for t in tests2 {
             XCTAssertEqual(BigDecimal(t.x).asString(), t.sciRes)
-            XCTAssertEqual(BigDecimal(t.x).asString(.ENGINEERING), t.engRes)
+            XCTAssertEqual(BigDecimal(t.x).asString(.engineering), t.engRes)
         }
     }
     
@@ -180,12 +180,32 @@ final class TestAsString: XCTestCase {
     ]
     
     func test3() throws {
-        let rnd = Rounding(.HALF_UP, 16)
+        let rnd = Rounding(.halfUp, 16)
         for t in tests3 {
             XCTAssertEqual(rnd.round(BigDecimal(t.x)).asString(), t.sciRes)
-            XCTAssertEqual(rnd.round(BigDecimal(t.x)).asString(.ENGINEERING), t.engRes)
+            XCTAssertEqual(rnd.round(BigDecimal(t.x)).asString(.engineering), t.engRes)
         }
     }
+  
+  func testPerformanceBigDecimalFromString() {
+    // UInt128 from String is 39X faster than UInt128 from Gerber
+    self.measure {
+      for _ in 1...1000 {
+        let _ = BigDecimal("123456789012345678901234567890")
+      }
+    }
+  }
+  
+  func testPerformanceBigDecimalToString() {
+    // UInt128 to String is 23X faster than Apple's version
+    let n = BigDecimal(1234).pow(20)
+    self.measure {
+      for _ in 1...1000 {
+        let _ = n.asString()
+      }
+    }
+    print(n)
+  }
 
     let tests4: [test] = [
         test("7E12", "7E+12", "7E+12"),
@@ -219,7 +239,7 @@ final class TestAsString: XCTestCase {
     func test4() throws {
         for t in tests4 {
             XCTAssertEqual(BigDecimal(t.x).asString(), t.sciRes)
-            XCTAssertEqual(BigDecimal(t.x).asString(.ENGINEERING), t.engRes)
+            XCTAssertEqual(BigDecimal(t.x).asString(.engineering), t.engRes)
         }
     }
 

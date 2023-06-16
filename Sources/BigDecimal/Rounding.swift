@@ -16,19 +16,19 @@ public struct Rounding: Equatable {
 
         public var description: String {
             switch self {
-            case .CEILING:
+            case .ceiling:
                 return "Round towards +infinity"
-            case .DOWN:
+            case .down:
                 return "Round towards 0"
-            case .FLOOR:
+            case .floor:
                 return "Round towards -infinity"
-            case .HALF_DOWN:
+            case .halfDown:
                 return "Round to nearest, tie towards 0"
-            case .HALF_EVEN:
+            case .halfEven:
                 return "Round to nearest, tie to even"
-            case .HALF_UP:
+            case .halfUp:
                 return "Round to nearest, tie away from 0"
-            case .UP:
+            case .up:
                 return "Round away from 0"
             }
         }
@@ -37,30 +37,30 @@ public struct Rounding: Equatable {
         // MARK: - Enum values
 
         /// Round towards +infinity
-        case CEILING
+        case ceiling
         /// Round towards 0
-        case DOWN
+        case down
         /// Round towards -infinity
-        case FLOOR
+        case floor
         /// Round to nearest, tie towards 0
-        case HALF_DOWN
+        case halfDown
         /// Round to nearest, tie to even
-        case HALF_EVEN
+        case halfEven
         /// Round to nearest, tie away from 0
-        case HALF_UP
+        case halfUp
         /// Round away from 0
-        case UP
+        case up
     }
     
     
     // MARK: Constants
 
     /// Decimal32 rounding: HALF_EVEN, 7
-    public static let decimal32 = Rounding(.HALF_EVEN, 7)
+    public static let decimal32 = Rounding(.halfEven, 7)
     /// Decimal64 rounding: HALF_EVEN, 16
-    public static let decimal64 = Rounding(.HALF_EVEN, 16)
+    public static let decimal64 = Rounding(.halfEven, 16)
     /// Decimal128 rounding: HALF_EVEN, 34
-    public static let decimal128 = Rounding(.HALF_EVEN, 34)
+    public static let decimal128 = Rounding(.halfEven, 34)
 
 
     // MARK: - Initializer
@@ -126,39 +126,32 @@ public struct Rounding: Equatable {
             let d1 = x - qq1
             let d2 = qq2 - x
             switch self.mode {
-            case .CEILING:
+            case .ceiling:
                 q = q2
-                break
-            case .DOWN:
+            case .down:
                 q = q.isNegative ? q2 : q1
-                break
-            case .FLOOR:
+            case .floor:
                 q = q1
-                break
-            case .HALF_DOWN:
+            case .halfDown:
                 if d1 == d2 {
                     q = negative ? q2 : q1
                 } else {
                     q = d1 < d2 ? q1 : q2
                 }
-                break
-            case .HALF_EVEN:
+            case .halfEven:
                 if d1 == d2 {
                     q = q1.isEven ? q1 : q2
                 } else {
                     q = d1 < d2 ? q1 : q2
                 }
-                break
-            case .HALF_UP:
+            case .halfUp:
                 if d1 == d2 {
                     q = negative ? q1 : q2
                 } else {
                     q = d1 < d2 ? q1 : q2
                 }
-                break
-            case .UP:
+            case .up:
                 q = q.isNegative ? q1 : q2
-                break
             }
         }
         return q
