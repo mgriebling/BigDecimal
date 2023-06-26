@@ -9,19 +9,12 @@ import Foundation
 import BigInt
 import UInt128
 
-precedencegroup ExponentiationPrecedence {
-    associativity: left
-    higherThan: MultiplicationPrecedence
-    lowerThan: BitwiseShiftPrecedence
-}
-
-infix operator ** : ExponentiationPrecedence
-
 /// A signed decimal value of unbounded precision.
-/// A Self value is represented as a signed *BInt* significand and a signed *Int* exponent.
-/// The value of a Self is *significand* \* 10^*exponent*</br>
-/// There are three special Self values: *nan* designating Not a Number,</br>
-/// *infinity* deignating +Infinity and *infinityN* designating -Infinity.
+/// A ``BigDecimal`` value is represented as a signed *BInt* significand
+/// and a signed *Int* exponent.
+/// The value of a Self is *significand* \* 10^*exponent*.
+/// There are three special ``BigDecimal`` values: ``nan`` designating
+/// Not a Number, ``infinity`` designating +Infinity and *infinityN* designating -Infinity.
 public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     
     // MARK: - Constants
@@ -72,7 +65,8 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
         self.precision = significand.abs.asString().count
     }
     
-    /// Constructs a BigDecimal from its String encoding - NaN if the string does not designate a decimal number
+    /// Constructs a BigDecimal from its String encoding - NaN if the string
+    /// does not designate a decimal number
     ///
     /// - Parameters:
     ///   - s: The String encoding
@@ -80,7 +74,8 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
         self = Self.parseString(s)
     }
     
-    /// Constructs a BigDecimal from its Data encoding - NaN if the encoding is wrong
+    /// Constructs a BigDecimal from its Data encoding - NaN if the encoding
+    /// is wrong
     ///
     /// - Parameters:
     ///   - d: The Data encoding
@@ -98,20 +93,7 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
                 self = Self.flagNaN()
             default:
                 var exp = Int(d[0])
-                exp <<= 8
-                exp += Int(d[1])
-                exp <<= 8
-                exp += Int(d[2])
-                exp <<= 8
-                exp += Int(d[3])
-                exp <<= 8
-                exp += Int(d[4])
-                exp <<= 8
-                exp += Int(d[5])
-                exp <<= 8
-                exp += Int(d[6])
-                exp <<= 8
-                exp += Int(d[7])
+                for i in 1...7 { exp <<= 8; exp += Int(d[i]) }
                 let sig = BInt(signed: Bytes(d[8 ..< d.count]))
                 self.init(sig, exp)
         }
@@ -129,7 +111,9 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
         } else {
             let bits = d.bitPattern
             var exponent = Int((bits >> 52) & 0x7ff)
-            var significand = exponent == 0 ? Int((bits & 0xfffffffffffff) << 1) : Int((bits & 0xfffffffffffff) | 0x10000000000000)
+            var significand = exponent == 0
+                            ? Int((bits & 0xfffffffffffff) << 1)
+                            : Int((bits & 0xfffffffffffff) | 0x10000000000000)
             exponent -= 1075
             if significand == 0 {
                 self.init(BInt.zero)
@@ -214,7 +198,8 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     /// The signed BInt significand
     public internal(set) var significand: BInt
     
-    /// The signed exponent - the value of *self* is *self.significand* * 10^*self.exponent*
+    /// The signed exponent - the value of *self* is *self.significand* *
+    /// 10^*self.exponent*
     public internal(set) var exponent: Int
     
     /// The number of decimal digits in *significand*
@@ -231,7 +216,6 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
 extension BigDecimal : LosslessStringConvertible { }
 
 extension BigDecimal : ExpressibleByIntegerLiteral {
-    
     public init(integerLiteral value: StaticBigInt) {
         let bint = BInt(integerLiteral: value)
         self = BigDecimal(bint)
@@ -244,13 +228,8 @@ extension BigDecimal {
 
     /// The absolute value of *self*
     public var abs: Self {
-        if self.isNaN {
-            return Self.flagNaN()
-        } else if self.isInfinite {
-            return Self.infinity
-        } else {
-            return Self(self.significand.abs, self.exponent)
-        }
+        isNaN ? Self.flagNaN()
+              : (isInfinite ? Self.infinity : Self(significand.abs, exponent))
     }
     
     /// Apple's preferred `abs` getter
@@ -304,9 +283,9 @@ extension BigDecimal {
     
     // MARK: Static variables
 
-    /// NaN flag - set to *true* whenever a NaN value is generated</br>
+    /// NaN flag - set to *true* whenever a NaN value is generated
     /// Can be set to *false* by application code
-    // FIXME: - Not really thread safe
+    // FIXME: - Not really thread safe or likely very functional
     public static var NaNFlag = false
 
     // MARK: Conversion functions
@@ -314,8 +293,9 @@ extension BigDecimal {
     /// *self* as a string
     ///
     /// - Parameters:
-    ///   - mode: The display mode - *SCIENTIFIC* is default
-    /// - Returns: *self* encoded as a string in accordance with the display mode
+    ///   - mode: The display mode - *scientific* is default
+    /// - Returns: *self* encoded as a string in accordance with the display
+    ///   `mode`.
     public func asString(_ mode: DisplayMode = .scientific) -> String {
         if self.isNaN {
             return "NaN"
@@ -333,7 +313,8 @@ extension BigDecimal {
                 }
             } else if self.exponent < 0 {
                 if -self.exponent < self.precision {
-                    s.insert(".", at: s.index(s.startIndex, offsetBy: self.precision + self.exponent))
+                    s.insert(".", at: s.index(s.startIndex, offsetBy:
+                                            self.precision + self.exponent))
                 } else {
                     for _ in 0 ..< -(self.exponent + self.precision) {
                         s.insert("0", at: s.startIndex)
@@ -415,30 +396,16 @@ extension BigDecimal {
         }
         var expBytes = [UInt8](repeating: 0, count: 8)
         var exp = self.exponent
-        expBytes[7] = UInt8(exp & 0xff)
-        exp >>= 8
-        expBytes[6] = UInt8(exp & 0xff)
-        exp >>= 8
-        expBytes[5] = UInt8(exp & 0xff)
-        exp >>= 8
-        expBytes[4] = UInt8(exp & 0xff)
-        exp >>= 8
-        expBytes[3] = UInt8(exp & 0xff)
-        exp >>= 8
-        expBytes[2] = UInt8(exp & 0xff)
-        exp >>= 8
-        expBytes[1] = UInt8(exp & 0xff)
-        exp >>= 8
-        expBytes[0] = UInt8(exp & 0xff)
+        for index in (0...7).reversed() {
+            expBytes[index] = UInt8(exp & 0xff); exp >>= 8
+        }
         return Data(expBytes + self.significand.asSignedBytes())
     }
 
     /// *self* as a Double
     ///
     /// - Returns: *self* encoded as a Double, possibly *Infinity* or NaN
-    public func asDouble() -> Double {
-        return Double(self.asString())!
-    }
+    public func asDouble() -> Double { Double(self.asString())! }
 
     /// *self* as a Decimal (the Swift Foundation type)
     ///
@@ -466,55 +433,35 @@ extension BigDecimal {
         }
         assert(sig.limbs.count < 3)
         assert(-128 <= exp && exp < 128)
-        var s0 = UInt16(0)
-        var s1 = UInt16(0)
-        var s2 = UInt16(0)
-        var s3 = UInt16(0)
-        var s4 = UInt16(0)
-        var s5 = UInt16(0)
-        var s6 = UInt16(0)
-        var s7 = UInt16(0)
-        var length = UInt32(1)
-        var r: Int
-        (sig, r) = sig.quotientAndRemainder(dividingBy: 0x10000)
-        s0 = UInt16(r)
-        if sig > 0 {
+        
+        func decode() -> UInt16 {
             (sig, r) = sig.quotientAndRemainder(dividingBy: 0x10000)
-            s1 = UInt16(r)
-            length += 1
-            if sig > 0 {
-                (sig, r) = sig.quotientAndRemainder(dividingBy: 0x10000)
-                s2 = UInt16(r)
-                length += 1
-                if sig > 0 {
-                    (sig, r) = sig.quotientAndRemainder(dividingBy: 0x10000)
-                    s3 = UInt16(r)
-                    length += 1
-                    if sig > 0 {
-                        (sig, r) = sig.quotientAndRemainder(dividingBy: 0x10000)
-                        s4 = UInt16(r)
-                        length += 1
-                        if sig > 0 {
-                            (sig, r) = sig.quotientAndRemainder(dividingBy: 0x10000)
-                            s5 = UInt16(r)
-                            length += 1
-                            if sig > 0 {
-                                (sig, r) = sig.quotientAndRemainder(dividingBy: 0x10000)
-                                s6 = UInt16(r)
-                                length += 1
-                                if sig > 0 {
-                                    (sig, r) = sig.quotientAndRemainder(dividingBy: 0x10000)
-                                    s7 = UInt16(r)
-                                    length += 1
-                                }
-                            }
-                        }
-                    }
-                }
+            return UInt16(r)
+        }
+        
+        var s0 = UInt16(0), s1 = UInt16(0), s2 = UInt16(0), s3 = UInt16(0)
+        var s4 = UInt16(0), s5 = UInt16(0), s6 = UInt16(0), s7 = UInt16(0)
+        var length = UInt32(1)
+        var r: Int = 0
+        
+        s0 = decode()
+        while sig > 0 {
+            switch length {
+                case 1: s1 = decode()
+                case 2: s2 = decode()
+                case 3: s3 = decode()
+                case 4: s4 = decode()
+                case 5: s5 = decode()
+                case 6: s6 = decode()
+                case 7: s7 = decode()
+                default: break
             }
+            length += 1
         }
         assert(sig < 0x10000)
-        return Decimal(_exponent: Int32(exp), _length: length, _isNegative: self < 0 ? 1 : 0, _isCompact: 0, _reserved: 0, _mantissa: (s0, s1, s2, s3, s4, s5, s6, s7))
+        return Decimal(_exponent: Int32(exp), _length: length,
+                       _isNegative: self < 0 ? 1 : 0, _isCompact: 0,
+                       _reserved: 0, _mantissa: (s0,s1,s2,s3,s4,s5,s6,s7))
     }
     
     /// *self* as a Decimal32 value
@@ -522,7 +469,7 @@ extension BigDecimal {
     /// - Parameters:
     ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal32 value
-    public func asDecimal32(_ encoding: Self.Encoding = .dpd) -> UInt32 {
+    public func asDecimal32(_ encoding: Encoding = .dpd) -> UInt32 {
         return Decimal32(self).asUInt32(encoding)
     }
     
@@ -531,7 +478,7 @@ extension BigDecimal {
     /// - Parameters:
     ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal64 value
-    public func asDecimal64(_ encoding: Self.Encoding = .dpd) -> UInt64 {
+    public func asDecimal64(_ encoding: Encoding = .dpd) -> UInt64 {
         return Decimal64(self).asUInt64(encoding)
     }
     
@@ -540,7 +487,7 @@ extension BigDecimal {
     /// - Parameters:
     ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal128 value
-    public func asDecimal128(_ encoding: Self.Encoding = .dpd) -> UInt128 {
+    public func asDecimal128(_ encoding: Encoding = .dpd) -> UInt128 {
         return Decimal128(self).asUInt128(encoding)
     }
 
@@ -784,14 +731,14 @@ extension BigDecimal {
     ///   - x: Multiplier
     ///   - y: Multiplicand
     /// - Returns: x \* y
-    public static func *(x: Self, y: Self) -> Self {
+    public static func * (x: Self, y: Self) -> Self {
         if x.isNaN || y.isNaN {
             return Self.flagNaN()
         } else if x.isInfinite || y.isInfinite {
             if x.isZero || y.isZero {
                 return Self.flagNaN()
             } else {
-                return x.signum == y.signum ? Self.infinity : Self.infinityN
+                return x.signum == y.signum ? infinity : -infinity
             }
         }
         return Self(x.significand * y.significand, x.exponent + y.exponent)
@@ -894,7 +841,7 @@ extension BigDecimal {
     /// - Parameters:
     ///   - x: Dividend
     ///   - y: Divisor
-    public static func %=(x: inout Self, y: Self) {
+    public static func %= (x: inout Self, y: Self) {
         x = x.quotientAndRemainder(y).remainder
     }
 
@@ -932,7 +879,8 @@ extension BigDecimal {
             } else if self.exponent > x.exponent {
                 cmp = (self.significand.abs * Rounding.pow10(self.exponent - x.exponent)).comparedTo(x.significand.abs)
             } else {
-                cmp = self.significand.abs.comparedTo(x.significand.abs * Rounding.pow10(x.exponent - self.exponent))
+                cmp = self.significand.abs.comparedTo(x.significand.abs *
+                                Rounding.pow10(x.exponent - self.exponent))
             }
             return ssignum > 0 ? cmp : -cmp
         }
@@ -1187,6 +1135,14 @@ extension BigDecimal {
         return Self.nan
     }
 }
+
+precedencegroup ExponentiationPrecedence {
+    associativity: left
+    higherThan: MultiplicationPrecedence
+    lowerThan: BitwiseShiftPrecedence
+}
+
+infix operator ** : ExponentiationPrecedence
 
 extension BigDecimal {
     

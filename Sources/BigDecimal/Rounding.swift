@@ -14,28 +14,6 @@ public struct Rounding: Equatable {
     /// The rounding modes
     public enum Mode: CustomStringConvertible {
 
-        public var description: String {
-            switch self {
-            case .ceiling:
-                return "Round towards +infinity"
-            case .down:
-                return "Round towards 0"
-            case .floor:
-                return "Round towards -infinity"
-            case .halfDown:
-                return "Round to nearest, tie towards 0"
-            case .halfEven:
-                return "Round to nearest, tie to even"
-            case .halfUp:
-                return "Round to nearest, tie away from 0"
-            case .up:
-                return "Round away from 0"
-            }
-        }
-
-        
-        // MARK: - Enum values
-
         /// Round towards +infinity
         case ceiling
         /// Round towards 0
@@ -50,6 +28,18 @@ public struct Rounding: Equatable {
         case halfUp
         /// Round away from 0
         case up
+        
+        public var description: String {
+            switch self {
+            case .ceiling:  return "Round towards +infinity"
+            case .down:     return "Round towards 0"
+            case .floor:    return "Round towards -infinity"
+            case .halfDown: return "Round to nearest, tie towards 0"
+            case .halfEven: return "Round to nearest, tie to even"
+            case .halfUp:   return "Round to nearest, tie away from 0"
+            case .up:       return "Round away from 0"
+            }
+        }
     }
     
     
