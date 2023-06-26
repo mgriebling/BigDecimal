@@ -106,7 +106,7 @@ public struct Rounding: Equatable {
         let pr = q.abs.asString().count
         if pr > self.precision {
             // 999.9 => 1000
-            return BigDecimal(q / BInt.TEN, x.exponent + d + 1)
+            return BigDecimal(q / BInt.ten, x.exponent + d + 1)
         } else {
             return BigDecimal(q, x.exponent + d)
         }
@@ -181,7 +181,7 @@ public struct Rounding: Equatable {
     
     static func pow10(_ n: Int) -> BInt {
         assert(n >= 0)
-        return n < pow10table.count ? pow10table[n] : BInt.TEN ** n
+        return n < pow10table.count ? pow10table[n] : BInt.ten ** n
     }
 
 }

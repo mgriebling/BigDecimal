@@ -25,8 +25,8 @@ class TestDecimal128Encoding: XCTestCase {
 
     func string2UInt128(_ s: String) -> UInt128 {
         let b = BInt(s, radix: 16)!
-        let lo = b.magnitude[0]
-        let hi = b.magnitude.count == 1 ? 0 : b.magnitude[1]
+        let lo = b.limbs[0]
+        let hi = b.limbs.count == 1 ? 0 : b.limbs[1]
         return UInt128(hi, lo)
     }
 

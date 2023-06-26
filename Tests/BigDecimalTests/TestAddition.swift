@@ -216,4 +216,21 @@ class TestAddition: XCTestCase {
             XCTAssertEqual(BigDecimal(t.x).add(BigDecimal(t.y), rnd).asString(), t.result)
         }
     }
+    
+    func test6() throws {
+        var x = BigDecimal.one + 1  // check mixed mode addition
+        XCTAssertEqual(x, BigDecimal(2))
+        
+        var y = 1 + BigDecimal.one  // check mixed mode addition
+        XCTAssertEqual(y, BigDecimal(2))
+        
+        x = BigDecimal.one - 2      // check mixed mode subtraction
+        XCTAssertEqual(x, -BigDecimal(1))
+        
+        y = 1 - BigDecimal.one      // check mixed mode subtraction
+        XCTAssertEqual(y, BigDecimal.zero)
+        
+        let z : BigDecimal = 1 + 1
+        XCTAssertEqual(z, BigDecimal(2))
+    }
 }

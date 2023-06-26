@@ -15,8 +15,8 @@ class TestConstructor: XCTestCase {
         BigDecimal.NaNFlag = false
     }
 
-    let value = BInt("12345908")!
-    let value2 = BInt("12334560000")!
+    let value = BInt(12345908)
+    let value2 = BInt(12334560000)
 
     func test1() {
         let big = BigDecimal(value)

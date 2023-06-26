@@ -23,14 +23,14 @@ class TestBigDecimal: XCTestCase {
         return x.significand == y.significand && x.exponent == y.exponent
     }
 
-    let value = BInt("12345908")!
-    let value2 = BInt("12334560000")!
+    let value = BInt(12345908)
+    let value2 = BInt(12334560000)
     
     func testAbs() throws {
         var big = BigDecimal("-1234")
         var bigabs = big.abs
         XCTAssertEqual(bigabs.asString(), "1234")
-        big = BigDecimal(BInt("2345")!, -2)
+        big = BigDecimal(BInt(2345), -2)
         bigabs = big.abs
         XCTAssertEqual(bigabs.asString(), "23.45")
         XCTAssertFalse(BigDecimal.NaNFlag)
@@ -139,7 +139,7 @@ class TestBigDecimal: XCTestCase {
         equal2 = BigDecimal("1.00")
         XCTAssertTrue(equal1 == equal2)
 
-        let val = BInt("100")!
+        let val = BInt(100)
         equal1 = BigDecimal("1.00")
         equal2 = BigDecimal(val, -2)
         XCTAssertTrue(equal1 == equal2)
