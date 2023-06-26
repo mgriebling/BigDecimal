@@ -12,6 +12,7 @@
 import XCTest
 @testable import BigDecimal
 import BigInt
+import UInt128
 
 class TestDecimal128Encoding: XCTestCase {
 
@@ -27,7 +28,7 @@ class TestDecimal128Encoding: XCTestCase {
         let b = BInt(s, radix: 16)!
         let lo = b.limbs[0]
         let hi = b.limbs.count == 1 ? 0 : b.limbs[1]
-        return UInt128(hi, lo)
+        return UInt128(high: hi, low: lo)
     }
 
     struct test {

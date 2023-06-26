@@ -7,6 +7,7 @@
 
 import Foundation
 import BigInt
+import UInt128
 
 precedencegroup ExponentiationPrecedence {
     associativity: left
