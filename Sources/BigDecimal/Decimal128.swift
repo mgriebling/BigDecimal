@@ -133,7 +133,7 @@ struct Decimal128 {
         if self.isNan {
             return BigDecimal.flagNaN()
         } else if self.isInfinite {
-            return self.sign ? BigDecimal.infinityN : BigDecimal.infinity
+            return self.sign ? -BigDecimal.infinity : BigDecimal.infinity
         } else {
             let sig = BInt([self.significand.components.low,
                             self.significand.components.high])

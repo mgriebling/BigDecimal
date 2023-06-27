@@ -27,9 +27,9 @@ class TestDecimal128: XCTestCase {
 
         let input: String
         let result: String
-        let mode: Mode
+        let mode: RoundingRule
 
-        init(_ input: String, _ result: String, _ mode: Mode = .toNearestOrEven) {
+        init(_ input: String, _ result: String, _ mode: RoundingRule = .toNearestOrEven) {
             self.input = input
             self.result = result
             self.mode = mode

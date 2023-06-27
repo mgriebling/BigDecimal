@@ -296,13 +296,14 @@ final class TestInfinityNaN: XCTestCase {
     }
 
     func testNaN() throws {
-        XCTAssertFalse(BigDecimal.nan < BigDecimal(1))
-        XCTAssertFalse(BigDecimal.nan <= BigDecimal(1))
-        XCTAssertFalse(BigDecimal.nan > BigDecimal(1))
-        XCTAssertFalse(BigDecimal.nan >= BigDecimal(1))
-        XCTAssertFalse(BigDecimal.nan == BigDecimal(1))
-        XCTAssertTrue(BigDecimal.nan != BigDecimal(1))
-        XCTAssertTrue(BigDecimal.nan != BigDecimal.nan)
+        let x = BigDecimal.nan
+        XCTAssertFalse(x < BigDecimal(1))
+        XCTAssertFalse(x <= BigDecimal(1))
+        XCTAssertFalse(x > BigDecimal(1))
+        XCTAssertFalse(x >= BigDecimal(1))
+        XCTAssertFalse(x == BigDecimal(1))
+        XCTAssertTrue(x != BigDecimal(1))
+        XCTAssertTrue(x != x)
         XCTAssertFalse(BigDecimal.NaNFlag)
         XCTAssertTrue(BigDecimal(BigDecimal.nan.asString()).isNaN)
         XCTAssertTrue(BigDecimal.NaNFlag)
@@ -352,7 +353,7 @@ final class TestInfinityNaN: XCTestCase {
 
     func testQuantize() throws {
         for t in testsQuantize {
-            XCTAssertEqual(BigDecimal(t.x).quantize(BigDecimal(t.y), Mode.toNearestOrEven).asString(), t.result)
+            XCTAssertEqual(BigDecimal(t.x).quantize(BigDecimal(t.y), RoundingRule.toNearestOrEven).asString(), t.result)
         }
         XCTAssertTrue(BigDecimal.NaNFlag)
     }

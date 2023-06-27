@@ -114,7 +114,7 @@ class TestDivision1: XCTestCase {
             [c,         b, BigDecimal("3.142")],
             [c_minus,   b, BigDecimal("-3.142")],
         ]
-        let mode: [Mode] = [
+        let mode: [RoundingRule] = [
             .up, .up, .down, .down, .awayFromZero, .awayFromZero, .towardZero,
             .towardZero, .toNearestOrAwayFromZero, .toNearestOrAwayFromZero,
             .down, .down, .toNearestOrEven, .toNearestOrEven, .toNearestOrEven,

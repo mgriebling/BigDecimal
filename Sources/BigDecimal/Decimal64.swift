@@ -115,9 +115,10 @@ struct Decimal64 {
         if self.isNan {
             return BigDecimal.flagNaN()
         } else if self.isInfinite {
-            return self.sign ? BigDecimal.infinityN : BigDecimal.infinity
+            return self.sign ? -BigDecimal.infinity : BigDecimal.infinity
         } else {
-            return BigDecimal(BInt(self.sign ? -Int(self.significand) : Int(self.significand)), Int(self.exponent) - 398)
+            return BigDecimal(BInt(self.sign ? -Int(self.significand)
+                            : Int(self.significand)), Int(self.exponent) - 398)
         }
     }
     

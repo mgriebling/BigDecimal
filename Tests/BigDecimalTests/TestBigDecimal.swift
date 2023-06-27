@@ -220,7 +220,7 @@ class TestBigDecimal: XCTestCase {
         let a = "-12380945E+61"
         let aNumber = BigDecimal(a)
         let precision = 6
-        let rm = Mode.towardZero
+        let rm = RoundingRule.towardZero
 
         let mcIntRm = Rounding(rm, precision)
         let mcStr = Rounding(.towardZero, 6)

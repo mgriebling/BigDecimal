@@ -552,7 +552,6 @@ public extension BigDecimal {
     
     private static var log2Cache: BigDecimal?
     private static func logTwo(_ mc: Rounding) -> Self {
-        // FIXME: - Multithreading protection needed
         if let result = log2Cache, mc.precision <= result.precision {
             return result.round(mc)
         } else {
@@ -563,7 +562,6 @@ public extension BigDecimal {
     
     private static var log3Cache: BigDecimal?
     private static func logThree(_ mc: Rounding) -> Self {
-        // FIXME: - Multithreading protection needed
         if let result = log3Cache, mc.precision <= result.precision {
             return result.round(mc)
         } else {
@@ -574,7 +572,6 @@ public extension BigDecimal {
     
     private static var log10Cache: BigDecimal?
     private static func logTen(_ mc: Rounding) -> Self {
-        // FIXME: - Multithreading protection needed
         if let result = log10Cache, mc.precision <= result.precision {
             return result.round(mc)
         } else {
