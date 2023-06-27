@@ -71,7 +71,7 @@ final class TestQuantize: XCTestCase {
     ]
     
     func test1() throws {
-        let rnd = Rounding(.halfUp, 9)
+        let rnd = Rounding(.toNearestOrAwayFromZero, 9)
         for t in tests1 {
             XCTAssertEqual(BigDecimal(t.x).quantize(BigDecimal(t.y), rnd.mode).asString(), t.result)
         }

@@ -78,7 +78,7 @@ class TestBigDecimal: XCTestCase {
     func testDivide2() throws {
         let divd1 = BigDecimal(value2, -4)
         var divd2 = BigDecimal("0.0023")
-        var divd3 = divd1.divide(divd2, Rounding(.halfUp, 12))
+        var divd3 = divd1.divide(divd2, Rounding(.toNearestOrAwayFromZero, 12))
         XCTAssertEqual(divd3.asString(), "536285217.391")
         XCTAssertEqual(divd3.exponent, -3)
         divd2 = BigDecimal(1345.5E-02)
@@ -220,11 +220,11 @@ class TestBigDecimal: XCTestCase {
         let a = "-12380945E+61"
         let aNumber = BigDecimal(a)
         let precision = 6
-        let rm = Rounding.Mode.halfDown
+        let rm = Mode.towardZero
 
         let mcIntRm = Rounding(rm, precision)
-        let mcStr = Rounding(.halfDown, 6)
-        let mcInt = Rounding(.halfUp, precision)
+        let mcStr = Rounding(.towardZero, 6)
+        let mcInt = Rounding(.toNearestOrAwayFromZero, precision)
         let res = aNumber.abs.round(mcInt)
         XCTAssertTrue(equals(res, BigDecimal("1.23809E+68")))
         XCTAssertEqual(mcIntRm, mcStr)

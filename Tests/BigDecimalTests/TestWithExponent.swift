@@ -50,7 +50,7 @@ final class TestWithExponent: XCTestCase {
     ]
 
     func test1() throws {
-        let rnd = Rounding(.halfUp, 9)
+        let rnd = Rounding(.toNearestOrAwayFromZero, 9)
         for t in tests1 {
             XCTAssertEqual(BigDecimal(t.x).withExponent(t.n, rnd.mode).asString(), t.result)
         }
@@ -69,7 +69,7 @@ final class TestWithExponent: XCTestCase {
     ]
 
     func test2() throws {
-        let rnd = Rounding(.halfUp, 7)
+        let rnd = Rounding(.toNearestOrAwayFromZero, 7)
         for t in tests2 {
             XCTAssertEqual(BigDecimal(t.x).withExponent(t.n, rnd.mode).asString(), t.result)
         }
@@ -97,7 +97,7 @@ final class TestWithExponent: XCTestCase {
     ]
 
     func test3() throws {
-        let rnd = Rounding(.halfUp, 15)
+        let rnd = Rounding(.toNearestOrAwayFromZero, 15)
         for t in tests3 {
             XCTAssertEqual(BigDecimal(t.x).withExponent(t.n, rnd.mode).asString(), t.result)
         }
@@ -143,7 +143,7 @@ final class TestWithExponent: XCTestCase {
     ]
 
     func test4() throws {
-        let rnd = Rounding(.halfUp, 9)
+        let rnd = Rounding(.toNearestOrAwayFromZero, 9)
         for t in tests4 {
             XCTAssertEqual(BigDecimal(t.x).withExponent(t.n, rnd.mode).asString(), t.result)
         }

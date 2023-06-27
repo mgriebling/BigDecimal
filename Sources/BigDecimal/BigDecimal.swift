@@ -5,7 +5,7 @@
 //  Created by Leif Ibsen on 10/11/2022.
 //
 
-import Foundation
+import Foundation   // For Data/Decimal data types
 import BigInt
 import UInt128
 
@@ -353,7 +353,7 @@ extension BigDecimal {
     }
     
     public mutating func round(_ rule:FloatingPointRoundingRule, _ digits:Int) {
-        self = Rounding(.halfEven, digits).round(self)
+        self = Rounding(.toNearestOrEven, digits).round(self)
     }
     
     public func isEqual(to other: BigDecimal) -> Bool {
@@ -457,7 +457,6 @@ extension BigDecimal {
 
     /// NaN flag - set to *true* whenever a NaN value is generated
     /// Can be set to *false* by application code
-    // FIXME: - Not really thread safe or likely very functional
     public static var NaNFlag = false
 
     // MARK: Conversion functions
@@ -469,6 +468,13 @@ extension BigDecimal {
     /// - Returns: *self* encoded as a string in accordance with the display
     ///   `mode`.
     public func asString(_ mode: DisplayMode = .scientific) -> String {
+        let expSymbol = "E"
+        let dp = "."
+        
+        func pad(_ len:Int) -> String {
+            "".padding(toLength: len, withPad: "0", startingAt: 0)
+        }
+        
         if self.isNaN {
             return "NaN"
         } else if self.isInfinite {
@@ -479,80 +485,71 @@ extension BigDecimal {
         if mode == .plain || (self.exponent <= 0 && exp >= -6) {
             if self.exponent > 0 {
                 if !self.digits.isZero {
-                    for _ in 0 ..< self.exponent {
-                        s.append("0")
-                    }
+                    s += pad(self.exponent)
                 }
             } else if self.exponent < 0 {
-                if -self.exponent < self.precision {
-                    s.insert(".", at: s.index(s.startIndex, offsetBy:
-                                            self.precision + self.exponent))
+                let offset = self.precision + self.exponent
+                if offset > 0 {
+                    s.insert(contentsOf:dp,
+                             at: s.index(s.startIndex, offsetBy: offset))
                 } else {
-                    for _ in 0 ..< -(self.exponent + self.precision) {
-                        s.insert("0", at: s.startIndex)
-                    }
-                    s.insert(".", at: s.startIndex)
-                    s.insert("0", at: s.startIndex)
+                    s = "0" + dp + pad(-offset) + s
                 }
             }
         } else if mode == .scientific {
-            // .SCIENTIFIC notation
+            // Scientific notation
             if s.count > 1 {
-                s.insert(".", at: s.index(s.startIndex, offsetBy: 1))
+                s.insert(contentsOf:dp, at: s.index(s.startIndex, offsetBy: 1))
             }
-            s.append("E")
-            if exp > 0 {
-                s.append("+")
-            }
-            s.append(exp.description)
+            s += expSymbol
+            if exp > 0 { s += "+" }
+            s += exp.description
         } else {
-            // .engineering notation
+            // Engineering notation
             switch exp % 3 {
-            case 1, -2:
-                if self.isZero {
-                    s.append(".00")
-                    exp += 2
-                } else {
-                    let sc = s.count
-                    if sc > 2 {
-                        s.insert(".", at: s.index(s.startIndex, offsetBy: 2))
+                case 1, -2:
+                    if self.isZero {
+                        s += dp + "00"
+                        exp += 2
                     } else {
-                        for _ in 0 ..< 2 - sc {
-                            s.append("0")
+                        let sc = s.count
+                        if sc > 2 {
+                            s.insert(contentsOf: dp,
+                                     at: s.index(s.startIndex, offsetBy:2))
+                        } else {
+                            s += pad(2-sc)
                         }
+                        exp -= 1
                     }
-                    exp -= 1
-                }
-            case -1, 2:
-                if self.isZero {
-                    s.append(".0")
-                    exp += 1
-                } else {
-                    let sc = s.count
-                    if sc > 3 {
-                        s.insert(".", at: s.index(s.startIndex, offsetBy: 3))
+                case -1, 2:
+                    if self.isZero {
+                        s += dp + "0"
+                        exp += 1
                     } else {
-                        for _ in 0 ..< 3 - sc {
-                            s.append("0")
+                        let sc = s.count
+                        if sc > 3 {
+                            s.insert(contentsOf: dp,
+                                     at: s.index(s.startIndex, offsetBy:3))
+                        } else {
+                            s += pad(3-sc)
                         }
+                        exp -= 2
                     }
-                    exp -= 2
-                }
-            default:
-                if !self.isZero && s.count > 1 {
-                    s.insert(".", at: s.index(s.startIndex, offsetBy: 1))
-                }
+                default:
+                    if !self.isZero && s.count > 1 {
+                        s.insert(".", at: s.index(s.startIndex, offsetBy: 1))
+                    }
             }
             if exp > 0 {
-                s.append("E+")
-                s.append(exp.description)
+                s += expSymbol + "+"
+                s += exp.description
             } else if exp < 0 {
-                s.append("E")
-                s.append(exp.description)
+                s += expSymbol
+                s += exp.description
             }
         }
         if self.digits.isNegative {
-            s.insert("-", at: s.startIndex)
+            return "-" + s
         }
         return s
     }
@@ -583,6 +580,9 @@ extension BigDecimal {
     ///
     /// - Returns: *self* as a Decimal value
     public func asDecimal() -> Decimal {
+        let maxExp = 127
+        let minExp = -128
+        
         if self.isNaN || self.abs > Self.MAXDecimal {
             return Decimal.nan
         }
@@ -592,19 +592,19 @@ extension BigDecimal {
             sig /= 10
             exp += 1
         }
-        if exp > 127 {
-            sig *= Rounding.pow10(exp - 127)
-            exp = 127
+        if exp > maxExp {
+            sig *= Rounding.pow10(exp - maxExp)
+            exp = maxExp
         }
-        if exp < -128 {
-            sig /= Rounding.pow10(-128 - exp)
-            exp = -128
+        if exp < minExp {
+            sig /= Rounding.pow10(minExp - exp)
+            exp = minExp
         }
         if sig == 0 {
             return Decimal(0)
         }
         assert(sig.limbs.count < 3)
-        assert(-128 <= exp && exp < 128)
+        assert(minExp <= exp && exp <= maxExp)
         
         func decode() -> UInt16 {
             (sig, r) = sig.quotientAndRemainder(dividingBy: 0x10000)
@@ -675,6 +675,10 @@ extension BigDecimal {
     public func add(_ x: Self, _ rnd: Rounding) -> Self {
         return rnd.round(self + x)
     }
+    
+    public func add<T:BinaryInteger>(_ d:T, _ rnd:Rounding) -> Self {
+        self.add(BigDecimal(d), rnd)
+    }
 
     /// Subtraction and rounding
     ///
@@ -684,6 +688,10 @@ extension BigDecimal {
     /// - Returns: *self* - x rounded according to *rnd*
     public func subtract(_ x: Self, _ rnd: Rounding) -> Self {
         return rnd.round(self - x)
+    }
+    
+    public func subtract<T:BinaryInteger>(_ d:T, _ rnd:Rounding) -> Self {
+        self.subtract(BigDecimal(d), rnd)
     }
 
     /// Multiplication and rounding
@@ -747,18 +755,20 @@ extension BigDecimal {
             m -= 1
         }
         switch ctx.mode {
-        case .ceiling:
-            q = q.isNegative ? q : q + 1
-        case .down:
-            break
-        case .floor:
-            q = q.isNegative ? q - 1 : q
-        case .halfDown, .halfEven, .halfUp:
-            if r >= 5 || r <= -5 {
+            case .awayFromZero:
+                q = q.isNegative ? q : q + 1
+            case .down:
+                break
+            case .towardZero:
+                q = q.isNegative ? q - 1 : q
+            case .toNearestOrEven, .toNearestOrAwayFromZero:
+                if r >= 5 || r <= -5 {
+                    q = q.isNegative ? q - 1 : q + 1
+                }
+            case .up:
                 q = q.isNegative ? q - 1 : q + 1
-            }
-        case .up:
-            q = q.isNegative ? q - 1 : q + 1
+            @unknown default:
+                fatalError()
         }
         return Self(q, self.exponent - d.exponent - m)
     }
@@ -1080,7 +1090,7 @@ extension BigDecimal {
     ///    - exp: The required exponent
     ///    - mode: Rounding mode
     /// - Returns: Same value as *self* possibly rounded, with exponent = exp
-    public func withExponent(_ exp: Int, _ mode: Rounding.Mode) -> Self {
+    public func withExponent(_ exp: Int, _ mode: Mode) -> Self {
         if self.isNaN || self.isInfinite {
             return Self.flagNaN()
         } else if self.exponent > exp {
@@ -1103,7 +1113,7 @@ extension BigDecimal {
     ///   - mode: Rounding mode
     /// - Returns: Same value as *self* possibly rounded, with same exponent
     ///            as *other*
-    public func quantize(_ other: Self, _ mode: Rounding.Mode) -> Self {
+    public func quantize(_ other: Self, _ mode: Mode) -> Self {
         if self.isInfinite && other.isInfinite {
             return self.isPositive ? Self.infinity : Self.infinityN
         } else if other.isInfinite {

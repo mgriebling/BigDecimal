@@ -57,17 +57,17 @@ class TestRoundMul: XCTestCase {
     
     let res1: [String] = [ // .down results
         "12345", "12346", "12357", "12468", "13579", "49380", "49381", "60490", "61601", "61712", "61723", "61725", "61726", "61737", "61848", "1.4814E+5", "1.6048E+5", "1.4826E+5", "1.6061E+5",]
-    let res2: [String] = [ // .halfDown results
+    let res2: [String] = [ // .towardZero results
         "12345", "12346", "12357", "12468", "13579", "49380", "49381", "60490", "61602", "61713", "61724", "61725", "61726", "61737", "61848", "1.4814E+5", "1.6048E+5", "1.4826E+5", "1.6061E+5",]
-    let res3: [String] = [ // .halfEven results
+    let res3: [String] = [ // .toNearestOrEven results
         "12345", "12346", "12357", "12468", "13580", "49380", "49381", "60490", "61602", "61713", "61724", "61725", "61726", "61737", "61848", "1.4814E+5", "1.6048E+5", "1.4826E+5", "1.6062E+5",]
-    let res4: [String] = [ // .halfUp results
+    let res4: [String] = [ // .toNearestOrAwayFromZero results
         "12345", "12346", "12357", "12468", "13580", "49380", "49381", "60491", "61602", "61713", "61724", "61725", "61726", "61737", "61848", "1.4814E+5", "1.6049E+5", "1.4826E+5", "1.6062E+5",]
     let res5: [String] = [ // .up results
         "12345", "12347", "12358", "12469", "13580", "49380", "49382", "60491", "61602", "61713", "61724", "61725", "61727", "61738", "61849", "1.4814E+5", "1.6049E+5", "1.4826E+5", "1.6062E+5",]
-    let res6: [String] = [ // .floor results
+    let res6: [String] = [ // .towardZero results
         "12345", "12346", "12357", "12468", "13579", "49380", "49381", "60490", "61601", "61712", "61723", "61725", "61726", "61737", "61848", "1.4814E+5", "1.6048E+5", "1.4826E+5", "1.6061E+5",]
-    let res7: [String] = [ // .ceiling results
+    let res7: [String] = [ // .awayFromZero results
         "12345", "12347", "12358", "12469", "13580", "49380", "49382", "60491", "61602", "61713", "61724", "61725", "61727", "61738", "61849", "1.4814E+5", "1.6049E+5", "1.4826E+5", "1.6062E+5",]
 
     func test1() throws {
@@ -75,15 +75,15 @@ class TestRoundMul: XCTestCase {
         for i in 0 ..< tests.count {
             XCTAssertEqual(rnd1.round(BigDecimal(tests[i].x) * BigDecimal(tests[i].y)).asString(), res1[i])
         }
-        let rnd2 = Rounding(.halfDown, 5)
-        for i in 0 ..< tests.count {
-            XCTAssertEqual(rnd2.round(BigDecimal(tests[i].x) * BigDecimal(tests[i].y)).asString(), res2[i])
-        }
-        let rnd3 = Rounding(.halfEven, 5)
+//        let rnd2 = Rounding(.halfDown, 5)
+//        for i in 0 ..< tests.count {
+//            XCTAssertEqual(rnd2.round(BigDecimal(tests[i].x) * BigDecimal(tests[i].y)).asString(), res2[i])
+//        }
+        let rnd3 = Rounding(.toNearestOrEven, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(rnd3.round(BigDecimal(tests[i].x) * BigDecimal(tests[i].y)).asString(), res3[i])
         }
-        let rnd4 = Rounding(.halfUp, 5)
+        let rnd4 = Rounding(.toNearestOrAwayFromZero, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(rnd4.round(BigDecimal(tests[i].x) * BigDecimal(tests[i].y)).asString(), res4[i])
         }
@@ -91,11 +91,11 @@ class TestRoundMul: XCTestCase {
         for i in 0 ..< tests.count {
             XCTAssertEqual(rnd5.round(BigDecimal(tests[i].x) * BigDecimal(tests[i].y)).asString(), res5[i])
         }
-        let rnd6 = Rounding(.floor, 5)
+        let rnd6 = Rounding(.towardZero, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(rnd6.round(BigDecimal(tests[i].x) * BigDecimal(tests[i].y)).asString(), res6[i])
         }
-        let rnd7 = Rounding(.ceiling, 5)
+        let rnd7 = Rounding(.awayFromZero, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(rnd7.round(BigDecimal(tests[i].x) * BigDecimal(tests[i].y)).asString(), res7[i])
         }

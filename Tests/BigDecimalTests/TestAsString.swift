@@ -180,7 +180,7 @@ final class TestAsString: XCTestCase {
     ]
     
     func test3() throws {
-        let rnd = Rounding(.halfUp, 16)
+        let rnd = Rounding(.toNearestOrAwayFromZero, 16)
         for t in tests3 {
             XCTAssertEqual(rnd.round(BigDecimal(t.x)).asString(), t.sciRes)
             XCTAssertEqual(rnd.round(BigDecimal(t.x)).asString(.engineering), t.engRes)

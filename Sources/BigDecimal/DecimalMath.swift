@@ -38,7 +38,7 @@ public extension BigDecimal {
         if n <= Self(I.min) { return nil }
         
         /// value must be in range of the return integer type
-        let digits = n.abs.round(Rounding(.floor, 0)) // truncate any fractions
+        let digits = n.abs.round(Rounding(.towardZero, 0)) // truncate any fractions
         let coeff = digits.digits
         let power : BInt = BInt(10) ** digits.exponent
         if let int = (coeff * power).asInt() {
@@ -276,7 +276,7 @@ public extension BigDecimal {
     private static func powInteger(_ x:Self, _ integerY:Self, _ mc:Rounding) -> Self {
         var integerY = integerY
         var x = x
-        let trunc = Rounding(.floor, 0)
+        let trunc = Rounding(.towardZero, 0)
         if integerY != integerY.round(trunc) {
             assertionFailure("Not integer value: \(integerY)")
         }

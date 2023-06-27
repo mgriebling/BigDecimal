@@ -7,50 +7,68 @@
 
 import BigInt
 
+/// The rounding modes
+public typealias Mode = FloatingPointRoundingRule
+
+extension Mode : CustomStringConvertible {
+    public var description: String {
+        switch self {
+            case .awayFromZero:
+                return "Round towards +infinity"
+            case .down:
+                return "Round towards 0"
+            case .towardZero:
+                return "Round towards -infinity"
+            case .toNearestOrEven:
+                return "Round to nearest, tie to even"
+            case .toNearestOrAwayFromZero:
+                return "Round to nearest, tie away from 0"
+            case .up:
+                return "Round away from 0"
+            @unknown default:
+                assertionFailure("Unknown \(Self.self) rounding mode")
+                return ""
+        }
+    }
+}
+
 /// BigDecimal rounding object containing a rounding mode and a precision
 /// which is the number of digits in the rounded result
 public struct Rounding: Equatable {
-    
-    /// The rounding modes
-    public enum Mode: CustomStringConvertible {
+//    public enum Mode: CustomStringConvertible {
+//
+//        /// Round towards +infinity
+//        case awayFromZero
+//
+//        /// Round towards 0
+//        case down
+//
+//        /// Round towards -infinity
+//        case towardZero
+//
+////        /// Round to nearest, tie towards 0
+////        case towardZero
+//
+//        /// Round to nearest, tie to even
+//        case toNearestOrEven
+//
+//        /// Round to nearest, tie away from 0
+//        case toNearestOrAwayFromZero
+//
+//        /// Round away from 0
+//        case up
 
-        /// Round towards +infinity
-        case ceiling
-        /// Round towards 0
-        case down
-        /// Round towards -infinity
-        case floor
-        /// Round to nearest, tie towards 0
-        case halfDown
-        /// Round to nearest, tie to even
-        case halfEven
-        /// Round to nearest, tie away from 0
-        case halfUp
-        /// Round away from 0
-        case up
-        
-        public var description: String {
-            switch self {
-            case .ceiling:  return "Round towards +infinity"
-            case .down:     return "Round towards 0"
-            case .floor:    return "Round towards -infinity"
-            case .halfDown: return "Round to nearest, tie towards 0"
-            case .halfEven: return "Round to nearest, tie to even"
-            case .halfUp:   return "Round to nearest, tie away from 0"
-            case .up:       return "Round away from 0"
-            }
-        }
-    }
+
     
     
     // MARK: Constants
 
     /// Decimal32 rounding: HALF_EVEN, 7
-    public static let decimal32 = Rounding(.halfEven, 7)
+    public static let decimal32 = Rounding(.toNearestOrEven, 7)
     /// Decimal64 rounding: HALF_EVEN, 16
-    public static let decimal64 = Rounding(.halfEven, 16)
+    public static let decimal64 = Rounding(.toNearestOrEven, 16)
     /// Decimal128 rounding: HALF_EVEN, 34
-    public static let decimal128 = Rounding(.halfEven, 34)
+    public static let decimal128 = Rounding(.toNearestOrEven, 34)
 
 
     // MARK: - Initializer
@@ -116,32 +134,34 @@ public struct Rounding: Equatable {
             let d1 = x - qq1
             let d2 = qq2 - x
             switch self.mode {
-            case .ceiling:
-                q = q2
-            case .down:
-                q = q.isNegative ? q2 : q1
-            case .floor:
-                q = q1
-            case .halfDown:
-                if d1 == d2 {
-                    q = negative ? q2 : q1
-                } else {
-                    q = d1 < d2 ? q1 : q2
-                }
-            case .halfEven:
-                if d1 == d2 {
-                    q = q1.isEven ? q1 : q2
-                } else {
-                    q = d1 < d2 ? q1 : q2
-                }
-            case .halfUp:
-                if d1 == d2 {
-                    q = negative ? q1 : q2
-                } else {
-                    q = d1 < d2 ? q1 : q2
-                }
-            case .up:
-                q = q.isNegative ? q1 : q2
+                case .awayFromZero:
+                    q = q2
+                case .down:
+                    q = q.isNegative ? q2 : q1
+                case .towardZero:
+                    q = q1
+                    //            case .towardZero:
+                    //                if d1 == d2 {
+                    //                    q = negative ? q2 : q1
+                    //                } else {
+                    //                    q = d1 < d2 ? q1 : q2
+                    //                }
+                case .toNearestOrEven:
+                    if d1 == d2 {
+                        q = q1.isEven ? q1 : q2
+                    } else {
+                        q = d1 < d2 ? q1 : q2
+                    }
+                case .toNearestOrAwayFromZero:
+                    if d1 == d2 {
+                        q = negative ? q1 : q2
+                    } else {
+                        q = d1 < d2 ? q1 : q2
+                    }
+                case .up:
+                    q = q.isNegative ? q1 : q2
+                @unknown default:
+                    fatalError()
             }
         }
         return q

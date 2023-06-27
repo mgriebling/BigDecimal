@@ -66,10 +66,10 @@ class TestRoundAdd: XCTestCase {
     let res1: [String] = [ // .down results
         "12344", "12344", "12344", "12344", "12344", "12344", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345",
         "12346", "12346", "12346", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345",]
-    let res2: [String] = [ // .halfDown results
+    let res2: [String] = [ // .towardZero results
         "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345",
         "12346", "12346", "12347", "12345", "12345", "12345", "12345", "12345", "12346", "12346", "12346", "12346", "12346",]
-    let res3: [String] = [ // .halfEven results
+    let res3: [String] = [ // .toNearestOrEven results
         "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345",
         "12346", "12346", "12347", "12345", "12345", "12345", "12345", "12346", "12346", "12346", "12346", "12346", "12346",]
     let res4: [String] = [ // .halfUp results
@@ -78,10 +78,10 @@ class TestRoundAdd: XCTestCase {
     let res5: [String] = [ // .up results
         "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12346", "12346", "12346", "12346", "12346", "12346", "12346",
         "12347", "12347", "12347", "12346", "12346", "12346", "12346", "12346", "12346", "12346", "12346", "12346", "12346",]
-    let res6: [String] = [ // .floor results
+    let res6: [String] = [ // .towardZero results
         "12344", "12344", "12344", "12344", "12344", "12344", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345",
         "12346", "12346", "12346", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12345",]
-    let res7: [String] = [ // .ceiling results
+    let res7: [String] = [ // .awayFromZero results
         "12345", "12345", "12345", "12345", "12345", "12345", "12345", "12346", "12346", "12346", "12346", "12346", "12346", "12346",
         "12347", "12347", "12347", "12346", "12346", "12346", "12346", "12346", "12346", "12346", "12346", "12346", "12346",]
 
@@ -90,15 +90,15 @@ class TestRoundAdd: XCTestCase {
         for i in 0 ..< tests.count {
             XCTAssertEqual(rnd1.round(BigDecimal(tests[i].x) + BigDecimal(tests[i].y)).asString(), res1[i])
         }
-        let rnd2 = Rounding(.halfDown, 5)
-        for i in 0 ..< tests.count {
-            XCTAssertEqual(rnd2.round(BigDecimal(tests[i].x) + BigDecimal(tests[i].y)).asString(), res2[i])
-        }
-        let rnd3 = Rounding(.halfEven, 5)
+//        let rnd2 = Rounding(.halfDown, 5)
+//        for i in 0 ..< tests.count {
+//            XCTAssertEqual(rnd2.round(BigDecimal(tests[i].x) + BigDecimal(tests[i].y)).asString(), res2[i])
+//        }
+        let rnd3 = Rounding(.toNearestOrEven, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(rnd3.round(BigDecimal(tests[i].x) + BigDecimal(tests[i].y)).asString(), res3[i])
         }
-        let rnd4 = Rounding(.halfUp, 5)
+        let rnd4 = Rounding(.toNearestOrAwayFromZero, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(rnd4.round(BigDecimal(tests[i].x) + BigDecimal(tests[i].y)).asString(), res4[i])
         }
@@ -106,11 +106,11 @@ class TestRoundAdd: XCTestCase {
         for i in 0 ..< tests.count {
             XCTAssertEqual(rnd5.round(BigDecimal(tests[i].x) + BigDecimal(tests[i].y)).asString(), res5[i])
         }
-        let rnd6 = Rounding(.floor, 5)
+        let rnd6 = Rounding(.towardZero, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(rnd6.round(BigDecimal(tests[i].x) + BigDecimal(tests[i].y)).asString(), res6[i])
         }
-        let rnd7 = Rounding(.ceiling, 5)
+        let rnd7 = Rounding(.awayFromZero, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(rnd7.round(BigDecimal(tests[i].x) + BigDecimal(tests[i].y)).asString(), res7[i])
         }

@@ -53,15 +53,15 @@ class TestRoundPow: XCTestCase {
         "3.4877E-21", "4.3056E-17", "5.3152E-13", "6.5617E-9", "0.000081004", "1", "12345", "1.5239E+8", "1.8813E+12", "2.3225E+16", "2.8671E+20", "1.7222E+5", "4.2187E+5",]
     let res2: [String] = [ // .halfDown results
         "3.4877E-21", "4.3056E-17", "5.3153E-13", "6.5617E-9", "0.000081004", "1", "12345", "1.5240E+8", "1.8814E+12", "2.3225E+16", "2.8672E+20", "1.7222E+5", "4.2187E+5",]
-    let res3: [String] = [ // .halfEven results
+    let res3: [String] = [ // .toNearestOrEven results
         "3.4877E-21", "4.3056E-17", "5.3153E-13", "6.5617E-9", "0.000081004", "1", "12345", "1.5240E+8", "1.8814E+12", "2.3225E+16", "2.8672E+20", "1.7222E+5", "4.2188E+5",]
-    let res4: [String] = [ // .halfUp results
+    let res4: [String] = [ // .toNearestOrAwayFromZero results
         "3.4877E-21", "4.3056E-17", "5.3153E-13", "6.5617E-9", "0.000081004", "1", "12345", "1.5240E+8", "1.8814E+12", "2.3225E+16", "2.8672E+20", "1.7223E+5", "4.2188E+5",]
     let res5: [String] = [ // .up results
         "3.4878E-21", "4.3057E-17", "5.3153E-13", "6.5618E-9", "0.000081005", "1", "12345", "1.5240E+8", "1.8814E+12", "2.3226E+16", "2.8672E+20", "1.7223E+5", "4.2188E+5",]
-    let res6: [String] = [ // .floor results
+    let res6: [String] = [ // .towardZero results
         "3.4877E-21", "4.3056E-17", "5.3152E-13", "6.5617E-9", "0.000081004", "1", "12345", "1.5239E+8", "1.8813E+12", "2.3225E+16", "2.8671E+20", "1.7222E+5", "4.2187E+5",]
-    let res7: [String] = [ // .ceiling results
+    let res7: [String] = [ // .awayFromZero results
         "3.4878E-21", "4.3057E-17", "5.3153E-13", "6.5618E-9", "0.000081005", "1", "12345", "1.5240E+8", "1.8814E+12", "2.3226E+16", "2.8672E+20", "1.7223E+5", "4.2188E+5",]
 
     func test1() throws {
@@ -69,15 +69,15 @@ class TestRoundPow: XCTestCase {
         for i in 0 ..< tests.count {
             XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd1).asString(), res1[i])
         }
-        let rnd2 = Rounding(.halfDown, 5)
-        for i in 0 ..< tests.count {
-            XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd2).asString(), res2[i])
-        }
-        let rnd3 = Rounding(.halfEven, 5)
+//        let rnd2 = Rounding(.towardZero, 5)
+//        for i in 0 ..< tests.count {
+//            XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd2).asString(), res2[i])
+//        }
+        let rnd3 = Rounding(.toNearestOrEven, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd3).asString(), res3[i])
         }
-        let rnd4 = Rounding(.halfUp, 5)
+        let rnd4 = Rounding(.toNearestOrAwayFromZero, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd4).asString(), res4[i])
         }
@@ -85,11 +85,11 @@ class TestRoundPow: XCTestCase {
         for i in 0 ..< tests.count {
             XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd5).asString(), res5[i])
         }
-        let rnd6 = Rounding(.floor, 5)
+        let rnd6 = Rounding(.towardZero, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd6).asString(), res6[i])
         }
-        let rnd7 = Rounding(.ceiling, 5)
+        let rnd7 = Rounding(.awayFromZero, 5)
         for i in 0 ..< tests.count {
             XCTAssertEqual(BigDecimal(tests[i].x).pow(tests[i].n, rnd7).asString(), res7[i])
         }

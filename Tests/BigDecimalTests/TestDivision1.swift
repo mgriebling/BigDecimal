@@ -77,7 +77,7 @@ class TestDivision1: XCTestCase {
     }
     
     func testTralingZero() throws {
-        let mc = Rounding(.floor, 3)
+        let mc = Rounding(.towardZero, 3)
         let testCases = [
             [BigDecimal("19"), BigDecimal("100"), BigDecimal("0.19")],
             [BigDecimal("21"), BigDecimal("110"), BigDecimal("0.190")],
@@ -114,8 +114,11 @@ class TestDivision1: XCTestCase {
             [c,         b, BigDecimal("3.142")],
             [c_minus,   b, BigDecimal("-3.142")],
         ]
-        let mode: [Rounding.Mode] = [.up, .up, .down, .down, .ceiling, .ceiling, .floor, .floor,
-                                     .halfUp, .halfUp, .down, .down, .halfEven, .halfEven, .halfEven, .halfEven]
+        let mode: [Mode] = [
+            .up, .up, .down, .down, .awayFromZero, .awayFromZero, .towardZero,
+            .towardZero, .toNearestOrAwayFromZero, .toNearestOrAwayFromZero,
+            .down, .down, .toNearestOrEven, .toNearestOrEven, .toNearestOrEven,
+            .toNearestOrEven]
         for i in 0 ..< testCases.count {
             let test = testCases[i]
             let quo = test[0].divide(test[1], Rounding(mode[i], 4))
@@ -140,7 +143,7 @@ class TestDivision1: XCTestCase {
         let precision = [3, 3, 9, 1, 1, 1, 1, 1]
         for i in 0 ..< testCases.count {
             let test = testCases[i]
-            let quo = test[0].divide(test[1], Rounding(.halfUp, precision[i]))
+            let quo = test[0].divide(test[1], Rounding(.toNearestOrAwayFromZero, precision[i]))
             if !equals(quo, test[2]) {
                 XCTFail()
             }
