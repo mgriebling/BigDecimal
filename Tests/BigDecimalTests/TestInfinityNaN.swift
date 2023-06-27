@@ -310,7 +310,7 @@ final class TestInfinityNaN: XCTestCase {
 
     func testRound() throws {
         XCTAssertEqual(Rounding.decimal32.round(BigDecimal.infinity), BigDecimal.infinity)
-        XCTAssertEqual(Rounding.decimal32.round(BigDecimal.infinityN), BigDecimal.infinityN)
+        XCTAssertEqual(Rounding.decimal32.round(-BigDecimal.infinity), -BigDecimal.infinity)
         XCTAssertTrue(Rounding.decimal32.round(BigDecimal.nan).isNaN)
         XCTAssertTrue(BigDecimal.NaNFlag)
     }

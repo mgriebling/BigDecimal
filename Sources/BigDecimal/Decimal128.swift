@@ -106,9 +106,9 @@ struct Decimal128 {
             self.isInfinite = false
             let w = Rounding.decimal128.round(value).abs
             var exp = 6176 + w.exponent
-            var sig = UInt128(high: 0, low: w.significand.limbs[0])
-            if w.significand.limbs.count > 1 {
-                sig.components.high = w.significand.limbs[1]
+            var sig = UInt128(high: 0, low: w.digits.limbs[0])
+            if w.digits.limbs.count > 1 {
+                sig.components.high = w.digits.limbs[1]
             }
             while exp > 12287 {
                 exp -= 1

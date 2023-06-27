@@ -85,7 +85,7 @@ struct Decimal32 {
             self.isInfinite = false
             let w = Rounding.decimal32.round(value).abs
             var exp = 101 + w.exponent
-            var sig = UInt32(w.significand.asInt()!)
+            var sig = UInt32(w.digits.asInt()!)
             while exp > 191 {
                 exp -= 1
                 sig *= 10
@@ -112,7 +112,8 @@ struct Decimal32 {
         } else if self.isInfinite {
             return self.sign ? BigDecimal.infinityN : BigDecimal.infinity
         } else {
-            return BigDecimal(BInt(self.sign ? -Int(self.significand) : Int(self.significand)), Int(self.exponent) - 101)
+            return BigDecimal(BInt(self.sign ? -Int(self.significand)
+                        : Int(self.significand)), Int(self.exponent) - 101)
         }
     }
 

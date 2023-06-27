@@ -37,7 +37,7 @@ class TestConversion: XCTestCase {
         try doTest1(BigDecimal(Int.max))
         try doTest1(BigDecimal(Int.min))
         try doTest1(BigDecimal.infinity)
-        try doTest1(BigDecimal.infinityN)
+        try doTest1(-BigDecimal.infinity)
         try doTest2(BigDecimal(Int.max))
         try doTest2(BigDecimal(Int.min))
         try doTest2(BigDecimal(0.1))

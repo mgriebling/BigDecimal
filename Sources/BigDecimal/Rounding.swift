@@ -92,7 +92,7 @@ public struct Rounding: Equatable {
         if d <= 0 {
             return x
         }
-        let q = roundBInt(x.significand, d)
+        let q = roundBInt(x.digits, d)
         let pr = q.abs.asString().count
         if pr > self.precision {
             // 999.9 => 1000

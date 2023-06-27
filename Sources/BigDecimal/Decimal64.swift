@@ -91,7 +91,7 @@ struct Decimal64 {
             self.isInfinite = false
             let w = Rounding.decimal64.round(value).abs
             var exp = 398 + w.exponent
-            var sig = UInt64(w.significand.asInt()!)
+            var sig = UInt64(w.digits.asInt()!)
             while exp > 767 {
                 exp -= 1
                 sig *= 10

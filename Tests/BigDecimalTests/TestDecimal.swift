@@ -37,7 +37,7 @@ final class TestDecimal: XCTestCase {
 
         let x = BigDecimal(max)
         XCTAssertEqual(x.exponent, 127)
-        XCTAssertEqual(x.significand, BInt([0xffffffffffffffff, 0xffffffffffffffff]))
+        XCTAssertEqual(x.digits, BInt([0xffffffffffffffff, 0xffffffffffffffff]))
         XCTAssertEqual(max, x.asDecimal())
 
         let d = (x + 1).asDecimal()
@@ -50,7 +50,7 @@ final class TestDecimal: XCTestCase {
         XCTAssertTrue(min > 0.0)
         let x = BigDecimal(min)
         XCTAssertEqual(x.exponent, -128)
-        XCTAssertEqual(x.significand, BInt.one)
+        XCTAssertEqual(x.digits, BInt.one)
         XCTAssertEqual(min, x.asDecimal())
 
         let d = BigDecimal(BInt.one, -129).asDecimal()

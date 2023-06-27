@@ -38,29 +38,29 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     private init(_ plusInf: Bool, _ minusInf: Bool, _ nan: Bool) {
         self.isInfinite = plusInf || minusInf
         self.isNaN = nan
-        self.significand = nan ? BInt.zero : (plusInf ? BInt.one : -BInt.one)
+        self.digits = nan ? BInt.zero : (plusInf ? BInt.one : -BInt.one)
         self.exponent = 0
         self.precision = 1
     }
     
-    /// Constructs a BigDecimal from its significand and exponent
+    /// Constructs a BigDecimal from its digits and exponent
     ///
     /// - Parameters:
-    ///   - significand: The significand
+    ///   - significand: The digits
     ///   - exponent: The exponent, default is 0
     public init(_ significand: Int, _ exponent: Int = 0) {
         self.init(BInt(significand), exponent)
     }
     
-    /// Constructs a BigDecimal from its significand and exponent
+    /// Constructs a BigDecimal from its digits and exponent
     ///
     /// - Parameters:
-    ///   - significand: The significand
+    ///   - significand: The digits
     ///   - exponent: The exponent, default is 0
     public init(_ significand: BInt, _ exponent: Int = 0) {
         self.isNaN = false
         self.isInfinite = false
-        self.significand = significand
+        self.digits = significand
         self.exponent = exponent
         self.precision = significand.abs.asString().count
     }
@@ -196,7 +196,7 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     // MARK: Stored properties
     
     /// The signed BInt significand
-    public internal(set) var significand: BInt
+    public internal(set) var digits: BInt
     
     /// The signed exponent - the value of *self* is *self.significand* *
     /// 10^*self.exponent*
@@ -210,15 +210,190 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     
     /// Is *true* if *self* is NaN
     public internal(set) var isNaN: Bool
-    
 }
 
 extension BigDecimal : LosslessStringConvertible { }
+
+extension BigDecimal : Strideable {
+    public func distance(to other: Self) -> Self { other - self }
+    public func advanced(by n: Self) -> Self { self + n }
+}
 
 extension BigDecimal : ExpressibleByIntegerLiteral {
     public init(integerLiteral value: StaticBigInt) {
         let bint = BInt(integerLiteral: value)
         self = BigDecimal(bint)
+    }
+}
+
+extension BigDecimal : SignedNumeric {
+    
+    /// Apple's preferred `abs` getter
+    public var magnitude: Self { self.abs }
+    
+    public init?<T : BinaryInteger>(exactly source: T) {
+        let bint = BInt(source)
+        self = BigDecimal(bint)
+    }
+    
+    /// Prefix minus
+    ///
+    /// - Parameter x: Self value
+    /// - Returns: -x
+    public prefix static func - (x: Self) -> Self {
+        if x.isNaN {
+            return Self.flagNaN()
+        } else if x.isInfinite {
+            return x.isNegative ? Self.infinity : Self.infinityN
+        } else {
+            return Self(-x.digits, x.exponent)
+        }
+    }
+}
+
+extension BigDecimal : AdditiveArithmetic {
+    // MARK: Addition functions
+
+    /// Addition
+    ///
+    /// - Parameters:
+    ///   - x: First addend
+    ///   - y: Second addend
+    /// - Returns: x + y
+    public static func +(x: Self, y: Self) -> Self {
+        if x.isNaN || y.isNaN {
+            return Self.flagNaN()
+        } else if x.isInfinite {
+            if x.signum == y.signum {
+                return x
+            } else {
+                return y.isFinite ? x : Self.flagNaN()
+            }
+        } else if y.isInfinite {
+            return y
+        }
+        if x.exponent > y.exponent {
+            return Self(x.digits * Rounding.pow10(x.exponent - y.exponent)
+                        + y.digits, y.exponent)
+        } else if x.exponent < y.exponent {
+            return Self(x.digits + y.digits *
+                        Rounding.pow10(y.exponent - x.exponent), x.exponent)
+        } else {
+            return Self(x.digits + y.digits, x.exponent)
+        }
+    }
+
+    // MARK: Subtraction functions
+
+    /// Subtraction
+    ///
+    /// - Parameters:
+    ///   - x: Minuend
+    ///   - y: Subtrahend
+    /// - Returns: x - y
+    public static func - (x: Self, y: Self) -> Self {
+        if x.isNaN || y.isNaN {
+            return Self.flagNaN()
+        } else if x.isInfinite {
+            if x.signum != y.signum {
+                return x
+            } else {
+                return y.isFinite ? x : Self.flagNaN()
+            }
+        } else if y.isInfinite {
+            return -y
+        }
+        if x.exponent > y.exponent {
+            return Self(x.digits * Rounding.pow10(x.exponent - y.exponent)
+                        - y.digits, y.exponent)
+        } else if x.exponent < y.exponent {
+            return Self(x.digits - y.digits *
+                        Rounding.pow10(y.exponent - x.exponent), x.exponent)
+        } else {
+            return Self(x.digits - y.digits, x.exponent)
+        }
+    }
+}
+
+extension BigDecimal {
+    
+    // MARK: - FloatingPoint Static Properties
+    
+    public static var radix: Int { 10 }
+    
+    public static var signalingNaN: BigDecimal {
+        return nan // FIXME: - we need a sNaN
+    }
+    
+    // MARK: - FloatingPoint Number's Properties
+    
+    public var sign: FloatingPointSign { self.signum < 0 ? .minus : .plus }
+    
+    public var significand: BigDecimal { BigDecimal(digits) }
+    
+    // MARK: - FloatingPoint Basic Operations
+    
+    public mutating func formRemainder(dividingBy other: BigDecimal) {
+        let (_, r) = self.quotientAndRemainder(other)
+        self = r
+    }
+    
+    public mutating func formTruncatingRemainder(dividingBy other: BigDecimal) {
+        let (q, _) = self.quotientAndRemainder(other)
+        self -= q * other
+    }
+    
+    public mutating func formSquareRoot() {
+        let x = self.digits.sqrt() // FIXME: - we need a real root
+        self = Self(x)
+    }
+    
+    public mutating func addProduct(_ lhs: BigDecimal, _ rhs: BigDecimal) {
+        self = self.fma(lhs, rhs, Rounding.decimal128)
+    }
+    
+    public mutating func round(_ rule:FloatingPointRoundingRule, _ digits:Int) {
+        self = Rounding(.halfEven, digits).round(self)
+    }
+    
+    public func isEqual(to other: BigDecimal) -> Bool {
+        self == other // FIXME: - we need a real root
+    }
+    
+    public func isLess(than other: BigDecimal) -> Bool {
+        self < other // FIXME: - we need a real root
+    }
+    
+    public func isLessThanOrEqualTo(_ other: BigDecimal) -> Bool {
+        self <= other // FIXME: - we need a real root
+    }
+    
+    public func isTotallyOrdered(belowOrEqualTo other: BigDecimal) -> Bool {
+        self <= other // FIXME: - we need a real root
+    }
+    
+    public var isNormal: Bool {
+        true // FIXME: - we need a real root
+    }
+    
+    public var isSubnormal: Bool {
+        false // FIXME: - we need a real root
+    }
+    
+    public var isSignalingNaN: Bool {
+        self == Self.nan
+    }
+    
+    public var isCanonical: Bool {
+        true
+    }
+    
+    public init(sign: FloatingPointSign, exponent: Int, significand: BigDecimal) {
+        self.init(0) // FIXME: - Needs fixing
+    }
+    
+    public init(signOf: BigDecimal, magnitudeOf: BigDecimal) {
+        self.init(0) // FIXME: - Needs fixing
     }
 }
 
@@ -229,12 +404,9 @@ extension BigDecimal {
     /// The absolute value of *self*
     public var abs: Self {
         isNaN ? Self.flagNaN()
-              : (isInfinite ? Self.infinity : Self(significand.abs, exponent))
+              : (isInfinite ? Self.infinity : Self(digits.abs, exponent))
     }
-    
-    /// Apple's preferred `abs` getter
-    public var magnitude: Self { self.abs }
-    
+
     /// String encoding of *self*
     public var description: String { self.asString() }
 
@@ -251,7 +423,7 @@ extension BigDecimal {
     public var isZero: Bool { self.isNaN ? false : self.signum == 0 }
 
     /// Is 0 if *self* = 0 or *self* is NaN, 1 if *self* > 0, and -1 if *self* < 0
-    public var signum: Int { self.significand.signum }
+    public var signum: Int { self.digits.signum }
     
     /// The same value as *self* with any trailing zeros removed from its significand
     public var trim: Self {
@@ -259,10 +431,10 @@ extension BigDecimal {
             return Self.flagNaN()
         } else if self.isInfinite {
             return self
-        } else if self.significand.isZero {
+        } else if self.digits.isZero {
             return Self(0)
         }
-        var q = self.significand
+        var q = self.digits
         var n = 0
         while true {
             let (q1, r) = q.quotientAndRemainder(dividingBy: BInt.ten)
@@ -300,13 +472,13 @@ extension BigDecimal {
         if self.isNaN {
             return "NaN"
         } else if self.isInfinite {
-            return self.significand.isNegative ? "-Infinity" : "+Infinity"
+            return self.digits.isNegative ? "-Infinity" : "+Infinity"
         }
         var exp = self.precision + self.exponent - 1
-        var s = self.significand.abs.asString()
+        var s = self.digits.abs.asString()
         if mode == .plain || (self.exponent <= 0 && exp >= -6) {
             if self.exponent > 0 {
-                if !self.significand.isZero {
+                if !self.digits.isZero {
                     for _ in 0 ..< self.exponent {
                         s.append("0")
                     }
@@ -379,7 +551,7 @@ extension BigDecimal {
                 s.append(exp.description)
             }
         }
-        if self.significand.isNegative {
+        if self.digits.isNegative {
             s.insert("-", at: s.startIndex)
         }
         return s
@@ -399,7 +571,7 @@ extension BigDecimal {
         for index in (0...7).reversed() {
             expBytes[index] = UInt8(exp & 0xff); exp >>= 8
         }
-        return Data(expBytes + self.significand.asSignedBytes())
+        return Data(expBytes + self.digits.asSignedBytes())
     }
 
     /// *self* as a Double
@@ -415,7 +587,7 @@ extension BigDecimal {
             return Decimal.nan
         }
         var exp = self.exponent
-        var sig = self.significand.abs
+        var sig = self.digits.abs
         while sig.limbs.count > 2 {
             sig /= 10
             exp += 1
@@ -523,6 +695,10 @@ extension BigDecimal {
     public func multiply(_ x: Self, _ rnd: Rounding) -> Self {
         return rnd.round(self * x)
     }
+    
+    public func multiply<T:BinaryInteger>(_ d:T, _ rnd:Rounding) -> Self {
+        self.multiply(BigDecimal(d), rnd)
+    }
 
     /// Division and rounding
     ///
@@ -536,8 +712,8 @@ extension BigDecimal {
         if error {
             return quotient
         }
-        let gcd = self.significand.gcd(d.significand)
-        var d1 = d.significand.quotientExact(dividingBy: gcd)
+        let gcd = self.digits.gcd(d.digits)
+        var d1 = d.digits.quotientExact(dividingBy: gcd)
         let count2 = d1.trailingZeroBitCount
         d1 >>= count2
         var count5 = 0
@@ -552,8 +728,8 @@ extension BigDecimal {
         if d1.abs.isOne {
             // Quotient has finite decimal expansion
             let m = max(count2, count5)
-            let x = Self((self.significand * Rounding.pow10(m)) /
-                               d.significand, self.exponent - d.exponent - m)
+            let x = Self((self.digits * Rounding.pow10(m)) /
+                               d.digits, self.exponent - d.exponent - m)
             return rnd == nil ? x : rnd!.round(x)
         }
         guard let ctx = rnd else {
@@ -563,7 +739,7 @@ extension BigDecimal {
         // Quotient has infinite decimal expansion
 
         var m = max(ctx.precision - self.precision + d.precision + 1, 0)
-        var q = (self.significand * Rounding.pow10(m)) / d.significand
+        var q = (self.digits * Rounding.pow10(m)) / d.digits
         let z = Rounding.pow10(ctx.precision)
         var r = BInt.zero
         while q.abs >= z {
@@ -585,6 +761,10 @@ extension BigDecimal {
             q = q.isNegative ? q - 1 : q + 1
         }
         return Self(q, self.exponent - d.exponent - m)
+    }
+    
+    public func divide<T:BinaryInteger>(_ d:T, _ rnd:Rounding? = nil) -> Self {
+        self.divide(BigDecimal(d), rnd)
     }
 
     /// Fused multiply / add
@@ -619,109 +799,13 @@ extension BigDecimal {
         }
         if n < 0 {
             return self.isZero ? Self.infinity :
-            Self.one.divide(Self(self.significand ** (-n),
+            Self.one.divide(Self(self.digits ** (-n),
                                  self.exponent * (-n)), rnd)
         } else {
-            let x = Self(self.significand ** n, self.exponent * n)
+            let x = Self(self.digits ** n, self.exponent * n)
             return rnd == nil ? x : rnd!.round(x)
         }
     }
-
-
-    // MARK: Addition functions
-
-    /// Prefix plus
-    ///
-    /// - Parameter x: Self value
-    /// - Returns: x
-    // public prefix static func +(x: Self) -> Self { x }
-
-    /// Addition
-    ///
-    /// - Parameters:
-    ///   - x: First addend
-    ///   - y: Second addend
-    /// - Returns: x + y
-    public static func +(x: Self, y: Self) -> Self {
-        if x.isNaN || y.isNaN {
-            return Self.flagNaN()
-        } else if x.isInfinite {
-            if x.signum == y.signum {
-                return x
-            } else {
-                return y.isFinite ? x : Self.flagNaN()
-            }
-        } else if y.isInfinite {
-            return y
-        }
-        if x.exponent > y.exponent {
-            return Self(x.significand * Rounding.pow10(x.exponent - y.exponent) + y.significand, y.exponent)
-        } else if x.exponent < y.exponent {
-            return Self(x.significand + y.significand * Rounding.pow10(y.exponent - x.exponent), x.exponent)
-        } else {
-            return Self(x.significand + y.significand, x.exponent)
-        }
-    }
-    
-    /// Addition
-    /// x = x + y
-    ///
-    /// - Parameters:
-    ///   - x: Left hand addend
-    ///   - y: Right hand addend
-    public static func += (x: inout Self, y: Self) { x = x + y }
-
-
-    // MARK: Subtraction functions
-
-    /// Prefix minus
-    ///
-    /// - Parameter x: Self value
-    /// - Returns: -x
-    public prefix static func -(x: Self) -> Self {
-        if x.isNaN {
-            return Self.flagNaN()
-        } else if x.isInfinite {
-            return x.isNegative ? Self.infinity : Self.infinityN
-        } else {
-            return Self(-x.significand, x.exponent)
-        }
-    }
-
-    /// Subtraction
-    ///
-    /// - Parameters:
-    ///   - x: Minuend
-    ///   - y: Subtrahend
-    /// - Returns: x - y
-    public static func -(x: Self, y: Self) -> Self {
-        if x.isNaN || y.isNaN {
-            return Self.flagNaN()
-        } else if x.isInfinite {
-            if x.signum != y.signum {
-                return x
-            } else {
-                return y.isFinite ? x : Self.flagNaN()
-            }
-        } else if y.isInfinite {
-            return -y
-        }
-        if x.exponent > y.exponent {
-            return Self(x.significand * Rounding.pow10(x.exponent - y.exponent) - y.significand, y.exponent)
-        } else if x.exponent < y.exponent {
-            return Self(x.significand - y.significand * Rounding.pow10(y.exponent - x.exponent), x.exponent)
-        } else {
-            return Self(x.significand - y.significand, x.exponent)
-        }
-    }
-
-    /// x = x - y
-    ///
-    /// - Parameters:
-    ///   - x: Left hand minuend
-    ///   - y: Right hand subtrahend
-    public static func -= (x: inout Self, y: Self) { x = x - y }
-
 
     // MARK: Multiplication functions
 
@@ -741,7 +825,7 @@ extension BigDecimal {
                 return x.signum == y.signum ? infinity : -infinity
             }
         }
-        return Self(x.significand * y.significand, x.exponent + y.exponent)
+        return Self(x.digits * y.digits, x.exponent + y.exponent)
     }
 
     /// Multiplication
@@ -806,10 +890,10 @@ extension BigDecimal {
             return (q, r)
         }
         if self.exponent > d.exponent {
-            let q = Self((self.significand * Rounding.pow10(self.exponent - d.exponent)) / d.significand, 0)
+            let q = Self((self.digits * Rounding.pow10(self.exponent - d.exponent)) / d.digits, 0)
             return (q, self - q * d)
         } else {
-            let q = Self(self.significand / (d.significand * Rounding.pow10(d.exponent - self.exponent)), 0)
+            let q = Self(self.digits / (d.digits * Rounding.pow10(d.exponent - self.exponent)), 0)
             return (q, self - q * d)
         }
     }
@@ -867,7 +951,7 @@ extension BigDecimal {
         } else if ssignum == 0 {
             return 0
         } else if self.exponent == x.exponent {
-            return self.significand.comparedTo(x.significand)
+            return self.digits.comparedTo(x.digits)
         } else {
             var cmp: Int
             let sae = self.precision + self.exponent
@@ -877,9 +961,9 @@ extension BigDecimal {
             } else if sae > xae {
                 cmp = 1
             } else if self.exponent > x.exponent {
-                cmp = (self.significand.abs * Rounding.pow10(self.exponent - x.exponent)).comparedTo(x.significand.abs)
+                cmp = (self.digits.abs * Rounding.pow10(self.exponent - x.exponent)).comparedTo(x.digits.abs)
             } else {
-                cmp = self.significand.abs.comparedTo(x.significand.abs *
+                cmp = self.digits.abs.comparedTo(x.digits.abs *
                                 Rounding.pow10(x.exponent - self.exponent))
             }
             return ssignum > 0 ? cmp : -cmp
@@ -912,7 +996,7 @@ extension BigDecimal {
     ///   - x: First operand
     ///   - y: Second operand
     /// - Returns: *true* if x = y, *false* otherwise
-    public static func ==(x: Self, y: Self) -> Bool {
+    public static func == (x: Self, y: Self) -> Bool {
         return x.isNaN || y.isNaN ? false : x.compare(y) == 0
     }
 
@@ -973,9 +1057,7 @@ extension BigDecimal {
     /// - Parameters:
     ///   - rnd: Rounding object
     /// - Returns: The value of *self* rounded according to *rnd*
-    public func round(_ rnd: Rounding) -> Self {
-        return rnd.round(self)
-    }
+    public func round(_ rnd: Rounding) -> Self { rnd.round(self) }
 
     /// Scale by power of ten
     ///
@@ -988,7 +1070,7 @@ extension BigDecimal {
         } else if self.isInfinite {
             return self
         } else {
-            return Self(self.significand, self.exponent + n)
+            return Self(self.digits, self.exponent + n)
         }
     }
 
@@ -1002,13 +1084,13 @@ extension BigDecimal {
         if self.isNaN || self.isInfinite {
             return Self.flagNaN()
         } else if self.exponent > exp {
-            return Self(self.significand * Rounding.pow10(self.exponent - exp), exp)
+            return Self(self.digits * Rounding.pow10(self.exponent - exp), exp)
         } else if self.exponent < exp {
-            let (q, r) = self.significand.quotientAndRemainder(dividingBy: Rounding.pow10(exp - self.exponent))
+            let (q, r) = self.digits.quotientAndRemainder(dividingBy: Rounding.pow10(exp - self.exponent))
             if r.isZero {
                 return Self(q, exp)
             }
-            return Self(Rounding(mode, self.precision - self.exponent + exp).roundBInt(self.significand, exp - self.exponent), exp)
+            return Self(Rounding(mode, self.precision - self.exponent + exp).roundBInt(self.digits, exp - self.exponent), exp)
         } else {
             return self
         }
@@ -1019,7 +1101,8 @@ extension BigDecimal {
     /// - Parameters:
     ///   - other: a Self
     ///   - mode: Rounding mode
-    /// - Returns: Same value as *self* possibly rounded, with same exponent as *other*
+    /// - Returns: Same value as *self* possibly rounded, with same exponent
+    ///            as *other*
     public func quantize(_ other: Self, _ mode: Rounding.Mode) -> Self {
         if self.isInfinite && other.isInfinite {
             return self.isPositive ? Self.infinity : Self.infinityN

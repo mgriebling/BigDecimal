@@ -20,14 +20,14 @@ class TestConstructor: XCTestCase {
 
     func test1() {
         let big = BigDecimal(value)
-        XCTAssertEqual(big.significand, value)
+        XCTAssertEqual(big.digits, value)
         XCTAssertEqual(big.exponent, 0)
         XCTAssertFalse(BigDecimal.NaNFlag)
     }
 
     func test2() {
         let big = BigDecimal(value2, -5)
-        XCTAssertEqual(big.significand, value2)
+        XCTAssertEqual(big.digits, value2)
         XCTAssertEqual(big.exponent, -5)
         XCTAssertEqual(big.asString(), "123345.60000")
         XCTAssertFalse(BigDecimal.NaNFlag)

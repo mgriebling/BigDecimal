@@ -20,7 +20,7 @@ class TestBigDecimal: XCTestCase {
     }
 
     func equals(_ x: BigDecimal, _ y: BigDecimal) -> Bool {
-        return x.significand == y.significand && x.exponent == y.exponent
+        return x.digits == y.digits && x.exponent == y.exponent
     }
 
     let value = BInt(12345908)
@@ -40,7 +40,7 @@ class TestBigDecimal: XCTestCase {
         let add1 = BigDecimal("23.456")
         let add2 = BigDecimal("3849.235")
         let sum = add1 + add2
-        XCTAssertEqual(sum.significand.asString(), "3872691")
+        XCTAssertEqual(sum.digits.asString(), "3872691")
         XCTAssertEqual(sum.exponent, -3)
         XCTAssertEqual(sum.asString(), "3872.691")
         let add3 = BigDecimal(12.34E02)
@@ -65,13 +65,13 @@ class TestBigDecimal: XCTestCase {
         var divd3 = divd1.divide(divd2, Rounding(.up, 7))
         XCTAssertEqual(divd3.asString(), "52873.27")
         XCTAssertEqual(divd3.exponent, divd1.exponent)
-        XCTAssertEqual(divd3.significand.asString(), "5287327")
+        XCTAssertEqual(divd3.digits.asString(), "5287327")
 
         divd2 = BigDecimal(123.4)
         divd3 = divd1.divide(divd2, Rounding(.down, 6))
         XCTAssertEqual(divd3.asString(), "1000.47")
         XCTAssertEqual(divd3.exponent, -2)
-        XCTAssertEqual(divd3.significand.asInt(), 100047)
+        XCTAssertEqual(divd3.digits.asInt(), 100047)
         XCTAssertFalse(BigDecimal.NaNFlag)
     }
     
@@ -289,41 +289,41 @@ class TestBigDecimal: XCTestCase {
 
     func testSignificand() throws {
         var unsVal = BigDecimal("-2839485.000")
-        XCTAssertEqual(unsVal.significand.asString(), "-2839485000")
+        XCTAssertEqual(unsVal.digits.asString(), "-2839485000")
         
         unsVal = BigDecimal(123E10)
-        XCTAssertEqual(unsVal.significand.asString(), "1230000000000")
+        XCTAssertEqual(unsVal.digits.asString(), "1230000000000")
         
         unsVal = BigDecimal("-4.56E-13")
-        XCTAssertEqual(unsVal.significand.asString(), "-456")
+        XCTAssertEqual(unsVal.digits.asString(), "-456")
         
         unsVal = BigDecimal(value, 3)
-        XCTAssertEqual(unsVal.significand.asString(), "12345908")
+        XCTAssertEqual(unsVal.digits.asString(), "12345908")
         XCTAssertFalse(BigDecimal.NaNFlag)
     }
 
     func testFromInt() {
         var valueOfL = BigDecimal(9223372036854775806)
-        XCTAssertEqual(valueOfL.significand.asString(), "9223372036854775806")
+        XCTAssertEqual(valueOfL.digits.asString(), "9223372036854775806")
         XCTAssertEqual(valueOfL.exponent, 0)
         XCTAssertEqual(valueOfL.asString(), "9223372036854775806")
         
         valueOfL = BigDecimal(0)
-        XCTAssertEqual(valueOfL.significand.asString(), "0")
+        XCTAssertEqual(valueOfL.digits.asString(), "0")
         XCTAssertEqual(valueOfL.exponent, 0)
 
         var valueOfJI = BigDecimal(9223372036854775806, -5)
-        XCTAssertEqual(valueOfJI.significand.asString(), "9223372036854775806")
+        XCTAssertEqual(valueOfJI.digits.asString(), "9223372036854775806")
         XCTAssertEqual(valueOfJI.exponent, -5)
         XCTAssertEqual(valueOfJI.asString(), "92233720368547.75806")
         
         valueOfJI = BigDecimal(1234, -8)
-        XCTAssertEqual(valueOfJI.significand.asString(), "1234")
+        XCTAssertEqual(valueOfJI.digits.asString(), "1234")
         XCTAssertEqual(valueOfJI.exponent, -8)
         XCTAssertEqual(valueOfJI.asString(), "0.00001234")
         
         valueOfJI = BigDecimal(0, -3)
-        XCTAssertEqual(valueOfJI.significand.asString(), "0")
+        XCTAssertEqual(valueOfJI.digits.asString(), "0")
         XCTAssertEqual(valueOfJI.exponent, -3)
         XCTAssertEqual(valueOfJI.asString(), "0.000")
         XCTAssertFalse(BigDecimal.NaNFlag)

@@ -20,7 +20,7 @@ class TestDivision1: XCTestCase {
     }
 
     func equals(_ x: BigDecimal, _ y: BigDecimal) -> Bool {
-        return x.significand == y.significand && x.exponent == y.exponent
+        return x.digits == y.digits && x.exponent == y.exponent
     }
 
     func testPowersOf2and5() {
