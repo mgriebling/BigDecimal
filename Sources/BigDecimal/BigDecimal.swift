@@ -398,15 +398,15 @@ extension BigDecimal : FloatingPoint {
     }
     
     public func isTotallyOrdered(belowOrEqualTo other: Self) -> Bool {
-        self <= other // FIXME: - we need a real root
+        self <= other // FIXME: - flesh out
     }
     
     public var isNormal: Bool {
-        true // FIXME: - we need a real root
+        true // FIXME: - we need a normal
     }
     
     public var isSubnormal: Bool {
-        false // FIXME: - we need a real root
+        false // FIXME: - we need a subnormal
     }
     
     public var isCanonical: Bool {
@@ -829,15 +829,14 @@ extension BigDecimal {
                 return Self.zero
             } else {
                 return n == 0 ? Self.one :
-              (self.isPositive || n & 1 == 0 ? Self.infinity : -Self.infinity)
+                   (isPositive || n & 1 == 0 ? Self.infinity : -Self.infinity)
             }
         }
         if n < 0 {
-            return self.isZero ? Self.infinity :
-            Self.one.divide(Self(self.digits ** (-n),
-                                 self.exponent * (-n)), rnd)
+            return isZero ? Self.infinity
+                 : Self.one.divide(Self(digits ** (-n), exponent * (-n)), rnd)
         } else {
-            let x = Self(self.digits ** n, self.exponent * n)
+            let x = Self(digits ** n, exponent * n)
             return rnd == nil ? x : rnd!.round(x)
         }
     }
@@ -947,7 +946,8 @@ extension BigDecimal {
     /// - Parameters:
     ///   - d: Divisor
     /// - Returns: Quotient and remainder of the division *self* / d
-    public func quotientAndRemainder(_ d: Int) -> (quotient: Self, remainder: Self) {
+    public func quotientAndRemainder(_ d: Int) ->
+                                        (quotient: Self, remainder: Self) {
         return self.quotientAndRemainder(Self(d))
     }
 
@@ -1248,7 +1248,7 @@ extension BigDecimal {
         if digits == 0 {
             return Self.flagNaN()
         }
-        if (state == .startExponent || state == .inExponent) && expDigits == 0 {
+        if (state == .startExponent || state == .inExponent) && expDigits==0 {
             return Self.flagNaN()
         }
         let w = negValue ? -BInt(val)! : BInt(val)!
@@ -1279,11 +1279,11 @@ extension BigDecimal {
     // MARK: - Max and min Decimal32 / 64 / 128 values
     
     static let MAXDecimal = Self(BInt(0xffffffffffffffffffffffffffffffff), 127)
-    static let MAX32 = Self(9999999, 90)
+    static let MAX32 = Self(9_999_999, 90)
     static let MIN32 = Self(1, -101)
-    static let MAX64 = Self(9999999999999999, 369)
+    static let MAX64 = Self(9_999_999_999_999_999, 369)
     static let MIN64 = Self(1, -398)
-    static let MAX128 = Self(BInt(9999999999999999999999999999999999), 6111)
+    static let MAX128 = Self(BInt(9999_999999_999999_999999_999999_999999),6111)
     static let MIN128 = Self(1, -6176)
 
     // MARK: - Support Enumerations
@@ -1298,8 +1298,8 @@ extension BigDecimal {
         
         public var description: String {
             switch self {
-            case .bid: return "Binary Integer Decimal encoding"
-            case .dpd: return "Densely Packed Decimal encoding"
+                case .bid: return "Binary Integer Decimal encoding"
+                case .dpd: return "Densely Packed Decimal encoding"
             }
         }
     }
@@ -1309,7 +1309,8 @@ extension BigDecimal {
         /// Display possibly using scientific notation
         case scientific
         
-        /// Display possibly using engineering notation (i.e., exponents divisible by 3)
+        /// Display possibly using engineering notation (i.e., exponents
+        /// divisible by 3)
         case engineering
         
         /// Display value without scientific notation
@@ -1320,7 +1321,8 @@ extension BigDecimal {
             case .scientific:
                 return "Display possibly using scientific notation"
             case .engineering:
-                return "Display possibly using engineering notation (i.e., exponents divisible by 3)"
+                return "Display possibly using engineering notation (i.e., " +
+                    "exponents divisible by 3)"
             case .plain:
                 return "Plain display without scientific notation"
             }
