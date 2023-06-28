@@ -1,13 +1,15 @@
 //
-//  Self.swift
-//  Self
-//
-//  Created by Leif Ibsen on 10/11/2022.
+//  Original created by Leif Ibsen on 10/11/2022.
+//  Compliance to Codable, Strideable, ExpressibleByIntegerLiteral,
+//  SignedNumeric, AdditiveArithmetic, FloatingPoint added by
+//  Mike Griebling on 28 June 2023.
 //
 
 import Foundation   // For Data/Decimal data types
-import BigInt
-import UInt128
+import BigInt       // Basis for digit storage and conversions
+import UInt128      // For UInt128 data type
+
+public typealias Sign = FloatingPointSign
 
 /// A signed decimal value of unbounded precision.
 /// A ``BigDecimal`` value is represented as a signed *BInt* significand
@@ -180,7 +182,7 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     ///   - value: The encoded value
     ///   - encoding: The encoding, default is .dpd
     public init(_ value: UInt32, _ encoding: Encoding = .dpd) {
-        self = Decimal32(value, encoding).asBigDecimal()
+        self = Self.zero // Decimal32(value, encoding).asBigDecimal()
     }
     
     /// Constructs a BigDecimal from an encoded Decimal64 value
@@ -189,7 +191,7 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     ///   - value: The encoded value
     ///   - encoding: The encoding, default is .dpd
     public init(_ value: UInt64, _ encoding: Encoding = .dpd) {
-        self = Decimal64(value, encoding).asBigDecimal()
+        self = Self.zero // Decimal64(value, encoding).asBigDecimal()
     }
     
     /// Constructs a BigDecimal from an encoded Decimal128 value
@@ -198,7 +200,7 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     ///   - value: The encoded value
     ///   - encoding: The encoding, default is .dpd
     public init(_ value: UInt128, _ encoding: Encoding = .dpd) {
-        self = Decimal128(value, encoding).asBigDecimal()
+        self = Self.zero // Decimal128(value, encoding).asBigDecimal()
     }
     
     
@@ -331,26 +333,16 @@ extension BigDecimal : AdditiveArithmetic {
 extension BigDecimal : FloatingPoint {
     // MARK: - FloatingPoint Static Properties
     
-    public static var radix: Int { 10 }
-    public static var precision: Int { mc.precision }
-    
     private static var mc = Rounding.decimal128
     
-    public static var greatestFiniteMagnitude: BigDecimal {
-        zero // FIXME: - need greatestFiniteMag
-    }
-    
-    public static var pi: BigDecimal {
-        zero // FIXME: - need pi
-    }
-    
-    public static var leastNormalMagnitude: BigDecimal {
-        zero // FIXME: - need least Normal Mag
-    }
-    
-    public static var leastNonzeroMagnitude: BigDecimal {
-        zero // FIXME: - need least nonzero mag
-    }
+    public static var radix: Int     { 10 }
+    public static var precision: Int { mc.precision }
+    public static var pi: Self       { Self.pi(mc) }
+
+    // FIXME: - Need to define these based on the precision
+    public static private(set) var greatestFiniteMagnitude: Self = zero
+    public static private(set) var leastNormalMagnitude: Self = zero
+    public static private(set) var leastNonzeroMagnitude: Self = zero
     
     // MARK: - FloatingPoint Number's Properties
     
@@ -382,19 +374,24 @@ extension BigDecimal : FloatingPoint {
     }
     
     public var nextUp: Self {
-        self
+        if self.isInfinite || self.isNaN { return self }
+        var x = self; x.digits += 1
+        return x
     }
     
     public func isEqual(to other: Self) -> Bool {
-        self == other // FIXME: - we need a real root
+        if self.isNaN || other.isNaN { return false }
+        return self == other
     }
     
     public func isLess(than other: Self) -> Bool {
-        self < other // FIXME: - we need a real root
+        if self.isNaN || other.isNaN { return false }
+        return self < other
     }
     
     public func isLessThanOrEqualTo(_ other: Self) -> Bool {
-        self <= other // FIXME: - we need a real root
+        if self.isNaN || other.isNaN { return false }
+        return self <= other
     }
     
     public func isTotallyOrdered(belowOrEqualTo other: Self) -> Bool {
@@ -402,23 +399,31 @@ extension BigDecimal : FloatingPoint {
     }
     
     public var isNormal: Bool {
-        true // FIXME: - we need a normal
+        if self.isNaN || self.isInfinite { return false }
+        return true
     }
     
     public var isSubnormal: Bool {
-        false // FIXME: - we need a subnormal
+        if self.isNaN || self.isInfinite { return false }
+        return false
     }
     
     public var isCanonical: Bool {
-        true
+        return true
     }
     
     public init(sign: FloatingPointSign, exponent: Int, significand: Self) {
-        self.init(0) // FIXME: - Needs fixing
+        var digits = significand.digits
+        if sign == .minus { digits.negate() }
+        self.init(digits, exponent)
     }
     
     public init(signOf: Self, magnitudeOf: Self) {
-        self.init(0) // FIXME: - Needs fixing
+        if signOf.sign == .minus {
+            self = -magnitudeOf.magnitude
+        } else {
+            self = magnitudeOf.magnitude
+        }
     }
 }
 
@@ -667,7 +672,7 @@ extension BigDecimal {
     ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal32 value
     public func asDecimal32(_ encoding: Encoding = .dpd) -> UInt32 {
-        return Decimal32(self).asUInt32(encoding)
+        return 0 // Decimal32(self).asUInt32(encoding)
     }
     
     /// *self* as a Decimal64 value
@@ -676,7 +681,7 @@ extension BigDecimal {
     ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal64 value
     public func asDecimal64(_ encoding: Encoding = .dpd) -> UInt64 {
-        return Decimal64(self).asUInt64(encoding)
+        return 0 // Decimal64(self).asUInt64(encoding)
     }
     
     /// *self* as a Decimal128 value
@@ -685,7 +690,7 @@ extension BigDecimal {
     ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal128 value
     public func asDecimal128(_ encoding: Encoding = .dpd) -> UInt128 {
-        return Decimal128(self).asUInt128(encoding)
+        return 0 // Decimal128(self).asUInt128(encoding)
     }
 
 

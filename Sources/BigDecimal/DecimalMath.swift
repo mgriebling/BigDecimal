@@ -1,8 +1,8 @@
 //
 //  BigDecimalMath.swift
-//  Decimals
 //
-//  Created by Mike Griebling on 25.06.2023.
+//  Created by Mike Griebling on 25.06.2023 from an original Java
+//  implementation.
 //
 
 import BigInt
@@ -162,7 +162,7 @@ public extension BigDecimal {
                 }
                 let mc = Rounding(mc.mode, adaptivePrecision)
                 result = x.divide(result,mc).add(last,mc).multiply(oneHalf,mc)
-                print(result)
+                // print(result)
             } while adaptivePrecision < maxPrecision ||
                     result.subtract(last, mc).abs > acceptableError
         }
@@ -308,6 +308,73 @@ public extension BigDecimal {
         }
 
         return result.round(mc)
+    }
+    
+    /**
+     * Returns the number pi.
+     *
+     * <p>See <a href="https://en.wikipedia.org/wiki/Pi">Wikipedia: Pi</a></p>
+     *
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the number pi with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     **/
+    static func pi(_ mc: Rounding) -> Self {
+        //checkMathContext(mathContext);
+        let result: Self?
+        
+        if let pi = piCache, mc.precision <= pi.precision {
+            result = pi
+        } else {
+            piCache = piChudnovski(mc)
+            return piCache!
+        }
+        
+        return mc.round(result!)
+    }
+    
+    private static var piCache: BigDecimal?
+    
+    private static func piChudnovski(_ mc: Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 10)
+
+        let value24 = Self(24)
+        let value640320 = Self(640320)
+        let value13591409 = Self(13591409)
+        let value545140134 = Self(545140134)
+        let valueDivisor = value640320.pow(3).divide(value24, mc2)
+
+        var sumA = Self.one
+        var sumB = Self.zero
+
+        var a = Self.one
+        var dividendTerm1 = 5; // -(6*k - 5)
+        var dividendTerm2 = -1; // 2*k - 1
+        var dividendTerm3 = -1; // 6*k - 1
+        var kPower3 = Self.zero
+        
+        let iterationCount = (mc2.precision+13) / 14
+        for k in 1...iterationCount {
+            let valueK = Self(k)
+            dividendTerm1 += -6
+            dividendTerm2 += 2
+            dividendTerm3 += 6
+            let dividend = Self(dividendTerm1) * Self(dividendTerm2) * Self(dividendTerm3)
+            kPower3 = valueK.pow(3)
+            let divisor = kPower3.multiply(valueDivisor, mc2)
+            a = (a * dividend).divide(divisor, mc2)
+            let b = valueK.multiply(a, mc2);
+            
+            sumA = sumA + a
+            sumB = sumB + b
+        }
+        
+        let value426880 = Self(426880)
+        let value10005 = Self(10005)
+        let factor = value426880 * sqrt(value10005, mc2)
+        let pi = factor.divide(value13591409.multiply(sumA, mc2) +
+                               (value545140134.multiply(sumB, mc2)), mc2)
+        return mc.round(pi)
     }
     
     /**

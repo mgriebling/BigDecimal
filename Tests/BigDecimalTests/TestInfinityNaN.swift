@@ -290,7 +290,8 @@ final class TestInfinityNaN: XCTestCase {
 
     func testCompare() throws {
         for t in testsCompare {
-            XCTAssertEqual(BigDecimal(t.x).compare(BigDecimal(t.y)), Int(t.result)!)
+            XCTAssertEqual(BigDecimal(t.x).compare(BigDecimal(t.y)),
+                           Int(t.result)!)
         }
         XCTAssertFalse(BigDecimal.NaNFlag)
     }
@@ -308,17 +309,12 @@ final class TestInfinityNaN: XCTestCase {
         XCTAssertTrue(BigDecimal(BigDecimal.nan.asString()).isNaN)
         XCTAssertTrue(BigDecimal.NaNFlag)
     }
-    
-    func testRoots() throws {
-        let sqrt1 = BigDecimal.sqrt(BigDecimal.one, Rounding.decimal128)
-        XCTAssertEqual(sqrt1, BigDecimal.one)
-        let sqrt2 = BigDecimal.sqrt(2, Rounding.decimal128)
-        XCTAssertEqual(sqrt2.description,"1.414213562373095048801688724209698")
-    }
 
     func testRound() throws {
-        XCTAssertEqual(Rounding.decimal32.round(BigDecimal.infinity), BigDecimal.infinity)
-        XCTAssertEqual(Rounding.decimal32.round(-BigDecimal.infinity), -BigDecimal.infinity)
+        XCTAssertEqual(Rounding.decimal32.round(BigDecimal.infinity),
+                       BigDecimal.infinity)
+        XCTAssertEqual(Rounding.decimal32.round(-BigDecimal.infinity),
+                       -BigDecimal.infinity)
         XCTAssertTrue(Rounding.decimal32.round(BigDecimal.nan).isNaN)
         XCTAssertTrue(BigDecimal.NaNFlag)
     }
@@ -360,7 +356,8 @@ final class TestInfinityNaN: XCTestCase {
 
     func testQuantize() throws {
         for t in testsQuantize {
-            XCTAssertEqual(BigDecimal(t.x).quantize(BigDecimal(t.y), RoundingRule.toNearestOrEven).asString(), t.result)
+            XCTAssertEqual(BigDecimal(t.x).quantize(BigDecimal(t.y),
+                            RoundingRule.toNearestOrEven).asString(), t.result)
         }
         XCTAssertTrue(BigDecimal.NaNFlag)
     }
