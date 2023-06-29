@@ -55,11 +55,11 @@ limitations under the License.
 public struct Decimal64 : Codable, Hashable {
     
     // Decimal64 characteristics
-    static let maxSignificand = UInt64(9_999_999_999_999_999)
-    static let exponentBias   = 398
-    static let maxExponent    = 369
-    static let exponentBits   = 10
-    static let maxDigits      = 16
+    static let largestNumber = UInt64(9_999_999_999_999_999)
+    static let exponentBias  = 398
+    static let maxExponent   = 369
+    static let exponentBits  = 10
+    static let maxDigits     = 16
     
   public typealias ID = BigDecimal
   var bid: UInt64

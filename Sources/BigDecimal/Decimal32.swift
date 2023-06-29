@@ -25,10 +25,10 @@ import BigInt
 /// the binary encoding format for decimal floating-point values, but the
 /// decimal encoding format is supported too in the library, by means of
 /// conversion functions between the two encoding formats.
-public struct Decimal32 : Codable, Hashable {
-    
+public struct Decimal32 : DecimalType, Codable, Hashable {
+
     // Decimal32 characteristics
-    static let maxSignificand = 9_999_999
+    static let largestNumber  = UInt32(9_999_999)
     static let exponentBias   = 101
     static let maxExponent    = 90
     static let exponentBits   = 8
@@ -38,6 +38,7 @@ public struct Decimal32 : Codable, Hashable {
     
     public typealias RawExponent = UInt
     public typealias RawSignificand = UInt32
+    public typealias RawBitPattern = UInt32
     
     // Internal data store for the binary integer decimal encoded number.
     // The internal representation is always binary integer decimal.
@@ -168,11 +169,11 @@ extension Decimal32 : FloatingPoint {
     public static var infinity:Self             { Self(bid:ID.infinity) }
     
     public static var greatestFiniteMagnitude: Self {
-        Self(bid: ID(maxSignificand, maxExponent))
+        Self(bid: ID(Int(largestNumber), maxExponent))
     }
     
     public static var leastNormalMagnitude: Self {
-        Self(bid: ID(maxSignificand, 0))
+        Self(bid: ID(Int(largestNumber), 0))
     }
     
     public static var leastNonzeroMagnitude: Self {
@@ -451,7 +452,7 @@ extension Decimal32 {
             sig += ID.decodeDPD[(value >> 10) & 0x3ff]
             sig *= 1000
             sig += ID.decodeDPD[value & 0x3ff]
-            if sig > Self.maxSignificand {
+            if sig > Self.largestNumber {
                 sig = 0
             }
             let sign = value & Self.negative
@@ -496,7 +497,6 @@ extension Decimal32 {
     public var isNaN: Bool      { bid & Self.nanMask == Self.nanMask }
     public var isInfinite: Bool { bid & Self.infinite == Self.infinite }
     var isNegative: Bool        { bid & Self.negative == Self.negative }
-    var isSpecial: Bool         { bid & Self.special == Self.special }
     
     func asBigDecimal() -> BigDecimal {
         if self.isNaN {
@@ -519,7 +519,7 @@ extension Decimal32 {
         let significand = significandBitPattern
         let exponent = UInt32(self.exponent + Self.exponentBias)
         assert(exponent <= Self.exponentBias + Self.maxExponent)
-        assert(significand <= Self.maxSignificand)
+        assert(significand <= Self.largestNumber)
         var value = self.isNegative ? Self.negative : 0
 
         let d1 = UInt32(significand % 1000)

@@ -15,6 +15,86 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+public typealias IntRange = ClosedRange<Int>
+
+protocol DecimalType : Codable, Hashable {
+  
+  associatedtype RawData : UnsignedInteger & FixedWidthInteger
+  associatedtype RawBitPattern : UnsignedInteger & FixedWidthInteger
+  associatedtype RawSignificand : UnsignedInteger & FixedWidthInteger
+  
+  /// Storage of the Decimal number in a raw binary integer decimal
+  /// encoding as per IEEE STD 754-2008
+  var bid: RawData { get set }
+  
+  //////////////////////////////////////////////////////////////////
+  /// Initializers
+  
+  /// Initialize with a raw data word
+  init(_ word: RawData)
+  
+  /// Initialize with sign, biased exponent, and unsigned significand
+//  init(sign: Sign, expBitPattern: Int, sigBitPattern: RawBitPattern)
+
+  
+  init(nan payload: RawSignificand, signaling: Bool)
+  
+  //////////////////////////////////////////////////////////////////
+  /// Conversions from/to densely packed decimal numbers
+  
+  /// Initializes the number from a DPD number
+  // init(dpd: RawData)
+  
+  /// Returns a DPD number
+  // var dpd: RawData { get }
+  
+  //////////////////////////////////////////////////////////////////
+  /// Essential data to extract or update from the fields
+  
+  /// Sign of the number
+  var sign: Sign { get set }
+  
+  /// Encoded unsigned exponent of the number
+  var expBitPattern: Int { get }
+  
+  /// Encoded unsigned binary integer decimal significand of the number
+  var sigBitPattern: RawBitPattern { get }
+  
+  /// Setting requires both the significand and exponent so that a
+  /// decision can be made on whether the significand is small or large.
+  // mutating func set(exponent: Int, sigBitPattern: RawBitPattern)
+  
+  //////////////////////////////////////////////////////////////////
+  /// Special number definitions
+//  static var snan: Self { get }
+//  
+//  static func zero(_ sign: Sign) -> Self
+//  static func nan(_ sign: Sign, _ payload: RawSignificand) -> Self
+  // static func infinite(_ sign: Sign) -> Self
+  // static func max(_ sign: Sign) -> Self
+  
+  //////////////////////////////////////////////////////////////////
+  /// Decimal number definitions
+  static var signBit: Int { get }
+  static var specialBits: IntRange { get }
+  
+  static var exponentBias: Int  { get }
+  static var exponentBits: Int  { get }
+  static var maxExponent: Int   { get }
+  static var minExponent: Int   { get }
+  static var maxDigits: Int     { get }
+
+  static var largestNumber: RawBitPattern { get }
+  
+  // For large significand
+  static var exponentLMBits: IntRange { get }
+  static var largeSignificandBits: IntRange { get }
+  
+  // For small significand
+  static var exponentSMBits: IntRange { get }
+  static var smallSignificandBits: IntRange { get }
+}
+
 /// A radix-10 (decimal) floating-point type.
 ///
 /// The `DecimalFloatingPoint` protocol extends the `FloatingPoint` protocol
@@ -130,7 +210,190 @@ public protocol DecimalFloatingPoint : FloatingPoint {
   /// - If `x` is Decimal32.pi, `x.significand` is `3.141593` in
   ///   decimal, and `x.significandDigitCount` is 7.
   var significandDigitCount: Int { get }
-  
+}
+
+/// Free functionality when complying with DecimalType
+extension DecimalType {
+    
+    static var highSignificandBit: RawBitPattern {
+        RawBitPattern(1) << exponentLMBits.lowerBound
+    }
+    
+    static var largestSignificand: RawBitPattern { (largestNumber+1)/10 }
+//    static var largestBID : Self { max(.plus) }
+    
+//    @inlinable static func infinite(_ s: Sign = .plus) -> Self {
+//        Self(inf(s))
+//    }
+    
+    @inlinable static func max<T:BinaryFloatingPoint>(_ s:Sign) -> T {
+        s == .minus ? -T.greatestFiniteMagnitude : .greatestFiniteMagnitude
+    }
+    
+    @inlinable static func dzero<T:BinaryFloatingPoint>(_ s:Sign) -> T {
+        s == .minus ? -T.zero : .zero
+    }
+    
+    @inlinable static func inf<T:BinaryFloatingPoint>(_ s:Sign) -> T {
+        s == .minus ? -T.infinity : .infinity
+    }
+    
+    // Doesn't change for the different types of Decimals
+    static var minExponent: Int { 0 }
+    
+    /// These bit fields can be predetermined just from the size of
+    /// the number type `RawDataFields` `bitWidth`
+    static var maxBit: Int              { RawData.bitWidth - 1 }
+    static var signBit: Int             { maxBit }
+    static var specialBits: IntRange    { maxBit-2 ... maxBit-1 }
+    static var nanBitRange: IntRange    { maxBit-6 ... maxBit-1 }
+    static var infBitRange: IntRange    { maxBit-5 ... maxBit-1 }
+    static var nanClearRange: IntRange  { 0 ... maxBit-7 }
+    static var g6tog10Range: IntRange   { maxBit-11 ... maxBit-7 }
+    
+    static var exponentLMBits: IntRange { maxBit-exponentBits ... maxBit-1 }
+    static var exponentSMBits: IntRange { maxBit-exponentBits-2 ... maxBit-3 }
+    
+    // Two significand sizes must be supported
+    static var largeSignificandBits: IntRange { 0...maxBit-exponentBits-1 }
+    static var smallSignificandBits: IntRange { 0...maxBit-exponentBits-3 }
+    
+    // masks for clearing bits
+    static var sNanRange: IntRange      { 0 ... maxBit-6 }
+    static var sInfinityRange: IntRange { 0 ... maxBit-5 }
+    
+    static func nanQuiet(_ x:RawBitPattern) -> Self {
+        Self(RawData(x.clearing(bit:nanBitRange.lowerBound)))
+    }
+    
+    /// bit field definitions for DPD numbers
+    static var lowMan: Int    { smallSignificandBits.upperBound }
+    static var upperExp1: Int { exponentSMBits.upperBound }
+    static var upperExp2: Int { exponentLMBits.upperBound }
+    
+    static var expLower: IntRange { lowMan...maxBit-6 }
+    static var manLower: IntRange { 0...lowMan-1 }
+    static var expUpper: IntRange { lowMan+1...lowMan+6 }
+    
+    /// Bit patterns prefixes for special numbers
+    static var nanPattern: Int      { 0b1_1111_0 }
+    static var snanPattern: Int     { 0b1_1111_1 }
+    static var infinitePattern: Int { 0b1_1110 }
+    static var specialPattern: Int  { 0b11 }
+    
+    static var trailingPattern: Int { 0x3ff }
+    
+    public init?(_ s: String, rounding rule: RoundingRule = .toNearestOrEven) {
+        self.init(0)
+        let big = BigDecimal(s).round(Rounding(rule, Self.maxDigits))
+        if Self.self == Decimal32.self {
+            bid = RawData(big.asDecimal32(.bid))
+        } else if Self.self == Decimal64.self {
+            bid = RawData(big.asDecimal64(.bid))
+        } else if Self.self == Decimal128.self {
+            bid = RawData(big.asDecimal128(.bid))
+        } else {
+            return nil
+        }
+    }
+    
+//    public init(nan payload: RawSignificand, signaling: Bool) {
+//        let pattern = signaling ? Self.snanPattern : Self.nanPattern
+//        let man = payload > Self.largestNumber/10 ? 0 : RawBitPattern(payload)
+//        self.init(0)
+//        set(exponent: pattern<<(Self.exponentBits-6), sigBitPattern: man)
+//    }
+    
+    @inlinable var isSpecial: Bool {
+        bid.get(range: Self.specialBits) == Self.specialPattern
+    }
+    
+    @inlinable var nanBits: Int { bid.getInt(range: Self.nanBitRange) }
+    
+    @inlinable var isNaNInf: Bool {
+      nanBits & Self.nanPattern == Self.infinitePattern<<1
+    }
+    
+    var isNaN: Bool      { nanBits & Self.nanPattern == Self.nanPattern }
+    var isSNaN: Bool     { nanBits & Self.snanPattern == Self.snanPattern }
+    
+    var isFinite: Bool {
+      let infinite = Self.infinitePattern
+      let data = bid.getInt(range: Self.signBit-5...Self.signBit-1)
+      return (data & infinite != infinite)
+    }
+    
+    @inlinable var isInfinite: Bool {
+      let data = bid.getInt(range: Self.infBitRange)
+      return (data & Self.infinitePattern) == Self.infinitePattern
+    }
+    
+    @inlinable
+    var isValid: Bool {
+      if isNaN { return false }
+      if isSpecial {
+        if isInfinite { return false }
+        if sigBitPattern>Self.largestNumber || sigBitPattern==0 { return false }
+      } else {
+        if sigBitPattern == 0 { return false }
+      }
+      return true
+    }
+    
+    var isCanonical: Bool {
+      if isNaN {
+        if (bid & 0x01f0 << (Self.maxBit - 16)) != 0 {
+          // FIXME: - what is this? Decimal32 had mask of 0x01fc
+          return false
+        } else if bid.get(range:Self.manLower) > Self.largestNumber/10 {
+          return false
+        } else {
+          return true
+        }
+      } else if isInfinite {
+        return bid.get(range:0...Self.exponentLMBits.lowerBound+2) == 0
+      } else if isSpecial {
+        return sigBitPattern <= Self.largestNumber
+      } else {
+        return true
+      }
+    }
+    
+    @inlinable var sign: Sign {
+        get { Sign(rawValue: bid.get(bit: Self.signBit))! }
+        set { bid.set(bit: Self.signBit, with: newValue.rawValue) }
+    }
+    
+    @inlinable var expBitPattern: Int {
+        let range = isSpecial ? Self.exponentSMBits : Self.exponentLMBits
+        return bid.getInt(range: range)
+    }
+    
+    @inlinable var sigBitPattern: RawBitPattern {
+        let range = isSpecial ? Self.smallSignificandBits
+        : Self.largeSignificandBits
+        if isSpecial {
+            return RawBitPattern(bid.get(range:range)) + Self.highSignificandBit
+        } else {
+            return RawBitPattern(bid.get(range:range))
+        }
+    }
+    
+//    @inlinable static var snan: Self {
+//      Self(sign: .plus, expBitPattern: snanPattern<<(exponentBits-6),
+//           sigBitPattern: 0)
+//    }
+//    
+//    @inlinable static func zero(_ sign: Sign = .plus) -> Self {
+//      Self(sign: sign, expBitPattern: exponentBias, sigBitPattern: 0)
+//    }
+//    
+//    @inlinable
+//    static func nan(_ sign:Sign = .plus, _ payload:RawSignificand = 0) -> Self {
+//      let man = payload > largestNumber/10 ? 0 : RawBitPattern(payload)
+//      return Self(sign:sign, expBitPattern:nanPattern<<(exponentBits-6),
+//                  sigBitPattern:man)
+//    }
 }
 
 extension DecimalFloatingPoint {

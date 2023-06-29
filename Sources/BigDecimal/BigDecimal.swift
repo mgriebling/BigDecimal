@@ -1288,11 +1288,11 @@ extension BigDecimal {
     // MARK: - Max and min Decimal32 / 64 / 128 values
     
     static let MAXDecimal = Self(BInt(0xffffffffffffffffffffffffffffffff), 127)
-    static let MAX32 = Self(Decimal32.maxSignificand, Decimal32.maxExponent)
+    static let MAX32 = Self(Int(Decimal32.largestNumber), Decimal32.maxExponent)
     static let MIN32 = Self(1, -Decimal32.exponentBias)
-    static let MAX64 = Self(BInt(Decimal64.maxSignificand), Decimal64.maxExponent)
+    static let MAX64 = Self(BInt(Decimal64.largestNumber), Decimal64.maxExponent)
     static let MIN64 = Self(1, -Decimal64.exponentBias)
-    static let MAX128 = Self(BInt(Decimal128.maxSignificand), Decimal128.maxExponent)
+    static let MAX128 = Self(BInt(Decimal128.largestNumber), Decimal128.maxExponent)
     static let MIN128 = Self(1, -Decimal64.exponentBias)
 
     // MARK: - Support Enumerations

@@ -58,7 +58,7 @@ import UInt128
 public struct Decimal128 : Codable, Hashable {
     
     // Decimal64 characteristics
-    static let maxSignificand =
+    static let largestNumber =
                         UInt128(9_999_999_999_999_999_999_999_999_999_999_999)
     static let exponentBias   = 6176
     static let maxExponent    = 6111
