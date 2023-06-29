@@ -32,23 +32,27 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     public static let ten = Self(10)
     
     /// BigDecimal('NaN')
-    public static let nan = Self(.plus, false, true, false)
+    public static let nan = Self(.qnan)
     
     /// BigDecimal('Infinity')
-    public static let infinity = Self(.plus, true, false, false)
+    public static let infinity = Self(.infinite)
     
     /// BigDecimal('sNaN')
-    public static let signalingNaN = Self(.plus, false, false, true)
+    public static let signalingNaN = Self(.snan)
+    
+    // MARK: - Special encodings for infinite, NaN, sNaN, etc.
+    enum Special : Codable {
+        case none, qnan, snan, infinite
+    }
     
     // MARK: - Initializers
     
-    private init(_ sign: FloatingPointSign, _ infinity: Bool, _ nan: Bool,
-                 _ snan: Bool) {
-        self.isInfinite = infinity
-        self.isNaN = nan
-        self.isSignalingNaN = snan
-        self.digits = (nan || snan) ? BInt.zero
-                                    : (sign == .plus ? BInt.one : -BInt.one)
+    init(_ type: Special, _ payload: BInt = 0, sign: Sign = .plus) {
+        var load = payload.magnitude
+        if type == .infinite { load = 1 } // BInt doesn't negate 0s so kludge
+        if sign == .minus { load.negate() }
+        self.special = type
+        self.digits = load
         self.exponent = 0
         self.precision = 1
     }
@@ -68,9 +72,7 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     ///   - significand: The digits
     ///   - exponent: The exponent, default is 0
     public init(_ significand: BInt, _ exponent: Int = 0) {
-        self.isNaN = false
-        self.isSignalingNaN = false
-        self.isInfinite = false
+        self.special = .none
         self.digits = significand
         self.exponent = exponent
         self.precision = significand.abs.asString().count
@@ -182,7 +184,7 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     ///   - value: The encoded value
     ///   - encoding: The encoding, default is .dpd
     public init(_ value: UInt32, _ encoding: Encoding = .dpd) {
-        self = Self.zero // Decimal32(value, encoding).asBigDecimal()
+        self = Decimal32(value, encoding).asBigDecimal()
     }
     
     /// Constructs a BigDecimal from an encoded Decimal64 value
@@ -216,14 +218,8 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     /// The number of decimal digits in *significand*
     public internal(set) var precision: Int
     
-    /// Is *true* if *self* is infinite
-    public internal(set) var isInfinite: Bool
-    
-    /// Is *true* if *self* is NaN
-    public internal(set) var isNaN: Bool
-    
-    /// Is *true* if *self* is sNaN
-    public internal(set) var isSignalingNaN: Bool
+    /// Special encodings are defined here (e.g., NaN, Infinity)
+    var special: Special
 }
 
 extension BigDecimal : LosslessStringConvertible { }
@@ -258,8 +254,7 @@ extension BigDecimal : SignedNumeric {
         if x.isNaN {
             return Self.flagNaN()
         } else if x.isInfinite {
-            return x.isNegative ? Self.infinity
-                                : Self(.minus, true, false, false)
+            return x.isNegative ? Self.infinity : Self(.infinite, sign: .minus)
         } else {
             return Self(-x.digits, x.exponent)
         }
@@ -275,7 +270,7 @@ extension BigDecimal : AdditiveArithmetic {
     ///   - x: First addend
     ///   - y: Second addend
     /// - Returns: x + y
-    public static func +(x: Self, y: Self) -> Self {
+    public static func + (x: Self, y: Self) -> Self {
         if x.isNaN || y.isNaN {
             return Self.flagNaN()
         } else if x.isInfinite {
@@ -442,6 +437,15 @@ extension BigDecimal {
 
     /// Is *true* if *self* is a finite number
     public var isFinite: Bool { !self.isNaN && !self.isInfinite }
+    
+    /// Is *true* if *self* is a NaN number
+    public var isNaN: Bool { self.special == .qnan }
+    
+    /// Is *true* if *self* is a signaling NaN number
+    public var isSignalingNaN: Bool { self.special == .snan }
+    
+    /// Is *true* if *self* is an infinite number
+    public var isInfinite: Bool { self.special == .infinite }
 
     /// Is *true* if *self* < 0, *false* otherwise
     public var isNegative: Bool { self.isNaN ? false : self.signum < 0 }
@@ -672,7 +676,7 @@ extension BigDecimal {
     ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal32 value
     public func asDecimal32(_ encoding: Encoding = .dpd) -> UInt32 {
-        return 0 // Decimal32(self).asUInt32(encoding)
+        Decimal32(self).asUInt32(encoding)
     }
     
     /// *self* as a Decimal64 value
@@ -681,7 +685,7 @@ extension BigDecimal {
     ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal64 value
     public func asDecimal64(_ encoding: Encoding = .dpd) -> UInt64 {
-        return 0 // Decimal64(self).asUInt64(encoding)
+        0 // Decimal64(self).asUInt64(encoding)
     }
     
     /// *self* as a Decimal128 value
@@ -690,7 +694,7 @@ extension BigDecimal {
     ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal128 value
     public func asDecimal128(_ encoding: Encoding = .dpd) -> UInt128 {
-        return 0 // Decimal128(self).asUInt128(encoding)
+        0 // Decimal128(self).asUInt128(encoding)
     }
 
 
@@ -1284,12 +1288,12 @@ extension BigDecimal {
     // MARK: - Max and min Decimal32 / 64 / 128 values
     
     static let MAXDecimal = Self(BInt(0xffffffffffffffffffffffffffffffff), 127)
-    static let MAX32 = Self(9_999_999, 90)
-    static let MIN32 = Self(1, -101)
-    static let MAX64 = Self(9_999_999_999_999_999, 369)
-    static let MIN64 = Self(1, -398)
-    static let MAX128 = Self(BInt(9999_999999_999999_999999_999999_999999),6111)
-    static let MIN128 = Self(1, -6176)
+    static let MAX32 = Self(Decimal32.maxSignificand, Decimal32.maxExponent)
+    static let MIN32 = Self(1, -Decimal32.exponentBias)
+    static let MAX64 = Self(BInt(Decimal64.maxSignificand), Decimal64.maxExponent)
+    static let MIN64 = Self(1, -Decimal64.exponentBias)
+    static let MAX128 = Self(BInt(Decimal128.maxSignificand), Decimal128.maxExponent)
+    static let MIN128 = Self(1, -Decimal64.exponentBias)
 
     // MARK: - Support Enumerations
     

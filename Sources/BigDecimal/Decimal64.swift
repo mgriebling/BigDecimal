@@ -53,6 +53,14 @@ limitations under the License.
 /// decimal encoding format is supported too in the library, by means of
 /// conversion functions between the two encoding formats.
 public struct Decimal64 : Codable, Hashable {
+    
+    // Decimal64 characteristics
+    static let maxSignificand = UInt64(9_999_999_999_999_999)
+    static let exponentBias   = 398
+    static let maxExponent    = 369
+    static let exponentBits   = 10
+    static let maxDigits      = 16
+    
   public typealias ID = BigDecimal
   var bid: UInt64
   

@@ -38,7 +38,7 @@ public struct Rounding: Equatable {
     // MARK: Constants
 
     /// Decimal32 rounding: .toNearestOrEven, 7
-    public static let decimal32 = Rounding(.toNearestOrEven, 7)
+    public static let decimal32=Rounding(.toNearestOrEven, Decimal32.maxDigits)
     /// Decimal64 rounding: .toNearestOrEven, 16
     public static let decimal64 = Rounding(.toNearestOrEven, 16)
     /// Decimal128 rounding: .toNearestOrEven, 34

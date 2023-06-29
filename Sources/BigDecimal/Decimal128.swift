@@ -56,6 +56,15 @@ import UInt128
 /// decimal encoding format is supported too in the library, by means of
 /// conversion functions between the two encoding formats.
 public struct Decimal128 : Codable, Hashable {
+    
+    // Decimal64 characteristics
+    static let maxSignificand =
+                        UInt128(9_999_999_999_999_999_999_999_999_999_999_999)
+    static let exponentBias   = 6176
+    static let maxExponent    = 6111
+    static let exponentBits   = 14
+    static let maxDigits      = 34
+    
   public typealias ID = BigDecimal
     public typealias RawSignificand = UInt128
     
