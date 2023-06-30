@@ -193,7 +193,7 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     ///   - value: The encoded value
     ///   - encoding: The encoding, default is .dpd
     public init(_ value: UInt64, _ encoding: Encoding = .dpd) {
-        self = Self.zero // Decimal64(value, encoding).asBigDecimal()
+        self = Decimal64(value, encoding).asBigDecimal()
     }
     
     /// Constructs a BigDecimal from an encoded Decimal128 value
@@ -202,7 +202,7 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     ///   - value: The encoded value
     ///   - encoding: The encoding, default is .dpd
     public init(_ value: UInt128, _ encoding: Encoding = .dpd) {
-        self = Self.zero // Decimal128(value, encoding).asBigDecimal()
+        self = Decimal128(value, encoding).asBigDecimal()
     }
     
     
@@ -685,7 +685,7 @@ extension BigDecimal {
     ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal64 value
     public func asDecimal64(_ encoding: Encoding = .dpd) -> UInt64 {
-        0 // Decimal64(self).asUInt64(encoding)
+        Decimal64(self).asUInt64(encoding)
     }
     
     /// *self* as a Decimal128 value
@@ -694,7 +694,7 @@ extension BigDecimal {
     ///   - encoding: The encoding of the result - dpd is the default
     /// - Returns: *self* encoded as a Decimal128 value
     public func asDecimal128(_ encoding: Encoding = .dpd) -> UInt128 {
-        0 // Decimal128(self).asUInt128(encoding)
+        Decimal128(self).asUInt128(encoding)
     }
 
 

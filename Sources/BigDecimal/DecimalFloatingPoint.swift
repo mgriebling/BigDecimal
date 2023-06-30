@@ -15,6 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import BigInt
+
 public typealias IntRange = ClosedRange<Int>
 
 protocol DecimalType : Codable, Hashable {
@@ -317,12 +319,16 @@ extension DecimalType {
     
     /// Initialize from a BigDecimal
     init(_ value: BigDecimal) {
+        //let x = BInt(Self.largestNumber)
+        //print(Self.largestNumber, x)
+        let max = BigDecimal(BInt(Self.largestNumber), Self.maxExponent)
+        // )   (Int(Decimal32.largestNumber), Decimal32.maxExponent)
         let sign = value.sign
         if value.isNaN {
             self.init(nan: 0, signaling: false)
         } else if value.isInfinite {
             self.init(Self.RawData(Self.infinite))
-        } else if value.abs > BigDecimal.MAX32 {
+        } else if value.abs > max {
             self.init(nan: 0, signaling: false)
         } else {
             let round = Rounding(.toNearestOrEven, Self.maxDigits)
