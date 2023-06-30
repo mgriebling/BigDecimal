@@ -36,17 +36,24 @@ protocol DecimalType : Codable, Hashable {
   /// Initialize with sign, biased exponent, and unsigned significand
 //  init(sign: Sign, expBitPattern: Int, sigBitPattern: RawBitPattern)
 
-  
-  init(nan payload: RawSignificand, signaling: Bool)
-  
-  //////////////////////////////////////////////////////////////////
-  /// Conversions from/to densely packed decimal numbers
-  
-  /// Initializes the number from a DPD number
-  // init(dpd: RawData)
-  
-  /// Returns a DPD number
-  // var dpd: RawData { get }
+    /// Creates a NaN ("not a number") value with the specified payload.
+    ///
+    /// NaN values compare not equal to every value, including themselves. Most
+    /// operations with a NaN operand produce a NaN result. Don't use the
+    /// equal-to operator (`==`) to test whether a value is NaN. Instead, use
+    /// the value's `isNaN` property.
+    ///
+    ///     let x = Decimal32(nan: 0, signaling: false)
+    ///     print(x == .nan)
+    ///     // Prints "false"
+    ///     print(x.isNaN)
+    ///     // Prints "true"
+    ///
+    /// - Parameters:
+    ///   - payload: The payload to use for the new NaN value.
+    ///   - signaling: Pass `true` to create a signaling NaN or `false` to
+    ///     create a quiet NaN.
+    init(nan payload: RawSignificand, signaling: Bool)
   
   //////////////////////////////////////////////////////////////////
   /// Essential data to extract or update from the fields
@@ -296,13 +303,13 @@ extension DecimalType {
             return nil
         }
     }
-    
-//    public init(nan payload: RawSignificand, signaling: Bool) {
-//        let pattern = signaling ? Self.snanPattern : Self.nanPattern
-//        let man = payload > Self.largestNumber/10 ? 0 : RawBitPattern(payload)
-//        self.init(0)
-//        set(exponent: pattern<<(Self.exponentBits-6), sigBitPattern: man)
-//    }
+
+    public init(nan payload: RawSignificand, signaling: Bool) {
+        let pattern = signaling ? Self.snanPattern : Self.nanPattern
+        let man = payload > Self.largestNumber/10 ? 0 : RawBitPattern(payload)
+        self.init(0)
+        set(exponent: pattern<<(Self.exponentBits-6), sigBitPattern: man)
+    }
     
     @inlinable var isSpecial: Bool {
         bid.get(range: Self.specialBits) == Self.specialPattern
@@ -377,6 +384,21 @@ extension DecimalType {
         } else {
             return RawBitPattern(bid.get(range:range))
         }
+    }
+    
+    /// Note: `exponent` is assumed to be biased
+    mutating func set(exponent: Int, sigBitPattern: RawBitPattern) {
+      if sigBitPattern < Self.highSignificandBit {
+        // large significand
+        bid.set(range: Self.exponentLMBits, with: exponent)
+        bid.set(range: Self.largeSignificandBits, with: sigBitPattern)
+      } else {
+        // small significand
+        bid.set(range:Self.exponentSMBits, with: exponent)
+        bid.set(range:Self.smallSignificandBits,
+                 with:sigBitPattern-Self.highSignificandBit)
+        bid.set(range:Self.specialBits, with: Self.specialPattern)
+      }
     }
     
 //    @inlinable static var snan: Self {
