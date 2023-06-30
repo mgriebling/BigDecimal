@@ -335,7 +335,7 @@ extension Decimal32 : DecimalFloatingPoint {
     ///
     /// [spec]: http://ieeexplore.ieee.org/servlet/opac?punumber=4610933
     public func bitPattern(_ encoding: ID.Encoding) -> RawSignificand {
-        encoding == .bid ? bid : ID(bid, .bid).asDecimal32(.dpd)
+        encoding == .bid ? bid : self.dpd
     }
     
     public init(bitPattern: RawSignificand, encoding: ID.Encoding) {
@@ -374,33 +374,6 @@ extension Decimal32 {
         
         // translate `value` from DPD to BID
         self.init(bid: Self.getBID(from: value))
-//        if value & Self.nanMask == Self.nanMask {
-//            self.init(nan: 0, signaling: false); return
-//        } else if value & Self.infinite == Self.infinite {
-//            self.init(bid: Self.infinite); return
-//        }
-//        var sig = UInt32(0)
-//        var exp = UInt32(0)
-//        if value & Self.special == Self.special {
-//            exp = ((value >> 20) & 0x3f) | (((value >> 27) & 0x3) << 6)
-//            sig = 8 + (value >> 26) & 0x1
-//        } else {
-//            exp = ((value >> 20) & 0x3f) | ((value >> 29) & 0x3) << 6
-//            sig = (value >> 26) & 0x7
-//        }
-//        sig *= 1000
-//        sig += ID.decodeDPD[(value >> 10) & 0x3ff]
-//        sig *= 1000
-//        sig += ID.decodeDPD[value & 0x3ff]
-//        if sig > Self.largestNumber {
-//            sig = 0
-//        }
-//        let sign = value & Self.negative
-//        if sig < Self.highSignificandBit {
-//            self.init(bid: sign | exp << 23 | sig)
-//        } else {
-//            self.init(bid: sign | exp << 21 | Self.special | sig)
-//        }
     }
     
     /// Initialize from a BigDecimal
@@ -417,33 +390,26 @@ extension Decimal32 {
             var exp = Self.exponentBias + w.exponent
             var sig = RawSignificand(w.digits.asInt()!)
             while exp > Self.exponentBias+Self.maxExponent {
-                exp -= 1
-                sig *= 10
+                exp -= 1; sig *= 10
             }
             while exp < 0 {
-                exp += 1
-                sig /= 10
+                exp += 1; sig /= 10
             }
             self.init(sign: sign, exponentBitPattern: exp,
                       significandBitPattern: sig)
-//            if sig < Self.highSignificandBit {
-//                self.init(bid: sign | exp << 23 | sig)
-//            } else {
-//                self.init(bid: sign | exp << 21 | Self.special | sig)
-//            }
         }
     }
     
     // Attributes for this number
     var isNegative: Bool { self.sign == .minus }
     
-    func asBigDecimal() -> BigDecimal {
+    func asBigDecimal() -> ID {
         if self.isNaN {
             return ID.flagNaN()
         } else if self.isInfinite {
-            return isNegative ? -BigDecimal.infinity : BigDecimal.infinity
+            return isNegative ? -ID.infinity : ID.infinity
         } else {
-            return BigDecimal(BInt(isNegative ? -Int(significandBitPattern)
+            return ID(BInt(isNegative ? -Int(significandBitPattern)
                      : Int(significandBitPattern)), self.exponent)
         }
     }
@@ -454,28 +420,6 @@ extension Decimal32 {
         
         // convert to dpd
         return self.dpd
-//        let significand = significandBitPattern
-//        let exponent = UInt32(self.exponent + Self.exponentBias)
-//        assert(exponent <= Self.exponentBias + Self.maxExponent)
-//        assert(significand <= Self.largestNumber)
-//        var value = self.isNegative ? Self.negative : 0
-//
-//        let d1 = UInt32(significand % 1000)
-//        let d2 = UInt32((significand / 1000) % 1000)
-//        let d3 = UInt32(significand / 1000_000)
-//        if d3 < 8 {
-//            value |= (exponent & 0xc0) << 23
-//            value |= d3 << 26
-//            value |= (exponent & 0x3f) << 20
-//        } else {
-//            value |= 0x3 << 29
-//            value |= (exponent & 0xc0) << 21
-//            value |= (d3 & 0x1) << 26
-//            value |= (exponent & 0x3f) << 20
-//        }
-//        value |= ID.encodeDPD[d2] << 10
-//        value |= ID.encodeDPD[d1]
-//        return value
     }
 
 }
