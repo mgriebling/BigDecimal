@@ -315,6 +315,31 @@ extension DecimalType {
         set(exponent: pattern<<(Self.exponentBits-6), sigBitPattern: man)
     }
     
+    /// Initialize from a BigDecimal
+    init(_ value: BigDecimal) {
+        let sign = value.sign
+        if value.isNaN {
+            self.init(nan: 0, signaling: false)
+        } else if value.isInfinite {
+            self.init(Self.RawData(Self.infinite))
+        } else if value.abs > BigDecimal.MAX32 {
+            self.init(nan: 0, signaling: false)
+        } else {
+            let round = Rounding(.toNearestOrEven, Self.maxDigits)
+            let w = round.round(value).abs
+            var exp = Self.exponentBias + w.exponent
+            var sig = RawSignificand(w.digits.asInt()!)
+            while exp > Self.exponentBias + Self.maxExponent {
+                exp -= 1; sig *= 10
+            }
+            while exp < 0 {
+                exp += 1; sig /= 10
+            }
+            self.init(sign: sign, exponentBitPattern: exp,
+                      significandBitPattern: sig)
+        }
+    }
+    
     @inlinable var isSpecial: Bool {
         bid.get(range: Self.specialBits) == Self.specialPattern
     }
