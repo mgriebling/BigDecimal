@@ -49,7 +49,7 @@ final class TestEncode64: XCTestCase {
 
     func test1() {
         for t in tests1 {
-            XCTAssertEqual(Decimal64(t.dec, .dpd).asBigDecimal().asString(), t.x)
+            XCTAssertEqual(Decimal64(t.dec,.dpd).asBigDecimal().asString(),t.x)
             XCTAssertEqual(Decimal64(BigDecimal(t.x)).asUInt64(.dpd), t.dec)
         }
         XCTAssertFalse(BigDecimal.NaNFlag)

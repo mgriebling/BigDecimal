@@ -122,11 +122,11 @@ extension Decimal128 : FloatingPoint {
     public static var pi: Self       { Self(bid: ID.pi) }
     
     public static var greatestFiniteMagnitude: Self {
-        Self(bid: ID(Int(largestNumber), maxExponent))
+        Self(bid: ID(BInt(largestNumber), maxExponent))
     }
     
     public static var leastNormalMagnitude: Self {
-        Self(bid: ID(Int(largestNumber), Self.minExponent))
+        Self(bid: ID(BInt(largestNumber), Self.minExponent))
     }
     
     public static var leastNonzeroMagnitude: Self {

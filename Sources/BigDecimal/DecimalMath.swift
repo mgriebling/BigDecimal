@@ -130,7 +130,7 @@ public extension BigDecimal {
      *            in the ``mc``
      * */
     static func sqrt(_ x: BigDecimal, _ mc: Rounding) -> BigDecimal {
-        precondition(x.signum >= 0, "Illegal sqrt(x) for x < 0: x = \(x)")
+        guard x.signum >= 0 else { return BigDecimal.nan }
         if x.isZero { return zero }
         
         let maxPrecision = mc.precision + 6

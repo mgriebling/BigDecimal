@@ -16,6 +16,7 @@ limitations under the License.
 */
 
 import BigInt
+import UInt128
 
 public typealias IntRange = ClosedRange<Int>
 
@@ -627,11 +628,11 @@ extension DecimalType {
     /// if exponent < `minEncodedExponent`, the number may be subnormal
     private func checkNormalScale(_ exp: Int, _ mant: RawBitPattern) -> Bool {
         if exp < Self.minExponent+Self.maxDigits-1 {
-        let tenPower = _power(RawBitPattern(10), to: exp)
-        let mantPrime = mant * tenPower
-        return mantPrime > Self.largestNumber/10 // normal test
-      }
-      return true // normal
+            let tenPower = BInt(_power(10, to: exp))
+            let mantPrime = BInt(mant) * tenPower
+            return mantPrime > Self.largestNumber/10 // normal test
+        }
+        return true // normal
     }
     
     public var isNormal: Bool {
@@ -973,7 +974,7 @@ extension DecimalFloatingPoint where Self.RawSignificand: FixedWidthInteger {
     //  We now have a non-zero value; convert it to a strictly positive value
     //  by taking the magnitude.
     // need a x10ⁿ exponent & significand digits
-    let exp:Int = _digitsIn(Int(source.magnitude))
+    let exp:Int = _digitsIn(RawSignificand(source.magnitude))
     
     //  If the exponent would be larger than the largest representable
     //  exponent, the result is just an infinity of the appropriate sign.

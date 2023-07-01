@@ -161,5 +161,74 @@ public struct Rounding: Equatable {
         assert(n >= 0)
         return n < pow10table.count ? pow10table[n] : BInt.ten ** n
     }
+}
 
+public struct Status: OptionSet, CustomStringConvertible {
+  
+  public let rawValue: Int
+  
+  /* IEEE extended flags only */
+  private static let DConversion_syntax    = 0x00000001
+  private static let DDivision_by_zero     = 0x00000002
+  private static let DDivision_impossible  = 0x00000004
+  private static let DDivision_undefined   = 0x00000008
+  private static let DInsufficient_storage = 0x00000010 /* malloc fails */
+  private static let DInexact              = 0x00000020
+  private static let DInvalid_context      = 0x00000040
+  private static let DInvalid_operation    = 0x00000080
+  private static let DLost_digits          = 0x00000100
+  private static let DOverflow             = 0x00000200
+  private static let DClamped              = 0x00000400
+  private static let DRounded              = 0x00000800
+  private static let DSubnormal            = 0x00001000
+  private static let DUnderflow            = 0x00002000
+  
+  public static let conversionSyntax    = Status(rawValue:DConversion_syntax)
+  public static let divisionByZero      = Status(rawValue:DDivision_by_zero)
+  public static let divisionImpossible  = Status(rawValue:DDivision_impossible)
+  public static let divisionUndefined   = Status(rawValue:DDivision_undefined)
+  public static let insufficientStorage=Status(rawValue:DInsufficient_storage)
+  public static let inexact             = Status(rawValue:DInexact)
+  public static let invalidContext      = Status(rawValue:DInvalid_context)
+  public static let lostDigits          = Status(rawValue:DLost_digits)
+  public static let invalidOperation    = Status(rawValue:DInvalid_operation)
+  public static let overflow            = Status(rawValue:DOverflow)
+  public static let clamped             = Status(rawValue:DClamped)
+  public static let rounded             = Status(rawValue:DRounded)
+  public static let subnormal           = Status(rawValue:DSubnormal)
+  public static let underflow           = Status(rawValue:DUnderflow)
+  public static let clearFlags          = Status([])
+  
+  public static let errorFlags =
+  Status(rawValue: Int(DDivision_by_zero | DOverflow |
+                       DUnderflow | DConversion_syntax | DDivision_impossible |
+                       DDivision_undefined | DInsufficient_storage |
+                       DInvalid_context | DInvalid_operation))
+  public static let informationFlags =
+  Status(rawValue: Int(DClamped | DRounded | DInexact | DLost_digits))
+  
+  public init(rawValue: Int) { self.rawValue = rawValue }
+  
+  public var hasError:Bool {!Status.errorFlags.intersection(self).isEmpty}
+  public var hasInfo:Bool {!Status.informationFlags.intersection(self).isEmpty}
+  
+  public var description: String {
+    var str = ""
+    if self.contains(.conversionSyntax)   { str += "Conversion syntax, "}
+    if self.contains(.divisionByZero)     { str += "Division by zero, " }
+    if self.contains(.divisionImpossible) { str += "Division impossible, "}
+    if self.contains(.divisionUndefined)  { str += "Division undefined, "}
+    if self.contains(.insufficientStorage){ str += "Insufficient storage, "}
+    if self.contains(.inexact)            { str += "Inexact number, " }
+    if self.contains(.invalidContext)     { str += "Invalid context, " }
+    if self.contains(.invalidOperation)   { str += "Invalid operation, " }
+    if self.contains(.lostDigits)         { str += "Lost digits, " }
+    if self.contains(.overflow)           { str += "Overflow, " }
+    if self.contains(.clamped)            { str += "Clamped, " }
+    if self.contains(.rounded)            { str += "Rounded, " }
+    if self.contains(.subnormal)          { str += "Subnormal, " }
+    if self.contains(.underflow)          { str += "Underflow, " }
+    if str.hasSuffix(", ")                { str.removeLast(2) }
+    return str
+  }
 }
