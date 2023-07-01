@@ -357,8 +357,8 @@ extension Decimal128 {
         } else if self.isInfinite {
             return isNegative ? -BigDecimal.infinity : BigDecimal.infinity
         } else {
-            return BigDecimal(BInt(isNegative ? -Int(significandBitPattern)
-                     : Int(significandBitPattern)), self.exponent)
+            let big = BigDecimal(BInt(significandBitPattern), self.exponent)
+            return isNegative ? -big : big
         }
     }
     

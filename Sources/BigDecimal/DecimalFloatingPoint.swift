@@ -556,13 +556,14 @@ extension DecimalType {
             nan = true; exp = 0
         }
         
-        let mask = Self.trailingPattern
+        let mask = RawSignificand(Self.trailingPattern)
         let mils = ((Self.maxDigits - 1) / 3) - 1
         let shift = mask.bitWidth - mask.leadingZeroBitCount
         var mant = RawSignificand(high)
         for i in stride(from: shift*mils, through: 0, by: -shift) {
             mant *= 1000
-            mant += RawSignificand(Self.intFrom(dpd:Int(trailing >> i) & mask))
+            let value = Int((RawSignificand(trailing) >> i) & mask)
+            mant += RawSignificand(Self.intFrom(dpd: value))
         }
         
         if nan {
