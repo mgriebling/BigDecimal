@@ -116,7 +116,7 @@ protocol DecimalType : Codable, Hashable {
 public protocol DecimalFloatingPoint : FloatingPoint {
   
   /// A type that represents the encoded significand of a value.
-  associatedtype RawSignificand: UnsignedInteger
+  associatedtype RawSignificand: BinaryInteger
   
   /// Creates a new instance from the specified sign and bit patterns.
   ///

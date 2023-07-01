@@ -140,6 +140,8 @@ extension Decimal128 : FloatingPoint {
     public var nextUp: Self      { Self(bid: ID(bid, .bid).nextUp) }
     public var significand: Self { Self(bid: ID(significandBitPattern)) }
     public var exponent: Int     { exponentBitPattern - Self.exponentBias }
+    
+    public var significandDigitCount: Int { self.bd.significand.precision }
 
     ///////////////////////////////////////////////////////////////////////////
     // MARK: - Floating-point basic operations with rounding
@@ -252,20 +254,20 @@ extension Decimal128 : DecimalFloatingPoint {
     
     /// Creates a new instance from the specified sign and bit patterns.
     ///
-    /// The values passed as `exponentBitPattern` and `significandBitPattern` are
-    /// interpreted in the decimal interchange format defined by the [IEEE 754
-    /// specification][spec].
+    /// The values passed as `exponentBitPattern` and `significandBitPattern`
+    /// are interpreted in the decimal interchange format defined by the
+    /// [IEEE 754 specification][spec].
     ///
-    /// [spec]: http://ieeexplore.ieee.org/servlet/opac?punumber=4610933
+    /// [spec]: https://ieeexplore.ieee.org/servlet/opac?punumber=4610933
     ///
     /// The `significandBitPattern` are the big-endian, binary integer decimal
-    /// digits of the number. For example, the integer number `314` represents a
-    /// significand of `314`.
+    /// digits of the number. For example, the integer number `314` represents
+    /// a significand of `314`.
     ///
     /// - Parameters:
     ///   - sign: The sign of the new value.
-    ///   - exponentBitPattern: The bit pattern to use for the exponent field of
-    ///     the new value.
+    ///   - exponentBitPattern: The bit pattern to use for the exponent field
+    ///     of the new value.
     ///   - significandBitPattern: Bit pattern to use for the significand field
     ///     of the new value.
     public init(sign: Sign, exponentBitPattern: Int,
@@ -279,12 +281,12 @@ extension Decimal128 : DecimalFloatingPoint {
     ///////////////////////////////////////////////////////////////////////////
     // MARK: - Instance properties and attributes
     
-    //  Conversions to/from binary integer decimal encoding.  These are not part
+    //  Conversions to/from binary integer decimal encoding. These are not part
     //  of the DecimalFloatingPoint prototype because there's no guarantee that
     //  an integer type of the same size actually exists (e.g. Decimal128).
     //
-    //  If we want them in a protocol at some future point, that protocol should
-    //  be "InterchangeFloatingPoint" or "PortableFloatingPoint" or similar, and
+    //  If we want them in a protocol at some future point,that protocol should
+    //  be "InterchangeFloatingPoint" or "PortableFloatingPoint" or similar,and
     //  apply to IEEE 754 "interchange types".
     /// The bit pattern of the value's encoding. A `.bid` encoding value
     /// indicates a binary integer decimal encoding; while a `.dpd` encoding
@@ -300,26 +302,21 @@ extension Decimal128 : DecimalFloatingPoint {
     /// The bit patterns match the decimal interchange format defined by the
     /// [IEEE 754 specification][spec].
     ///
-    /// For example, a Decimal128 number has been created with the value "1000.3".
-    /// Using the `bitPattern` accessor with a `.bid` encoding value, a
-    /// 32-bit unsigned integer encoded
-    /// value of `0x32002713` is returned.  The `bitPattern` with a `.dpd`
-    /// encoding value returns the 32-bit unsigned integer encoded value of
-    /// `0x22404003`. Passing these
-    /// numbers to the appropriate initialize recreates the original value
-    /// "1000.3".
+    /// For example, a Decimal128 number has been created with the value
+    /// "1000.3". Using the `bitPattern` accessor method with a `.bid`
+    /// encoding value, a 32-bit unsigned integer encoded
+    /// value of `0x32002713` is returned.  Accessing `bitPattern` with a
+    /// `.dpd` encoding value returns the 32-bit unsigned integer encoded
+    /// value of `0x22404003`. Passing these numbers to the appropriate
+    /// initializer recreates the original value "1000.3".
     ///
-    /// [spec]: http://ieeexplore.ieee.org/servlet/opac?punumber=4610933
+    /// [spec]: https://ieeexplore.ieee.org/servlet/opac?punumber=4610933
     public func bitPattern(_ encoding: ID.Encoding) -> RawSignificand {
         encoding == .bid ? bid : self.dpd
     }
     
     public init(bitPattern: RawSignificand, encoding: ID.Encoding) {
         bid = encoding == .bid ? bitPattern : Self.getBID(from: bitPattern)
-    }
-    
-    public var significandDigitCount: Int {
-        ID(bid, .bid).significand.precision
     }
     
     /// The floating-point value with the same sign and exponent as this value,

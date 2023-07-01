@@ -150,12 +150,12 @@ class TestDecimal64: XCTestCase {
             for i in -10 ... 10 {
                 let b1 = BigDecimal(x, i * 37)
                 let b2 = BigDecimal(-x, i * 37)
-                let b1d = b1.asDecimal64()
-                let b1b = BigDecimal(b1d)
-                if b1 != b1b {
-                    print(b1, Decimal64(b1d, .dpd), b1b)
-                    let x = b1.asDecimal64()
-                }
+//                let b1d = b1.asDecimal64()
+//                let b1b = BigDecimal(b1d)
+//                if b1 != b1b {
+//                    print(b1, Decimal64(b1d, .dpd), b1b)
+//                    let x = b1.asDecimal64()
+//                }
                 XCTAssertEqual(b1, BigDecimal(b1.asDecimal64()))
                 XCTAssertEqual(b2, BigDecimal(b2.asDecimal64()))
             }

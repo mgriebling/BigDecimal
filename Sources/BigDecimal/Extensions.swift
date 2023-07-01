@@ -16,6 +16,7 @@ limitations under the License.
 */
 
 import UInt128
+import BigInt
 
 extension UInt128 {
   public init(w: [UInt64]) {
@@ -25,6 +26,17 @@ extension UInt128 {
 
 extension FloatingPointSign {
   public var toggle: Sign { self == .minus ? .plus : .minus }
+}
+
+// MARK: - Type Extensions
+
+extension BInt {
+    func comparedTo(_ x: BInt) -> Int { self < x ? -1 : ( self > x ? 1 : 0 ) }
+}
+
+extension Array where Element == Int {
+    subscript(i: UInt64) -> UInt64 { UInt64(self[Int(i)]) }
+    subscript(i: UInt32) -> UInt32 { UInt32(self[Int(i)]) }
 }
 
 extension FloatingPointClassification : CustomStringConvertible {
@@ -44,24 +56,26 @@ extension FloatingPointClassification : CustomStringConvertible {
   }
 }
 
-//extension BinaryFloatingPoint {
-//    @inline(__always)
-//    public init<T: DecimalFloatingPoint>(_ source: T,
-//                                         round: RoundingRule = .toNearestOrEven) {
-//        let t: Self
-//        if let x = source as? Decimal32 {
-//            t = x.bid.float(round)
-//        } else if let x = source as? Decimal64 {
-//            t = x.bid.float(round)
-//        } else if let x = source as? Decimal128 {
-//            t = x.bid.float(round)
-//        } else {
-//            t = Self.nan
-//            assertionFailure("Unknown Decimal Floating Point type \(T.self)")
-//        }
-//        self = t
-//    }
-//}
+extension BinaryFloatingPoint {
+    @inline(__always)
+    public init<T: DecimalFloatingPoint>(_ source: T,
+                                    round: RoundingRule = .toNearestOrEven) {
+        let t : Double
+        if let x = source as? Decimal32 {
+            t = x.bd.asDouble()
+        } else if let x = source as? Decimal64 {
+            t = x.bd.asDouble()
+        } else if let x = source as? Decimal128 {
+            t = x.bd.asDouble()
+        } else if let x = source as? BigDecimal {
+            t = x.asDouble()
+        } else {
+            t = Double.nan
+            assertionFailure("Unknown Decimal Floating Point type \(T.self)")
+        }
+        self = Self(t)
+    }
+}
 
 extension FixedWidthInteger {
   @_semantics("optimize.sil.specialize.generic.partial.never")

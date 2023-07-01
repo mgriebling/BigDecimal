@@ -57,7 +57,7 @@ class TestDivision1: XCTestCase {
     }
 
     func testProperScales() throws {
-        let testCases = [
+        let testCases : [[BigDecimal]] = [
             [BigDecimal("1"), BigDecimal("5"), BigDecimal("2e-1")],
             [BigDecimal("1"), BigDecimal("50e-1"), BigDecimal("2e-1")],
             [BigDecimal("10e-1"), BigDecimal("5"), BigDecimal("2e-1")],
@@ -96,7 +96,7 @@ class TestDivision1: XCTestCase {
         let c = BigDecimal("31425")
         let c_minus = -c
 
-        let testCases = [
+        let testCases: [[BigDecimal]] = [
             [a,         b, BigDecimal("3.142")],
             [a_minus,   b, BigDecimal("-3.142")],
             [a,         b, BigDecimal("3.141")],
@@ -130,7 +130,7 @@ class TestDivision1: XCTestCase {
     }
 
     func testScaledRounded2() throws {
-        let testCases = [
+        let testCases: [[BigDecimal]] = [
             [ BigDecimal(3090), BigDecimal(7), BigDecimal(441) ],
             [ BigDecimal("309000000000000000000000"), BigDecimal("700000000000000000000"), BigDecimal(441) ],
             [ BigDecimal("962.430000000000"), BigDecimal("8346463.460000000000"), BigDecimal("0.000115309916") ],
