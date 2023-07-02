@@ -22,6 +22,9 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     
     // MARK: - Constants
     
+    public static let maxExp = 9_999_999_999
+    public static let maxDigits = 200        // can be changed by recompiling
+    
     /// BigDecimal(0)
     public static let zero = Self(0)
     
@@ -49,7 +52,8 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     
     init(_ type: Special, _ payload: BInt = 0, sign: Sign = .plus) {
         var load = payload.magnitude
-        if type == .infinite { load = 1 } // BInt doesn't negate 0s so kludge
+        // BInt doesn't negate 0s so kludge
+        if type != .none && load == 0 { load = 1 }
         if sign == .minus { load.negate() }
         self.special = type
         self.digits = load
@@ -328,16 +332,24 @@ extension BigDecimal : AdditiveArithmetic {
 extension BigDecimal : FloatingPoint {
     // MARK: - FloatingPoint Static Properties
     
+    // Default precision and rounding same as Decimal128
     private static var mc = Rounding.decimal128
     
     public static var radix: Int     { 10 }
-    public static var precision: Int { mc.precision }
     public static var pi: Self       { Self.pi(mc) }
+    public static var precision: Int { mc.precision }
 
-    // FIXME: - Need to define these based on the precision
-    public static private(set) var greatestFiniteMagnitude: Self = zero
-    public static private(set) var leastNormalMagnitude: Self = zero
-    public static private(set) var leastNonzeroMagnitude: Self = zero
+    public static var greatestFiniteMagnitude: Self {
+        Self(sign: .plus, exponent: maxExp-maxDigits+1,
+             significand: (Self.ten ** maxDigits)-1)
+    }
+    public static var leastNormalMagnitude: Self {
+        Self(sign: .plus, exponent: -maxExp-maxDigits+1,
+             significand: (Self.ten ** maxDigits)-1)
+    }
+    public static var leastNonzeroMagnitude: Self {
+        Self(sign: .plus, exponent: -maxExp, significand: 1)
+    }
     
     // MARK: - FloatingPoint Number's Properties
     
@@ -466,13 +478,13 @@ extension BigDecimal {
     public var isInfinite: Bool { self.special == .infinite }
 
     /// Is *true* if *self* < 0, *false* otherwise
-    public var isNegative: Bool { self.isNaN ? false : self.signum < 0 }
+    public var isNegative: Bool { self.signum < 0 }
 
     /// Is *true* if *self* > 0, *false* otherwise
-    public var isPositive: Bool { self.isNaN ? false : self.signum > 0 }
+    public var isPositive: Bool { self.signum > 0 }
 
     /// Is *true* if *self* = 0, *false* otherwise
-    public var isZero: Bool { self.isNaN ? false : self.signum == 0 }
+    public var isZero: Bool { self.special != .none ? false : self.signum == 0 }
 
     /// Is 0 if *self* = 0 or *self* is NaN, 1 if *self* > 0, and -1 if *self* < 0
     public var signum: Int { self.digits.signum }
@@ -528,7 +540,7 @@ extension BigDecimal {
         }
         
         if self.isNaN {
-            return "NaN"
+            return self.digits.isNegative ? "-NaN" : "NaN"
         } else if self.isInfinite {
             return self.digits.isNegative ? "-Infinity" : "+Infinity"
         }
@@ -589,7 +601,7 @@ extension BigDecimal {
                     }
                 default:
                     if !self.isZero && s.count > 1 {
-                        s.insert(".", at: s.index(s.startIndex, offsetBy: 1))
+                        s.insert(contentsOf: dp, at: s.index(s.startIndex, offsetBy: 1))
                     }
             }
             if exp > 0 {
@@ -1195,29 +1207,34 @@ extension BigDecimal {
     // MARK: - Support methods - String conversion
     
     static func parseString(_ s: String) -> Self {
-        if s == "NaN" {
-            return Self.flagNaN()
-        } else if s == "+Infinity" {
-            return Self.infinity
-        } else if s == "-Infinity" {
-            return -Self.infinity
-        }
+        guard !s.isEmpty else { return Self.flagNaN() }
         enum State {
-            case start
-            case inInteger
-            case inFraction
-            case startExponent
-            case inExponent
+            case start, inInteger, inFraction, startExponent, inExponent
         }
+        
         var state: State = .start
-        var digits = 0
-        var expDigits = 0
-        var exp = ""
-        var scale = 0
-        var val = ""
-        var negValue = false
-        var negExponent = false
-        for c in s {
+        var digits = 0, expDigits = 0, scale = 0
+        var exp = "", val = ""
+        var negExponent = false, sign = Sign.plus
+        var sl = s.lowercased()
+        
+        // check for sign
+        let ch = sl.first!
+        if ch == "-" || ch == "+" {
+            sign = ch == "-" ? .minus : .plus
+            sl.removeFirst()
+        }
+        
+        // detect nan, snan, and inf
+        if sl == "nan" {
+            let _ = Self.flagNaN()
+            return Self(.qnan, sign: sign)
+        } else if sl.hasPrefix("inf") {
+            return Self(.infinite, sign: sign)
+        } else if sl == "snan" {
+            return Self(.snan, sign: sign)
+        }
+        for c in sl {
             switch c {
               case "0"..."9":
                 if state == .start {
@@ -1245,25 +1262,20 @@ extension BigDecimal {
                 } else {
                     return Self.flagNaN()
                 }
-            case "E", "e":
+            case "e":
                 if state == .inInteger || state == .inFraction {
                     state = .startExponent
                 } else {
                     return Self.flagNaN()
                 }
             case "+":
-                if state == .start {
-                    state = .inInteger
-                } else if state == .startExponent {
+                if state == .startExponent {
                     state = .inExponent
                 } else {
                     return Self.flagNaN()
                 }
             case "-":
-                if state == .start {
-                    state = .inInteger
-                    negValue = true
-                } else if state == .startExponent {
+                if state == .startExponent {
                     state = .inExponent
                     negExponent = true
                 } else {
@@ -1279,7 +1291,7 @@ extension BigDecimal {
         if (state == .startExponent || state == .inExponent) && expDigits==0 {
             return Self.flagNaN()
         }
-        let w = negValue ? -BInt(val)! : BInt(val)!
+        let w = sign == .minus ? -BInt(val)! : BInt(val)!
         let E = Int(exp)
         if E == nil && expDigits > 0 {
             return Self.flagNaN()

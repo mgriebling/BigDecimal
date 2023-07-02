@@ -38,7 +38,7 @@ public struct Decimal64 : DecimalType, Codable, Hashable {
     public typealias RawSignificand = UInt64
 //    public typealias RawBitPattern = UInt64
     
-    var bid: UInt64
+    var bid: UInt64 = 0
     
     public init(bid: UInt64) { self.bid = bid }
     init(bid: ID)            { self.bid = bid.asDecimal64(.bid) }
@@ -126,11 +126,11 @@ extension Decimal64 : FloatingPoint {
     }
     
     public static var leastNormalMagnitude: Self {
-        Self(bid: ID(Int(largestNumber), Self.minExponent))
+        Self(bid: ID(Int(largestNumber), minExponent))
     }
     
     public static var leastNonzeroMagnitude: Self {
-        Self(bid: ID(1, Self.minExponent))
+        Self(bid: ID(1, minExponent))
     }
     
     ///////////////////////////////////////////////////////////////////////////

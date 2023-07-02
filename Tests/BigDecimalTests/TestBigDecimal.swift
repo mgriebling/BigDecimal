@@ -340,11 +340,33 @@ class TestBigDecimal: XCTestCase {
         XCTAssertEqual(zerotest.trim.exponent, 0)
         XCTAssertFalse(BigDecimal.NaNFlag)
     }
+    
+    func testMax() throws {
+        let max = BigDecimal.maxDigits-1
+        let padding = "".padding(toLength: max, withPad: "9", startingAt: 0)
+        let gfm1 = BigDecimal.greatestFiniteMagnitude
+        let gfm2 = "9." + padding + "E+\(BigDecimal.maxExp)"
+        let lnm1 = BigDecimal.leastNormalMagnitude
+        let lnm2 = "9." + padding + "E-\(BigDecimal.maxExp)"
+        let lnzm1 = BigDecimal.leastNonzeroMagnitude
+        let lnzm2 = "1" + "E-\(BigDecimal.maxExp)"
+        XCTAssertEqual(gfm1.description, gfm2)
+        XCTAssertEqual(lnm1.description, lnm2)
+        XCTAssertEqual(lnzm1.description, lnzm2)
+    }
 
-//    func doTestMax32(_ enc: BigDecimal.Encoding) throws {
-//        var x32 = BigDecimal.MAX32.asDecimal32(enc)
-//        var d32 = Decimal32(x32, enc).asBigDecimal()
-//        XCTAssertEqual(BigDecimal.MAX32, d32)
+    func doTestMax32(_ enc: BigDecimal.Encoding) throws {
+        var x32 = Decimal32.greatestFiniteMagnitude
+        var y32 = Decimal32.leastNormalMagnitude
+        var z32 = Decimal32.leastNonzeroMagnitude
+        print(x32, y32, z32)
+        XCTAssertEqual(x32.description, "9.999999E+96")
+        XCTAssertEqual(y32.description, "9.999999E-95")
+        XCTAssertEqual(z32.description, "1E-101")
+        
+        x32 += 1
+        print(x32)
+//        XCTAssertEqual(BigDecimal.MAX32, x32.description)
 //        x32 = (-BigDecimal.MAX32).asDecimal32(enc)
 //        d32 = Decimal32(x32, enc).asBigDecimal()
 //        XCTAssertEqual(-BigDecimal.MAX32, d32)
@@ -352,8 +374,8 @@ class TestBigDecimal: XCTestCase {
 //        XCTAssertTrue(Decimal32(x32, enc).asBigDecimal().isNaN)
 //        x32 = (-BigDecimal.MAX32 - BigDecimal.one).asDecimal32(enc)
 //        XCTAssertTrue(Decimal32(x32, enc).asBigDecimal().isNaN)
-//    }
-//
+    }
+
 //    func doTestMax64(_ enc: BigDecimal.Encoding) throws {
 //        var x64 = BigDecimal.MAX64.asDecimal64(enc)
 //        var d64 = Decimal64(x64, enc).asBigDecimal()
@@ -380,16 +402,16 @@ class TestBigDecimal: XCTestCase {
 //        XCTAssertTrue(Decimal128(x128, enc).asBigDecimal().isNaN)
 //    }
 
-//    func testMax() throws {
-//        try doTestMax32(.bid)
-//        try doTestMax32(.dpd)
+    func testMax2() throws {
+        try doTestMax32(.bid)
+        try doTestMax32(.dpd)
 //        try doTestMax64(.bid)
 //        try doTestMax64(.dpd)
 //        try doTestMax128(.bid)
 //        try doTestMax128(.dpd)
 //        XCTAssertTrue(BigDecimal.NaNFlag)
-//    }
-//    
+    }
+    
 //    func doTestMin32(_ enc: BigDecimal.Encoding) throws {
 //        var x32 = BigDecimal.MIN32.asDecimal32(enc)
 //        var d32 = Decimal32(x32, enc).asBigDecimal()

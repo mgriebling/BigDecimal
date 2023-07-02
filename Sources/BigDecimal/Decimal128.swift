@@ -38,10 +38,10 @@ public struct Decimal128 : DecimalType, Codable, Hashable {
     public typealias ID = BigDecimal
     public typealias RawSignificand = UInt128
     
-    var bid: UInt128
+    var bid: UInt128 = 0
     
     public init(bid: UInt128) { self.bid = bid }
-    init(bid: ID)           { self.bid = bid.asDecimal128(.bid)  }
+    init(bid: ID)             { self.bid = bid.asDecimal128(.bid)  }
     
     /// convenience method to get the BigDecimal version of `bid`
     var bd : BigDecimal { ID(self.bid, .bid) }
@@ -122,15 +122,15 @@ extension Decimal128 : FloatingPoint {
     public static var pi: Self       { Self(bid: ID.pi) }
     
     public static var greatestFiniteMagnitude: Self {
-        Self(bid: ID(BInt(largestNumber), maxExponent))
+        Self(bid: ID(Int(largestNumber), maxExponent))
     }
     
     public static var leastNormalMagnitude: Self {
-        Self(bid: ID(BInt(largestNumber), Self.minExponent))
+        Self(bid: ID(Int(largestNumber), minExponent))
     }
     
     public static var leastNonzeroMagnitude: Self {
-        Self(bid: ID(1, Self.minExponent))
+        Self(bid: ID(1, minExponent))
     }
     
     ///////////////////////////////////////////////////////////////////////////

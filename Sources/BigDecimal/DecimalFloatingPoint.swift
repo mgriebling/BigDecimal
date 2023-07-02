@@ -21,24 +21,25 @@ import UInt128
 public typealias IntRange = ClosedRange<Int>
 
 protocol DecimalType : Codable, Hashable {
-  
-  associatedtype RawData : UnsignedInteger & FixedWidthInteger
-  associatedtype RawBitPattern : UnsignedInteger & FixedWidthInteger
-  associatedtype RawSignificand : UnsignedInteger & FixedWidthInteger
-  
-  /// Storage of the Decimal number in a raw binary integer decimal
-  /// encoding as per IEEE STD 754-2008
-  var bid: RawData { get set }
-  
-  //////////////////////////////////////////////////////////////////
-  /// Initializers
-  
-  /// Initialize with a raw data word
-  init(_ word: RawData)
-  
-  /// Initialize with sign, biased exponent, and unsigned significand
-  init(sign: Sign, exponentBitPattern: Int, significandBitPattern: RawSignificand)
-
+    
+    associatedtype RawData : UnsignedInteger & FixedWidthInteger
+    associatedtype RawBitPattern : UnsignedInteger & FixedWidthInteger
+    associatedtype RawSignificand : UnsignedInteger & FixedWidthInteger
+    
+    /// Storage of the Decimal number in a raw binary integer decimal
+    /// encoding as per IEEE STD 754-2008
+    var bid: RawData { get set }
+    
+    //////////////////////////////////////////////////////////////////
+    /// Initializers
+    
+    /// Initialize with a raw data word
+    init(_ word: RawData)
+    
+    /// Initialize with sign, biased exponent, and unsigned significand
+    init(sign: Sign, exponentBitPattern: Int,
+         significandBitPattern: RawSignificand)
+    
     /// Creates a NaN ("not a number") value with the specified payload.
     ///
     /// NaN values compare not equal to every value, including themselves. Most
@@ -46,7 +47,7 @@ protocol DecimalType : Codable, Hashable {
     /// equal-to operator (`==`) to test whether a value is NaN. Instead, use
     /// the value's `isNaN` property.
     ///
-    ///     let x = Decimal32(nan: 0, signaling: false)
+    ///     let x = Decimal32(nan: 0, signaling: false, sign: .plus)
     ///     print(x == .nan)
     ///     // Prints "false"
     ///     print(x.isNaN)
@@ -56,53 +57,54 @@ protocol DecimalType : Codable, Hashable {
     ///   - payload: The payload to use for the new NaN value.
     ///   - signaling: Pass `true` to create a signaling NaN or `false` to
     ///     create a quiet NaN.
-    init(nan payload: RawSignificand, signaling: Bool)
-  
-  //////////////////////////////////////////////////////////////////
-  /// Essential data to extract or update from the fields
-  
-  /// Sign of the number
-  var sign: Sign { get set }
-  
-//  /// Encoded unsigned exponent of the number
-//  var expBitPattern: Int { get }
-//  
-//  /// Encoded unsigned binary integer decimal significand of the number
-//  var sigBitPattern: RawBitPattern { get }
-  
-  /// Setting requires both the significand and exponent so that a
-  /// decision can be made on whether the significand is small or large.
-  // mutating func set(exponent: Int, sigBitPattern: RawBitPattern)
-  
-  //////////////////////////////////////////////////////////////////
-  /// Special number definitions
-//  static var snan: Self { get }
-//  
-//  static func zero(_ sign: Sign) -> Self
-//  static func nan(_ sign: Sign, _ payload: RawSignificand) -> Self
-  // static func infinite(_ sign: Sign) -> Self
-  // static func max(_ sign: Sign) -> Self
-  
-  //////////////////////////////////////////////////////////////////
-  /// Decimal number definitions
-  static var signBit: Int { get }
-  static var specialBits: IntRange { get }
-  
-  static var exponentBias: Int  { get }
-  static var exponentBits: Int  { get }
-  static var maxExponent: Int   { get }
-  static var minExponent: Int   { get }
-  static var maxDigits: Int     { get }
-
-  static var largestNumber: RawBitPattern { get }
-  
-  // For large significand
-  static var exponentLMBits: IntRange { get }
-  static var largeSignificandBits: IntRange { get }
-  
-  // For small significand
-  static var exponentSMBits: IntRange { get }
-  static var smallSignificandBits: IntRange { get }
+    ///   - sign: Sets the sign bit in the number when `.minus`.
+    init(nan payload: RawSignificand, signaling: Bool, sign: Sign)
+    
+    //////////////////////////////////////////////////////////////////
+    /// Essential data to extract or update from the fields
+    
+    /// Sign of the number
+    var sign: Sign { get set }
+    
+    //  /// Encoded unsigned exponent of the number
+    //  var expBitPattern: Int { get }
+    //
+    //  /// Encoded unsigned binary integer decimal significand of the number
+    //  var sigBitPattern: RawBitPattern { get }
+    
+    /// Setting requires both the significand and exponent so that a
+    /// decision can be made on whether the significand is small or large.
+    // mutating func set(exponent: Int, sigBitPattern: RawBitPattern)
+    
+    //////////////////////////////////////////////////////////////////
+    /// Special number definitions
+    //  static var snan: Self { get }
+    //
+    //  static func zero(_ sign: Sign) -> Self
+    //  static func nan(_ sign: Sign, _ payload: RawSignificand) -> Self
+    // static func infinite(_ sign: Sign) -> Self
+    // static func max(_ sign: Sign) -> Self
+    
+    //////////////////////////////////////////////////////////////////
+    /// Decimal number definitions
+    static var signBit: Int { get }
+    static var specialBits: IntRange { get }
+    
+    static var exponentBias: Int  { get }
+    static var exponentBits: Int  { get }
+    static var maxExponent: Int   { get }
+    static var minExponent: Int   { get }
+    static var maxDigits: Int     { get }
+    
+    static var largestNumber: RawBitPattern { get }
+    
+    // For large significand
+    static var exponentLMBits: IntRange { get }
+    static var largeSignificandBits: IntRange { get }
+    
+    // For small significand
+    static var exponentSMBits: IntRange { get }
+    static var smallSignificandBits: IntRange { get }
 }
 
 /// A radix-10 (decimal) floating-point type.
@@ -226,7 +228,6 @@ extension DecimalType {
     }
     
     static var largestSignificand: RawBitPattern { (largestNumber+1)/10 }
-    //    static var largestBID : Self { max(.plus) }
     
     @inlinable static func infinite(_ s: Sign = .plus) -> RawSignificand {
         if s == .minus { return negative | infinite }
@@ -245,8 +246,8 @@ extension DecimalType {
         s == .minus ? -T.infinity : .infinity
     }
     
-    // Doesn't change for the different types of Decimals
-    static var minExponent: Int { 0 }
+    /// Biased minimum exponent
+    static var minExponent: Int { -exponentBias }
     
     /// These bit fields can be predetermined just from the size of
     /// the number type `RawDataFields` `bitWidth`
@@ -311,31 +312,30 @@ extension DecimalType {
         }
     }
 
-    public init(nan payload: RawSignificand, signaling: Bool) {
+    public init(nan payload:RawSignificand,signaling:Bool,sign:Sign = .plus) {
         let pattern = signaling ? Self.snanPattern : Self.nanPattern
         let man = payload > Self.largestNumber/10 ? 0 : RawBitPattern(payload)
         self.init(0)
         set(exponent: pattern<<(Self.exponentBits-6), sigBitPattern: man)
+        self.sign = sign
     }
     
     /// Initialize from a BigDecimal
     init(_ value: BigDecimal) {
-        //let x = BInt(Self.largestNumber)
-        //print(Self.largestNumber, x)
         let max = BigDecimal(BInt(Self.largestNumber), Self.maxExponent)
-        // )   (Int(Decimal32.largestNumber), Decimal32.maxExponent)
         let sign = value.sign
-        if value.isNaN {
-            self.init(nan: 0, signaling: false)
+        if value.isNaN || value.isSignalingNaN {
+            self.init(nan: 0, signaling: value.isSignalingNaN, sign: sign)
         } else if value.isInfinite {
-            self.init(Self.RawData(Self.infinite))
+            let x = Self.infinite(sign)
+            self.init(RawData(x))
         } else if value.abs > max {
             self.init(nan: 0, signaling: false)
         } else {
             let round = Rounding(.toNearestOrEven, Self.maxDigits)
             let w = round.round(value).abs
             var exp = Self.exponentBias + w.exponent
-            var sig = RawSignificand(w.digits.asInt()!)
+            var sig = RawSignificand(w.digits)
             while exp > Self.exponentBias + Self.maxExponent {
                 exp -= 1; sig *= 10
             }

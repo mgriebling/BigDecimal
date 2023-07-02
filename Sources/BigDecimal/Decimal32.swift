@@ -29,7 +29,7 @@ public struct Decimal32 : DecimalType, Codable, Hashable {
     // Decimal32 characteristics
     static let largestNumber  = UInt32(9_999_999)
     static let exponentBias   = 101
-    static let maxExponent    = 90
+    static let maxExponent    = 90  // biased
     static let exponentBits   = 8
     static let maxDigits      = 7
     
@@ -40,11 +40,11 @@ public struct Decimal32 : DecimalType, Codable, Hashable {
     
     // Internal data store for the binary integer decimal encoded number.
     // The internal representation is always binary integer decimal.
-    var bid : UInt32
+    var bid : UInt32 = 0
     
     // Raw data initializer -- only for internal use.
-    public init(bid: UInt32) { self.bid = bid }
-    init(bid: ID)            { self.bid = bid.asDecimal32(.bid) }
+    public init(_ word: UInt32 = 0) { self.bid = word }
+    init(bid: ID)                   { self.bid = bid.asDecimal32(.bid) }
     
     /// convenience method to get the BigDecimal version of `bid`
     var bd : BigDecimal { ID(self.bid, .bid) }
@@ -94,7 +94,7 @@ extension Decimal32 : ExpressibleByIntegerLiteral {
 
 extension Decimal32 : ExpressibleByStringLiteral {
     public init(stringLiteral value: StringLiteralType) {
-        self.init(bid: ID(value))
+        self.init(bid: ID(value).round(Rounding.decimal32))
     }
 }
 
@@ -129,11 +129,11 @@ extension Decimal32 : FloatingPoint {
     }
     
     public static var leastNormalMagnitude: Self {
-        Self(bid: ID(Int(largestNumber), Self.minExponent))
+        Self(bid: ID(Int(largestNumber), minExponent))
     }
     
     public static var leastNonzeroMagnitude: Self {
-        Self(bid: ID(1, Self.minExponent))
+        Self(bid: ID(1, minExponent))
     }
     
     ///////////////////////////////////////////////////////////////////////////
@@ -273,7 +273,7 @@ extension Decimal32 : DecimalFloatingPoint {
     ///     of the new value.
     public init(sign: Sign, exponentBitPattern: Int,
                 significandBitPattern: RawSignificand) {
-        self.init(bid: UInt32(0))
+        self.init()
         self.sign = sign
         self.set(exponent: exponentBitPattern,
                  sigBitPattern: significandBitPattern)
@@ -346,10 +346,10 @@ extension Decimal32 {
     
     init(_ value: UInt32, _ encoding: ID.Encoding = .dpd) {
         if encoding == .bid {
-            self.init(bid: value)
+            self.init(value)
         } else {
             // translate `value` from DPD to BID
-            self.init(bid: Self.getBID(from: value))
+            self.init(Self.getBID(from: value))
         }
     }
     

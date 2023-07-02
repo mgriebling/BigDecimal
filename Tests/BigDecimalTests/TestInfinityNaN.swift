@@ -143,6 +143,10 @@ final class TestInfinityNaN: XCTestCase {
     
     func testMul() throws {
         for t in testsMul {
+            let a = BigDecimal(t.x)
+            let b = BigDecimal(t.y)
+            let c = a * b
+            let d = c.asString()
             XCTAssertEqual((BigDecimal(t.x) * BigDecimal(t.y)).asString(), t.result)
         }
         XCTAssertTrue(BigDecimal.NaNFlag)

@@ -29,12 +29,12 @@ final class Decimal32Tests: XCTestCase {
     static func toRounding(_ int:Int) -> RoundingRule {
       var round:RoundingRule
       switch int {
-        case 0: round = .toNearestOrEven
-        case 1: round = .down
-        case 2: round = .up
-        case 3: round = .towardZero
-        case 4: round = .toNearestOrAwayFromZero
-        default: round = .awayFromZero
+        case 0:  round = .toNearestOrEven
+        case 1:  round = .towardZero
+        case 2:  round = .awayFromZero
+        case 3:  round = .down
+        case 4:  round = .toNearestOrAwayFromZero
+        default: round = .up
       }
       return round
     }
@@ -5087,32 +5087,38 @@ final class Decimal32Tests: XCTestCase {
     }
     
     let state = Status.clearFlags
+    var round = Rounding.decimal32
     
     for test in testCases1+testCases2+testCases3 {
       // Decimal32.rounding = test.roundMode // state = []
       // reset for each type of test
-      if prevID != test.id { testID = 1; prevID = test.id; print() }
-      
-      func getNumber(_ s: String) -> Decimal32 {
-        if s.hasPrefix("0x") {
-          var s = s; s.removeFirst(2)
-          return Decimal32(bid: UInt32(s, radix:16) ?? 0)
+        if prevID != test.id { testID = 1; prevID = test.id; print() }
+        round.mode = test.roundMode
+        
+        func getNumber(_ s: String) -> Decimal32 {
+            if s.hasPrefix("0x") {
+                var s = s; s.removeFirst(2)
+                return Decimal32(UInt32(s, radix:16) ?? 0)
+            }
+            let d = BigDecimal(s).round(round)
+            return Decimal32(d.asDecimal32(.bid))
         }
-        return Decimal32(stringLiteral: s).rounded(test.roundMode)   //, rounding:test.roundMode)
-      }
-      
-      func getFloat(_ s: String) -> Float {
-        if s.hasPrefix("0x") {
-          var s = s; s.removeFirst(2)
-          return Float(bitPattern: UInt32(s, radix:16) ?? 0)
+        
+        func getFloat(_ s: String) -> Float {
+            if s.hasPrefix("0x") {
+                var s = s; s.removeFirst(2)
+                return Float(bitPattern: UInt32(s, radix:16) ?? 0)
+            }
+            return Float(s)!
         }
-        return Float(s)!
-      }
       
       switch test.id {
         case "bid32_from_string":
+              if testID == 57 {
+                  print()
+              }
           let t1 = getNumber(test.istr)
-          let dtest = Decimal32(bid: UInt32(test.res))
+          let dtest = Decimal32(UInt32(test.res))
           let error = String(format: "0x%08X[\(dtest)] != 0x%08X[\(t1)]",
                              test.res, t1.bid)
           checkValues(test, UInt64(t1.bid), state, error)
@@ -5289,7 +5295,7 @@ final class Decimal32Tests: XCTestCase {
           } else {
             res = t1.divided(by: t2, rounding: test.roundMode)
           }
-          let dtest = Decimal32(bid: UInt32(test.res))
+          let dtest = Decimal32(UInt32(test.res))
           let error = String(format: "0x%08X[\(dtest)] != 0x%08X[\(res)]",
                               test.res, res.bid)
           checkValues(test, UInt64(res.bid), state, error)
@@ -5328,7 +5334,7 @@ final class Decimal32Tests: XCTestCase {
             print(t3, "+", t1, "*", t2)
           }
           let res = t3.addingProduct(t1, t2, rounding: test.roundMode)
-          let dtest = Decimal32(bid:UInt32(test.res))
+          let dtest = Decimal32(UInt32(test.res))
           let error = String(format: "0x%08X[\(dtest)] != 0x%08X[\(res)]",
                              test.res, res.bid)
           checkValues(test, UInt64(res.bid), state, error)
