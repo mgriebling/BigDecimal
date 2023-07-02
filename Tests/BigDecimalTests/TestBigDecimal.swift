@@ -355,107 +355,31 @@ class TestBigDecimal: XCTestCase {
         XCTAssertEqual(lnzm1.description, lnzm2)
     }
 
-    func doTestMax32(_ enc: BigDecimal.Encoding) throws {
-        var x32 = Decimal32.greatestFiniteMagnitude
-        var y32 = Decimal32.leastNormalMagnitude
-        var z32 = Decimal32.leastNonzeroMagnitude
-        print(x32, y32, z32)
+    func testMax32() throws {
+        let x32 = Decimal32.greatestFiniteMagnitude
+        let y32 = Decimal32.leastNormalMagnitude
+        let z32 = Decimal32.leastNonzeroMagnitude
         XCTAssertEqual(x32.description, "9.999999E+96")
         XCTAssertEqual(y32.description, "9.999999E-95")
         XCTAssertEqual(z32.description, "1E-101")
-        
-        x32 += 1
-        print(x32)
-//        XCTAssertEqual(BigDecimal.MAX32, x32.description)
-//        x32 = (-BigDecimal.MAX32).asDecimal32(enc)
-//        d32 = Decimal32(x32, enc).asBigDecimal()
-//        XCTAssertEqual(-BigDecimal.MAX32, d32)
-//        x32 = (BigDecimal.MAX32 + BigDecimal.one).asDecimal32(enc)
-//        XCTAssertTrue(Decimal32(x32, enc).asBigDecimal().isNaN)
-//        x32 = (-BigDecimal.MAX32 - BigDecimal.one).asDecimal32(enc)
-//        XCTAssertTrue(Decimal32(x32, enc).asBigDecimal().isNaN)
     }
 
-//    func doTestMax64(_ enc: BigDecimal.Encoding) throws {
-//        var x64 = BigDecimal.MAX64.asDecimal64(enc)
-//        var d64 = Decimal64(x64, enc).asBigDecimal()
-//        XCTAssertEqual(BigDecimal.MAX64, d64)
-//        x64 = (-BigDecimal.MAX64).asDecimal64(enc)
-//        d64 = Decimal64(x64, enc).asBigDecimal()
-//        XCTAssertEqual(-BigDecimal.MAX64, d64)
-//        x64 = (BigDecimal.MAX64 + BigDecimal.one).asDecimal64(enc)
-//        XCTAssertTrue(Decimal64(x64, enc).asBigDecimal().isNaN)
-//        x64 = (-BigDecimal.MAX64 - BigDecimal.one).asDecimal64(enc)
-//        XCTAssertTrue(Decimal64(x64, enc).asBigDecimal().isNaN)
-//    }
-//
-//    func doTestMax128(_ enc: BigDecimal.Encoding) throws {
-//        var x128 = BigDecimal.MAX128.asDecimal128(enc)
-//        var d128 = Decimal128(x128, enc).asBigDecimal()
-//        XCTAssertEqual(BigDecimal.MAX128, d128)
-//        x128 = (-BigDecimal.MAX128).asDecimal128(enc)
-//        d128 = Decimal128(x128, enc).asBigDecimal()
-//        XCTAssertEqual(-BigDecimal.MAX128, d128)
-//        x128 = (BigDecimal.MAX128 + BigDecimal.one).asDecimal128(enc)
-//        XCTAssertTrue(Decimal128(x128, enc).asBigDecimal().isNaN)
-//        x128 = (-BigDecimal.MAX128 - BigDecimal.one).asDecimal128(enc)
-//        XCTAssertTrue(Decimal128(x128, enc).asBigDecimal().isNaN)
-//    }
-
-    func testMax2() throws {
-        try doTestMax32(.bid)
-        try doTestMax32(.dpd)
-//        try doTestMax64(.bid)
-//        try doTestMax64(.dpd)
-//        try doTestMax128(.bid)
-//        try doTestMax128(.dpd)
-//        XCTAssertTrue(BigDecimal.NaNFlag)
+    func testMax64() throws {
+        let x64 = Decimal64.greatestFiniteMagnitude
+        let y64 = Decimal64.leastNormalMagnitude
+        let z64 = Decimal64.leastNonzeroMagnitude
+        XCTAssertEqual(x64.description, "9.999999999999999E+384")
+        XCTAssertEqual(y64.description, "9.999999999999999E-383")
+        XCTAssertEqual(z64.description, "1E-398")
     }
     
-//    func doTestMin32(_ enc: BigDecimal.Encoding) throws {
-//        var x32 = BigDecimal.MIN32.asDecimal32(enc)
-//        var d32 = Decimal32(x32, enc).asBigDecimal()
-//        XCTAssertEqual(BigDecimal.MIN32, d32)
-//        x32 = (BigDecimal.MIN32 / BigDecimal(2)).asDecimal32(enc)
-//        d32 = Decimal32(x32, enc).asBigDecimal()
-//        XCTAssertEqual(BigDecimal.zero, d32)
-//        x32 = (BigDecimal.MIN32 - BigDecimal.MIN32.ulp).asDecimal32(enc)
-//        d32 = Decimal32(x32, enc).asBigDecimal()
-//        XCTAssertEqual(BigDecimal.zero, d32)
-//    }
-//
-//    func doTestMin64(_ enc: BigDecimal.Encoding) throws {
-//        var x64 = BigDecimal.MIN64.asDecimal64(enc)
-//        var d64 = Decimal64(x64, enc).asBigDecimal()
-//        XCTAssertEqual(BigDecimal.MIN64, d64)
-//        x64 = (BigDecimal.MIN64 / BigDecimal(2)).asDecimal64(enc)
-//        d64 = Decimal64(x64, enc).asBigDecimal()
-//        XCTAssertEqual(BigDecimal.zero, d64)
-//        x64 = (BigDecimal.MIN64 - BigDecimal.MIN64.ulp).asDecimal64(enc)
-//        d64 = Decimal64(x64, enc).asBigDecimal()
-//        XCTAssertEqual(BigDecimal.zero, d64)
-//    }
-//
-//    func doTestMin128(_ enc: BigDecimal.Encoding) throws {
-//        var x128 = BigDecimal.MIN128.asDecimal128(enc)
-//        var d128 = Decimal128(x128, enc).asBigDecimal()
-//        XCTAssertEqual(BigDecimal.MIN128, d128)
-//        x128 = (BigDecimal.MIN128 / BigDecimal(2)).asDecimal128(enc)
-//        d128 = Decimal128(x128, enc).asBigDecimal()
-//        XCTAssertEqual(BigDecimal.zero, d128)
-//        x128 = (BigDecimal.MIN128 - BigDecimal.MIN128.ulp).asDecimal128(enc)
-//        d128 = Decimal128(x128, enc).asBigDecimal()
-//        XCTAssertEqual(BigDecimal.zero, d128)
-//    }
-
-//    func testMin() throws {
-//        try doTestMin32(.bid)
-//        try doTestMin32(.dpd)
-//        try doTestMin64(.bid)
-//        try doTestMin64(.dpd)
-//        try doTestMin128(.bid)
-//        try doTestMin128(.dpd)
-//        XCTAssertFalse(BigDecimal.NaNFlag)
-//    }
+    func testMax128() throws {
+        let x128 = Decimal128.greatestFiniteMagnitude
+        let y128 = Decimal128.leastNormalMagnitude
+        let z128 = Decimal128.leastNonzeroMagnitude
+        XCTAssertEqual(x128.description, "9.999999999999999999999999999999999E+6144")
+        XCTAssertEqual(y128.description, "9.999999999999999999999999999999999E-6143")
+        XCTAssertEqual(z128.description, "1E-6176")
+    }
 
 }
