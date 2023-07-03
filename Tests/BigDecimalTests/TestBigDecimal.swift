@@ -16,7 +16,7 @@ import BigInt
 class TestBigDecimal: XCTestCase {
 
     override func setUpWithError() throws {
-        BigDecimal.NaNFlag = false
+        BigDecimal.nanFlag = false
     }
 
     func equals(_ x: BigDecimal, _ y: BigDecimal) -> Bool {
@@ -33,7 +33,7 @@ class TestBigDecimal: XCTestCase {
         big = BigDecimal(BInt(2345), -2)
         bigabs = big.abs
         XCTAssertEqual(bigabs.asString(), "23.45")
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testAdd() throws {
@@ -45,7 +45,7 @@ class TestBigDecimal: XCTestCase {
         XCTAssertEqual(sum.asString(), "3872.691")
         let add3 = BigDecimal(12.34E02)
         XCTAssertEqual((add1 + add3).asString(), "1257.456")
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testCompare() throws {
@@ -56,7 +56,7 @@ class TestBigDecimal: XCTestCase {
         XCTAssertTrue(comp3 > comp1)
         let comp4 = BigDecimal(0.98)
         XCTAssertTrue(comp4 < comp1)
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testDivide1() throws {
@@ -72,7 +72,7 @@ class TestBigDecimal: XCTestCase {
         XCTAssertEqual(divd3.asString(), "1000.47")
         XCTAssertEqual(divd3.exponent, -2)
         XCTAssertEqual(divd3.digits.asInt(), 100047)
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
     
     func testDivide2() throws {
@@ -85,7 +85,7 @@ class TestBigDecimal: XCTestCase {
         divd3 = divd1.divide(divd2, Rounding(.down, 5))
         XCTAssertEqual(divd3.asString(), "91672")
         XCTAssertEqual(divd3.exponent, 0)
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testDouble() throws {
@@ -123,7 +123,7 @@ class TestBigDecimal: XCTestCase {
         
         fl2 = BigDecimal(-3E12)
         XCTAssertEqual(fl2.asDouble(), -3E12)
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testEqual() throws {
@@ -149,7 +149,7 @@ class TestBigDecimal: XCTestCase {
         equal2 = BigDecimal("2.34576")
         XCTAssertFalse(equal1 == equal2)
         XCTAssertFalse(equals(equal1, equal2))
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testMultiply() throws {
@@ -182,7 +182,7 @@ class TestBigDecimal: XCTestCase {
         result = multi1 * multi2
         XCTAssertEqual(result.asDouble(), -313560000)
         XCTAssertEqual(result.exponent, multi1.exponent + multi2.exponent)
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testNegate() throws {
@@ -195,7 +195,7 @@ class TestBigDecimal: XCTestCase {
         negate1 = BigDecimal(-3.456E6)
         XCTAssertEqual(-(-negate1), negate1)
         XCTAssertTrue(equals(-(-negate1), negate1))
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testScale1() throws {
@@ -213,7 +213,7 @@ class TestBigDecimal: XCTestCase {
         
         let scale5 = BigDecimal("-345.4E-200")
         XCTAssertEqual(scale5.exponent, -201)
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testRounding1() throws {
@@ -229,7 +229,7 @@ class TestBigDecimal: XCTestCase {
         XCTAssertTrue(equals(res, BigDecimal("1.23809E+68")))
         XCTAssertEqual(mcIntRm, mcStr)
         XCTAssertFalse(mcInt == mcStr)
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testSignum() throws {
@@ -241,7 +241,7 @@ class TestBigDecimal: XCTestCase {
         
         sign = BigDecimal(0.00)
         XCTAssertTrue(sign.signum == 0)
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testSubtract() throws {
@@ -269,7 +269,7 @@ class TestBigDecimal: XCTestCase {
         sub2 = BigDecimal(1234.0123000)
         result = sub1 - sub2
         XCTAssertEqual(result.asDouble(), 0.0)
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testAsString() throws {
@@ -284,7 +284,7 @@ class TestBigDecimal: XCTestCase {
 
         toString1 = BigDecimal(value2, -4)
         XCTAssertEqual(toString1.asString(), "1233456.0000")
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testSignificand() throws {
@@ -299,7 +299,7 @@ class TestBigDecimal: XCTestCase {
         
         unsVal = BigDecimal(value, 3)
         XCTAssertEqual(unsVal.digits.asString(), "12345908")
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testFromInt() {
@@ -326,7 +326,7 @@ class TestBigDecimal: XCTestCase {
         XCTAssertEqual(valueOfJI.digits.asString(), "0")
         XCTAssertEqual(valueOfJI.exponent, -3)
         XCTAssertEqual(valueOfJI.asString(), "0.000")
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testTrim() throws {
@@ -338,7 +338,7 @@ class TestBigDecimal: XCTestCase {
 
         let zerotest = BigDecimal("0.0000")
         XCTAssertEqual(zerotest.trim.exponent, 0)
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
     
     func testMax() throws {

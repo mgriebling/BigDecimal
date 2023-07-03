@@ -351,6 +351,8 @@ extension Decimal128 {
         let isNegative = self.sign == .minus
         if self.isNaN {
             return BigDecimal.flagNaN()
+        } else if self.isSignalingNaN {
+            return BigDecimal(.snan)
         } else if self.isInfinite {
             return isNegative ? -BigDecimal.infinity : BigDecimal.infinity
         } else {

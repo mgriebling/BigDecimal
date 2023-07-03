@@ -16,7 +16,7 @@ import XCTest
 final class TestMinMax: XCTestCase {
 
     override func setUpWithError() throws {
-        BigDecimal.NaNFlag = false
+        BigDecimal.nanFlag = false
     }
 
     struct test {
@@ -135,8 +135,8 @@ final class TestMinMax: XCTestCase {
     ]
 
     let testsNaN: [test] = [
-        test("0", "NaN", "NaN"),
-        test("NaN", "0", "NaN"),
+        test("0", "NaN", "0"),
+        test("NaN", "0", "0"),
         test("NaN", "NaN", "NaN"),
     ]
 
@@ -144,21 +144,21 @@ final class TestMinMax: XCTestCase {
         for t in testsMin {
             XCTAssertEqual(BigDecimal.minimum(BigDecimal(t.x), BigDecimal(t.y)).asString(), t.m)
         }
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testMax() {
         for t in testsMax {
             XCTAssertEqual(BigDecimal.maximum(BigDecimal(t.x), BigDecimal(t.y)).asString(), t.m)
         }
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testNaN() {
         for t in testsNaN {
             XCTAssertEqual(BigDecimal.maximum(BigDecimal(t.x), BigDecimal(t.y)).asString(), t.m)
         }
-        XCTAssertTrue(BigDecimal.NaNFlag)
+        XCTAssertTrue(BigDecimal.nanFlag)
     }
 
 }

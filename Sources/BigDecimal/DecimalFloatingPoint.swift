@@ -246,7 +246,7 @@ extension DecimalType {
         s == .minus ? -T.infinity : .infinity
     }
     
-    /// Biased minimum exponent
+    // Doesn't change for the different types of Decimals
     static var minExponent: Int { -exponentBias }
     
     /// These bit fields can be predetermined just from the size of
@@ -312,7 +312,8 @@ extension DecimalType {
         }
     }
 
-    public init(nan payload:RawSignificand,signaling:Bool,sign:Sign = .plus) {
+    public init(nan payload: RawSignificand, signaling: Bool,
+                sign: Sign = .plus) {
         let pattern = signaling ? Self.snanPattern : Self.nanPattern
         let man = payload > Self.largestNumber/10 ? 0 : RawBitPattern(payload)
         self.init(0)
@@ -357,7 +358,11 @@ extension DecimalType {
       nanBits & Self.nanPattern == Self.infinitePattern<<1
     }
     
-    public var isNaN: Bool  { nanBits & Self.nanPattern == Self.nanPattern }
+    // Note: Should detect both Nan and SNan
+    public var isNaN: Bool  {
+        return nanBits & Self.snanPattern == Self.nanPattern
+    }
+    
     public var isSignalingNaN: Bool {
         nanBits & Self.snanPattern == Self.snanPattern
     }
@@ -1062,9 +1067,8 @@ extension DecimalFloatingPoint where Self.RawSignificand: FixedWidthInteger {
     let r = generator.next(upperBound: max)
     
     // convert the integer to a Decimal number and scale to delta range
-    var d = Self.init(
-      sign: delta.sign, exponent: Self.Exponent(delta.exponentBitPattern),
-      significand: Self.init(r))
+    var d = Self.init(sign: delta.sign, exponent: delta.exponent,
+                      significand: Self(r))
     d += range.lowerBound // add the lower bound
     // try again if we failed above
     if d == range.upperBound { return random(in: range, using: &generator) }

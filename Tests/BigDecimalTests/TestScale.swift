@@ -12,7 +12,7 @@ import BigInt
 final class TestScale: XCTestCase {
 
     override func setUpWithError() throws {
-        BigDecimal.NaNFlag = false
+        BigDecimal.nanFlag = false
     }
 
     struct test {

@@ -5357,7 +5357,7 @@ final class Decimal32Tests: XCTestCase {
     // Decimal32.rounding = .toNearestOrEven
     let s = "123456789"
     let y1 = Decimal32(stringLiteral: s)
-    XCTAssert(y1.description == "1.234568e+8")
+    XCTAssert(y1.description == "1.234568E+8")
     print("\(s) -> \(y1)")
     
     let y = Decimal32(stringLiteral: "234.5")
@@ -5424,11 +5424,12 @@ final class Decimal32Tests: XCTestCase {
     print("Decimal32.signalingNaN =", Decimal32.signalingNaN)
     XCTAssert(Decimal32.signalingNaN.description == "SNaN")
     print("Decimal32.Infinity =", Decimal32.infinity)
-    XCTAssert(Decimal32.infinity.description == "Inf")
+    XCTAssert(Decimal32.infinity.description == "+Infinity")
     
     var a1 = Decimal32(8.625); let b1 = Decimal32(0.75)
     let rem = a1.remainder(dividingBy: b1)
-    print("\(a1).formRemainder(dividingBy: \(b1) = ", rem)
+    let rem2 = a1.truncatingRemainder(dividingBy: b1)
+    print("\(a1).formRemainder(dividingBy: \(b1) = ", rem, rem2)
     XCTAssert(rem == Decimal32(-0.375))
     a1 = Decimal32(8.625)
     let q = (a1/b1).rounded(.towardZero); print(q)

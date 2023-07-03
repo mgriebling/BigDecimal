@@ -12,11 +12,11 @@ import BigInt
 final class TestData: XCTestCase {
 
     override func setUpWithError() throws {
-        BigDecimal.NaNFlag = false
+        BigDecimal.nanFlag = false
     }
 
     override func tearDownWithError() throws {
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func doTest(_ x: BigDecimal) {

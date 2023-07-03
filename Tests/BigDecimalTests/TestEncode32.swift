@@ -16,7 +16,7 @@ import XCTest
 final class TestEncode32: XCTestCase {
 
     override func setUpWithError() throws {
-        BigDecimal.NaNFlag = false
+        BigDecimal.nanFlag = false
     }
 
     static func U32(_ x: String) -> UInt32 {
@@ -52,7 +52,7 @@ final class TestEncode32: XCTestCase {
             XCTAssertEqual(Decimal32(t.dec, .dpd).asBigDecimal().asString(), t.x)
             XCTAssertEqual(BigDecimal(t.dec).asString(), t.x)
         }
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     let tests2: [test] = [
@@ -70,7 +70,7 @@ final class TestEncode32: XCTestCase {
         for t in tests2 {
             XCTAssertEqual(Decimal32(t.dec, .dpd).asBigDecimal().asString(), t.x)
         }
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     let tests3: [test] = [
@@ -91,7 +91,7 @@ final class TestEncode32: XCTestCase {
             XCTAssertTrue(bd.isInfinite || bd.isNaN)
         }
         XCTAssertTrue(Decimal32(BigDecimal.nan).asBigDecimal().isNaN)
-        XCTAssertTrue(BigDecimal.NaNFlag)
+        XCTAssertTrue(BigDecimal.nanFlag)
     }
 
 }

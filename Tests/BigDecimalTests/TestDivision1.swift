@@ -16,7 +16,7 @@ import BigInt
 class TestDivision1: XCTestCase {
 
     override func setUpWithError() throws {
-        BigDecimal.NaNFlag = false
+        BigDecimal.nanFlag = false
     }
 
     func equals(_ x: BigDecimal, _ y: BigDecimal) -> Bool {
@@ -35,7 +35,7 @@ class TestDivision1: XCTestCase {
             }
             powerOf2 *= 2
         }
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
     
     func testNonTerminating() {
@@ -48,7 +48,7 @@ class TestDivision1: XCTestCase {
                         let divisor = primes[m] * primes[n]
                         if (dividend / divisor) * divisor != dividend {
                             XCTAssertTrue(BigDecimal(dividend).divide(BigDecimal(divisor)).isNaN)
-                            XCTAssertTrue(BigDecimal.NaNFlag)
+                            XCTAssertTrue(BigDecimal.nanFlag)
                          }
                      }
                  }
@@ -73,7 +73,7 @@ class TestDivision1: XCTestCase {
                 XCTFail()
             }
         }
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
     
     func testTralingZero() throws {
@@ -86,7 +86,7 @@ class TestDivision1: XCTestCase {
             XCTAssertTrue(tc[0].divide(tc[1], mc) == tc[2])
             XCTAssertTrue(equals(tc[0].divide(tc[1], mc), tc[2]))
         }
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
     
     func testScaledRounded1() throws {
@@ -126,7 +126,7 @@ class TestDivision1: XCTestCase {
                 XCTFail()
             }
         }
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testScaledRounded2() throws {
@@ -148,7 +148,7 @@ class TestDivision1: XCTestCase {
                 XCTFail()
             }
         }
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
 }

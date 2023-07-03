@@ -11,11 +11,11 @@ import XCTest
 class TestArithmetic: XCTestCase {
 
     override func setUpWithError() throws {
-        BigDecimal.NaNFlag = false
+        BigDecimal.nanFlag = false
     }
 
     override func tearDownWithError() throws {
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func doTest1(_ a: BigDecimal, _ b: BigDecimal) {

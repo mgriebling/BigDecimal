@@ -94,7 +94,7 @@ extension Decimal32 : ExpressibleByIntegerLiteral {
 
 extension Decimal32 : ExpressibleByStringLiteral {
     public init(stringLiteral value: StringLiteralType) {
-        self.init(bid: ID(value).round(Rounding.decimal32))
+        bid = ID(value).asDecimal32(.bid)
     }
 }
 
@@ -115,7 +115,6 @@ extension Decimal32 : FloatingPoint {
     
     public mutating func round(_ rule: RoundingRule) {
         let digits = Rounding.decimal32.precision
-        bid = Self(self.bd.round(Rounding(rule, digits))).bid
     }
     
     ///////////////////////////////////////////////////////////////////////////
@@ -199,12 +198,14 @@ extension Decimal32 : FloatingPoint {
     public static func /= (lhs: inout Self, rhs: Self) { lhs = lhs / rhs }
     
     public mutating func formRemainder(dividingBy other: Self) {
-        bid = Self(bid: self.bd.truncatingRemainder(dividingBy: other.bd)).bid
+        let q = self / other
+        let qp = q.rounded(.toNearestOrEven)
+        let r = self.bd.remainder(dividingBy: other.bd)
+        print(q,r)
     }
     
     public mutating func formTruncatingRemainder(dividingBy other: Self) {
-        let q = (self/other).rounded(.towardZero)
-        self -= q * other
+        bid = Self(bid:self.bd.truncatingRemainder(dividingBy: other.bd)).bid
     }
     
     public mutating func formSquareRoot() {
@@ -357,6 +358,8 @@ extension Decimal32 {
         let isNegative = self.sign == .minus
         if self.isNaN {
             return BigDecimal.flagNaN()
+        } else if self.isSignalingNaN {
+            return BigDecimal(.snan)
         } else if self.isInfinite {
             return isNegative ? -BigDecimal.infinity : BigDecimal.infinity
         } else {

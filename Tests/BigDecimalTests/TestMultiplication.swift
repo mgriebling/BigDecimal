@@ -15,11 +15,11 @@ import XCTest
 class TestMultiplication: XCTestCase {
 
     override func setUpWithError() throws {
-        BigDecimal.NaNFlag = false
+        BigDecimal.nanFlag = false
     }
     
     override func tearDownWithError() throws {
-        XCTAssertFalse(BigDecimal.NaNFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     let result1: [String] = [

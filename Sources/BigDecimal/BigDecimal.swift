@@ -122,7 +122,7 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     ///   - d: The Double value
     public init(_ d: Double) {
         if d.isNaN {
-            self = Self.flagNaN()
+            self = Self.flagNaN(d.isSignalingNaN)
         } else if d.isInfinite {
             self = d > 0.0 ? Self.infinity : -Self.infinity
         } else {
@@ -468,8 +468,8 @@ extension BigDecimal {
     /// Is *true* if *self* is a finite number
     public var isFinite: Bool { !self.isNaN && !self.isInfinite }
     
-    /// Is *true* if *self* is a NaN number
-    public var isNaN: Bool { self.special == .qnan }
+    /// Is *true* if *self* is either a NaN or SNaN number
+    public var isNaN: Bool { [Special.qnan, .snan].contains(special) }
     
     /// Is *true* if *self* is a signaling NaN number
     public var isSignalingNaN: Bool { self.special == .snan }
@@ -521,7 +521,7 @@ extension BigDecimal {
 
     /// NaN flag - set to *true* whenever a NaN value is generated
     /// Can be set to *false* by application code
-    public static var NaNFlag = false
+    public static var nanFlag = false
 
     // MARK: Conversion functions
     
@@ -540,7 +540,10 @@ extension BigDecimal {
         }
         
         if self.isNaN {
-            return self.digits.isNegative ? "-NaN" : "NaN"
+            var flag = "NaN"
+            if self.isSignalingNaN { flag = "S" + flag }
+            if self.digits.isNegative { return "-" + flag }
+            return flag
         } else if self.isInfinite {
             return self.digits.isNegative ? "-Infinity" : "+Infinity"
         }
@@ -863,7 +866,7 @@ extension BigDecimal {
     /// result has infinite decimal expansion
     public func pow(_ n: Int, _ rnd: Rounding? = nil) -> Self {
         if self.isNaN {
-            return Self.flagNaN()
+            return Self.flagNaN(self.isSignalingNaN)
         } else if self.isInfinite {
             if n < 0 {
                 return Self.zero
@@ -893,7 +896,7 @@ extension BigDecimal {
     /// - Returns: x \* y
     public static func * (x: Self, y: Self) -> Self {
         if x.isNaN || y.isNaN {
-            return Self.flagNaN()
+            return Self.flagNaN(x.isSignalingNaN || y.isSignalingNaN)
         } else if x.isInfinite || y.isInfinite {
             if x.isZero || y.isZero {
                 return Self.flagNaN()
@@ -937,7 +940,8 @@ extension BigDecimal {
 
     func checkDivision(_ d: Self) -> (failure: Bool, q: Self, r: Self) {
         if self.isNaN || d.isNaN {
-            return (true, Self.flagNaN(), Self.flagNaN())
+            let signaling = self.isSignalingNaN || d.isSignalingNaN
+            return (true, Self.flagNaN(signaling), Self.flagNaN(signaling))
         } else if self.isInfinite {
             if d.isInfinite {
                 return (true, Self.flagNaN(), Self.flagNaN())
@@ -1060,9 +1064,13 @@ extension BigDecimal {
     /// - Parameters:
     ///    - x: First operand
     ///    - y: Second operand
-    /// - Returns: The larger of *x* and *y*, NaN if either is NaN
+    /// - Returns: The larger of *x* and *y*, or whichever is a number if the
+    ///   other is NaN.
     public static func maximum(_ x: Self, _ y: Self) -> Self {
-        return (x.isNaN || y.isNaN) ? Self.flagNaN() : (x > y ? x : y)
+        if x.isSignalingNaN || y.isSignalingNaN { return Self.flagNaN() }
+        if x.isNaN { return y.isNaN ? Self.flagNaN() : y }
+        if y.isNaN { return x }
+        return (x > y ? x : y)
     }
 
     /// Minimum
@@ -1070,9 +1078,13 @@ extension BigDecimal {
     /// - Parameters:
     ///    - x: First operand
     ///    - y: Second operand
-    /// - Returns: The smaller of *x* and *y*, NaN if either is NaN
+    /// - Returns: The minimum of `x` and `y`, or whichever is a number if the
+    ///   other is NaN.
     public static func minimum(_ x: Self, _ y: Self) -> Self {
-        return (x.isNaN || y.isNaN) ? Self.flagNaN() : (x < y ? x : y)
+        if x.isSignalingNaN || y.isSignalingNaN { return Self.flagNaN() }
+        if x.isNaN { return y.isNaN ? Self.flagNaN() : y }
+        if y.isNaN { return x }
+        return (x < y ? x : y)
     }
 
     /// Equal
@@ -1151,7 +1163,7 @@ extension BigDecimal {
     /// - Returns: *self* \* 10^n
     public func scale(_ n: Int) -> Self {
         if self.isNaN {
-            return Self.flagNaN()
+            return Self.flagNaN(self.isSignalingNaN)
         } else if self.isInfinite {
             return self
         } else {
@@ -1167,7 +1179,7 @@ extension BigDecimal {
     /// - Returns: Same value as *self* possibly rounded, with exponent = exp
     public func withExponent(_ exp: Int, _ mode: RoundingRule) -> Self {
         if self.isNaN || self.isInfinite {
-            return Self.flagNaN()
+            return Self.flagNaN(self.isSignalingNaN)
         } else if self.exponent > exp {
             return Self(self.digits * Rounding.pow10(self.exponent - exp), exp)
         } else if self.exponent < exp {
@@ -1300,8 +1312,9 @@ extension BigDecimal {
         return Self(w, e - scale)
     }
     
-    static func flagNaN() -> Self {
-        Self.NaNFlag = true
+    static func flagNaN(_ signaling:Bool=false) -> Self {
+        if signaling { return Self.signalingNaN }
+        Self.nanFlag = true
         return Self.nan
     }
 }
