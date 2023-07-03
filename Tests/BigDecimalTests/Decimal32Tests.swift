@@ -5114,9 +5114,6 @@ final class Decimal32Tests: XCTestCase {
       
       switch test.id {
         case "bid32_from_string":
-              if testID == 57 {
-                  print()
-              }
           let t1 = getNumber(test.istr)
           let dtest = Decimal32(UInt32(test.res))
           let error = String(format: "0x%08X[\(dtest)] != 0x%08X[\(t1)]",
@@ -5425,16 +5422,14 @@ final class Decimal32Tests: XCTestCase {
     XCTAssert(Decimal32.signalingNaN.description == "SNaN")
     print("Decimal32.Infinity =", Decimal32.infinity)
     XCTAssert(Decimal32.infinity.description == "+Infinity")
-    
-    var a1 = Decimal32(8.625); let b1 = Decimal32(0.75)
-    let rem = a1.remainder(dividingBy: b1)
-    let rem2 = a1.truncatingRemainder(dividingBy: b1)
-    print("\(a1).formRemainder(dividingBy: \(b1) = ", rem, rem2)
-    XCTAssert(rem == Decimal32(-0.375))
-    a1 = Decimal32(8.625)
-    let q = (a1/b1).rounded(.towardZero); print(q)
-    a1 = a1 - q * b1
-    print("\(a1)")
+      
+      var a1 = Decimal32(8.625); let b1 = Decimal32(0.75)
+      let rem = a1.remainder(dividingBy: b1)
+      XCTAssert(rem == Decimal32(-0.375))
+      a1 = Decimal32(8.625)
+      let q = a1.divided(by:b1, rounding: .toNearestOrEven); print(q)
+      a1 = a1 - q * b1
+      print("\(a1)")
     
     // let x2 = Decimal32(56.7)
       
@@ -5495,9 +5490,9 @@ final class Decimal32Tests: XCTestCase {
     
     /// Check min/max values
     XCTAssertEqual(Decimal32.greatestFiniteMagnitude.description,
-                   "9.999999e+96")
-    XCTAssertEqual(Decimal32.leastNonzeroMagnitude.description, "1e-101")
-    XCTAssertEqual(Decimal32.leastNormalMagnitude.description, "9.999999e-95")
+                   "9.999999E+96")
+    XCTAssertEqual(Decimal32.leastNonzeroMagnitude.description, "1E-101")
+    XCTAssertEqual(Decimal32.leastNormalMagnitude.description, "9.999999E-95")
     
     /// Verify various string and integer encodings
     test("-7.50",        result: "A23003D0")
@@ -5614,7 +5609,7 @@ final class Decimal32Tests: XCTestCase {
     test("NaN123456",   result: "7c028e56")
     test("NaN799799",   result: "7c0f7fdf")
     test("NaN999999",   result: "7c03fcff")
-    
+    test("-0E+90",      result: "c3f00000")
     
     // fold-down full sequence
     test("1E+96", result: "47f00000")

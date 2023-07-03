@@ -25,8 +25,7 @@ import BigInt
 /// the binary encoding format for decimal floating-point values, but the
 /// decimal encoding format is supported too in the library, by means of
 /// conversion functions between the two encoding formats.
-public struct Decimal128 : DecimalType, Codable, Hashable {
-    
+public struct Decimal128 : DecimalType, Codable, Hashable {    
     // Decimal64 characteristics
     static let largestNumber =
     UInt128(9_999_999_999_999_999_999_999_999_999_999_999)
@@ -350,9 +349,7 @@ extension Decimal128 {
     func asBigDecimal() -> BigDecimal {
         let isNegative = self.sign == .minus
         if self.isNaN {
-            return BigDecimal.flagNaN()
-        } else if self.isSignalingNaN {
-            return BigDecimal(.snan)
+            return BigDecimal.flagNaN(self.isSignalingNaN)
         } else if self.isInfinite {
             return isNegative ? -BigDecimal.infinity : BigDecimal.infinity
         } else {

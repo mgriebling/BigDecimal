@@ -114,7 +114,7 @@ extension Decimal32 : FloatingPoint {
     }
     
     public mutating func round(_ rule: RoundingRule) {
-        let digits = Rounding.decimal32.precision
+        bid = Self(self.bd.rounded(rule)).bid
     }
     
     ///////////////////////////////////////////////////////////////////////////
@@ -147,8 +147,7 @@ extension Decimal32 : FloatingPoint {
     // MARK: - Floating-point basic operations with rounding
     
     public func adding(other: Self, rounding rule: RoundingRule) -> Self {
-        let round = Rounding(rule, Rounding.decimal32.precision)
-        return Self(bid: self.bd.add(other.bd, round))
+        return Self(bid: (self.bd + other.bd).rounded(rule))
     }
     
     public mutating func add(other: Self, rounding rule: RoundingRule) {
@@ -160,13 +159,11 @@ extension Decimal32 : FloatingPoint {
     }
     
     public func subtracting(other: Self, rounding rule: RoundingRule) -> Self {
-        let round = Rounding(rule, Rounding.decimal32.precision)
-        return Self(bid: self.bd.subtract(other.bd, round))
+        return Self(bid: (self.bd + other.bd).rounded(rule))
     }
     
     public func multiplied(by other:Self, rounding rule:RoundingRule) -> Self {
-        let round = Rounding(rule, Rounding.decimal32.precision)
-        return Self(bid: self.bd.multiply(other.bd, round))
+        return Self(bid: (self.bd * other.bd).rounded(rule))
     }
     
     public mutating func multiply(by other: Self, rounding rule:RoundingRule) {
@@ -174,8 +171,7 @@ extension Decimal32 : FloatingPoint {
     }
     
     public func divided(by other: Self, rounding rule: RoundingRule) -> Self {
-        let round = Rounding(rule, Rounding.decimal32.precision)
-        return Self(bid: self.bd.divide(other.bd, round))
+        return Self(bid: self.bd.divide(other.bd).rounded(rule))
     }
     
     public mutating func divide(by other: Self, rounding rule: RoundingRule) {
@@ -198,10 +194,7 @@ extension Decimal32 : FloatingPoint {
     public static func /= (lhs: inout Self, rhs: Self) { lhs = lhs / rhs }
     
     public mutating func formRemainder(dividingBy other: Self) {
-        let q = self / other
-        let qp = q.rounded(.toNearestOrEven)
-        let r = self.bd.remainder(dividingBy: other.bd)
-        print(q,r)
+        bid = Self(bid:self.bd.remainder(dividingBy: other.bd)).bid
     }
     
     public mutating func formTruncatingRemainder(dividingBy other: Self) {
@@ -236,8 +229,8 @@ extension Decimal32 : FloatingPoint {
     /// Rounding method equivalent of the `addProduct`
     public mutating func addProduct(_ lhs: Self, _ rhs: Self,
                                     rounding rule: RoundingRule) {
-        let round = Rounding(rule, Rounding.decimal32.precision)
-        bid = Self(bid: self.bd.fma(lhs.bd, rhs.bd, round)).bid
+        bid = Self(bid: self.bd.fma(lhs.bd, rhs.bd, Rounding.decimal32)
+                    .rounded(rule)).bid
     }
     
     public func isEqual(to other: Self) -> Bool  { self == other }
@@ -357,14 +350,12 @@ extension Decimal32 {
     func asBigDecimal() -> BigDecimal {
         let isNegative = self.sign == .minus
         if self.isNaN {
-            return BigDecimal.flagNaN()
-        } else if self.isSignalingNaN {
-            return BigDecimal(.snan)
+            return BigDecimal.flagNaN(self.isSignalingNaN)
         } else if self.isInfinite {
             return isNegative ? -BigDecimal.infinity : BigDecimal.infinity
         } else {
-            return BigDecimal(BInt(isNegative ? -Int(significandBitPattern)
-                     : Int(significandBitPattern)), self.exponent)
+            let big = BigDecimal(BInt(significandBitPattern), self.exponent)
+            return isNegative ? -big : big
         }
     }
     

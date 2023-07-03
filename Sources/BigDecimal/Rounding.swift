@@ -39,11 +39,14 @@ public struct Rounding: Equatable {
     // MARK: Constants
 
     /// Decimal32 rounding: .toNearestOrEven, 7
-    public static let decimal32=Rounding(.toNearestOrEven, Decimal32.maxDigits)
+    public static let decimal32 = Rounding(.toNearestOrEven,
+                                           Decimal32.maxDigits)
     /// Decimal64 rounding: .toNearestOrEven, 16
-    public static let decimal64 = Rounding(.toNearestOrEven, Decimal64.maxDigits)
+    public static let decimal64 = Rounding(.toNearestOrEven,
+                                           Decimal64.maxDigits)
     /// Decimal128 rounding: .toNearestOrEven, 34
-    public static let decimal128 = Rounding(.toNearestOrEven, Decimal128.maxDigits)
+    public static let decimal128 = Rounding(.toNearestOrEven,
+                                            Decimal128.maxDigits)
 
 
     // MARK: - Initializer
@@ -76,11 +79,8 @@ public struct Rounding: Equatable {
     ///   - x: The value to be rounded
     /// - Returns: The value of *x* rounded according to *self*
     public func round(_ x: BigDecimal) -> BigDecimal {
-        if x.isNaN {
-            if x.isSignalingNaN { return x }
-            let _ = BigDecimal.flagNaN()
-            return x
-        } else if x.isInfinite { return x }
+        if x.isNaN { return BigDecimal.flagNaN() }
+        else if x.isInfinite { return x }
         let d = x.precision - self.precision
         if d <= 0 {
             return x

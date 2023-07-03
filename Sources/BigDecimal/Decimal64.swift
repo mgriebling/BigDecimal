@@ -353,14 +353,12 @@ extension Decimal64 {
     func asBigDecimal() -> BigDecimal {
         let isNegative = self.sign == .minus
         if self.isNaN {
-            return BigDecimal.flagNaN()
-        } else if self.isSignalingNaN {
-            return BigDecimal(.snan)
+            return BigDecimal.flagNaN(self.isSignalingNaN)
         } else if self.isInfinite {
             return isNegative ? -BigDecimal.infinity : BigDecimal.infinity
         } else {
-            return BigDecimal(BInt(isNegative ? -Int(significandBitPattern)
-                     : Int(significandBitPattern)), self.exponent)
+            let big = BigDecimal(BInt(significandBitPattern), self.exponent)
+            return isNegative ? -big : big
         }
     }
     

@@ -35,28 +35,30 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     public static let ten = Self(10)
     
     /// BigDecimal('NaN')
-    public static let nan = Self(.qnan)
+    public static let nan = Self(.nanPos)
     
     /// BigDecimal('Infinity')
-    public static let infinity = Self(.infinite)
+    public static let infinity = Self(.infPos)
     
     /// BigDecimal('sNaN')
-    public static let signalingNaN = Self(.snan)
+    public static let signalingNaN = Self(.snanPos)
     
     // MARK: - Special encodings for infinite, NaN, sNaN, etc.
     enum Special : Codable {
-        case none, qnan, snan, infinite
+        case none, nanPos, nanNeg, snanPos, snanNeg, infPos, infNeg
+        
+        var isNegative: Bool { [.nanNeg,.snanNeg,.infNeg].contains(self) }
+        var isPositive: Bool { [.nanPos,.snanPos,.infPos].contains(self) }
+        var isInfinity: Bool { [.infPos,.infNeg].contains(self) }
+        var isNan: Bool { [.nanPos,.nanNeg,.snanPos,.snanNeg].contains(self) }
+        var isSignalingNan: Bool { [.snanPos,.snanNeg].contains(self) }
     }
     
     // MARK: - Initializers
     
-    init(_ type: Special, _ payload: BInt = 0, sign: Sign = .plus) {
-        var load = payload.magnitude
-        // BInt doesn't negate 0s so kludge
-        if type != .none && load == 0 { load = 1 }
-        if sign == .minus { load.negate() }
+    init(_ type: Special, _ payload: Int = 0) {
         self.special = type
-        self.digits = load
+        self.digits = BInt(payload)
         self.exponent = 0
         self.precision = 1
     }
@@ -258,7 +260,7 @@ extension BigDecimal : SignedNumeric {
         if x.isNaN {
             return Self.flagNaN()
         } else if x.isInfinite {
-            return x.isNegative ? Self.infinity : Self(.infinite, sign: .minus)
+            return x.isNegative ? Self.infinity : Self(.infNeg)
         } else {
             return Self(-x.digits, x.exponent)
         }
@@ -359,13 +361,42 @@ extension BigDecimal : FloatingPoint {
     
     // MARK: - FloatingPoint Basic Operations
     
+    /// Replaces this value with the remainder of itself divided by the given
+    /// value.
+    ///
+    /// For two finite values `x` and `y`, the remainder `r` of dividing `x` by
+    /// `y` satisfies `x == y * q + r`, where `q` is the integer nearest to
+    /// `x / y`. If `x / y` is exactly halfway between two integers, `q` is
+    /// chosen to be even. Note that `q` is *not* `x / y` computed in
+    /// floating-point arithmetic, and that `q` may not be representable in any
+    /// available integer type.
+    ///
+    /// The following example calculates the remainder of dividing 8.625 by 0.75:
+    ///
+    ///     var x = 8.625
+    ///     print(x / 0.75)
+    ///     // Prints "11.5"
+    ///
+    ///     let q = (x / 0.75).rounded(.toNearestOrEven)
+    ///     // q == 12.0
+    ///     x.formRemainder(dividingBy: 0.75)
+    ///     // x == -0.375
+    ///
+    ///     let x1 = 0.75 * q + x
+    ///     // x1 == 8.625
+    ///
+    /// If this value and `other` are finite numbers, the remainder is in the
+    /// closed range `-abs(other / 2)...abs(other / 2)`. The
+    /// `formRemainder(dividingBy:)` method is always exact.
+    ///
+    /// - Parameter other: The value to use when dividing this value.
     public mutating func formRemainder(dividingBy other: Self) {
-        self = self.quotientAndRemainder(other).remainder
+        let q = self.divide(other).rounded(.toNearestOrEven)
+        self -= q * other
     }
     
     public mutating func formTruncatingRemainder(dividingBy other: Self) {
-        let (q, _) = self.quotientAndRemainder(other)
-        self -= q * other
+        self = self.quotientAndRemainder(other).remainder
     }
     
     public mutating func formSquareRoot() {
@@ -376,8 +407,42 @@ extension BigDecimal : FloatingPoint {
         self = self.fma(lhs, rhs, Rounding.decimal128)
     }
     
+    /// Rounds the value to an integral value using the specified rounding rule.
+    ///
+    /// The following example rounds a value using four different rounding rules:
+    ///
+    ///     // Equivalent to the C 'round' function:
+    ///     var w = 6.5
+    ///     w.round(.toNearestOrAwayFromZero)
+    ///     // w == 7.0
+    ///
+    ///     // Equivalent to the C 'trunc' function:
+    ///     var x = 6.5
+    ///     x.round(.towardZero)
+    ///     // x == 6.0
+    ///
+    ///     // Equivalent to the C 'ceil' function:
+    ///     var y = 6.5
+    ///     y.round(.up)
+    ///     // y == 7.0
+    ///
+    ///     // Equivalent to the C 'floor' function:
+    ///     var z = 6.5
+    ///     z.round(.down)
+    ///     // z == 6.0
+    ///
+    /// For more information about the available rounding rules, see the
+    /// `FloatingPointRoundingRule` enumeration. To round a value using the
+    /// default "schoolbook rounding", you can use the shorter `round()` method
+    /// instead.
+    ///
+    ///     var w1 = 6.5
+    ///     w1.round()
+    ///     // w1 == 7.0
+    ///
+    /// - Parameter rule: The rounding rule to use.
     public mutating func round(_ rule: FloatingPointRoundingRule) {
-        self = Rounding(rule, Self.mc.precision).round(self)
+        self = self.quantize(BigDecimal.one, rule)
     }
     
     public var nextUp: Self {
@@ -399,10 +464,6 @@ extension BigDecimal : FloatingPoint {
     public func isLessThanOrEqualTo(_ other: Self) -> Bool {
         if self.isNaN || other.isNaN { return false }
         return self <= other
-    }
-    
-    public func isTotallyOrdered(belowOrEqualTo other: Self) -> Bool {
-        self <= other // FIXME: - flesh out
     }
     
     public var isNormal: Bool {
@@ -469,27 +530,31 @@ extension BigDecimal {
     public var isFinite: Bool { !self.isNaN && !self.isInfinite }
     
     /// Is *true* if *self* is either a NaN or SNaN number
-    public var isNaN: Bool { [Special.qnan, .snan].contains(special) }
+    public var isNaN: Bool { special.isNan }
     
     /// Is *true* if *self* is a signaling NaN number
-    public var isSignalingNaN: Bool { self.special == .snan }
+    public var isSignalingNaN: Bool { special.isSignalingNan }
     
     /// Is *true* if *self* is an infinite number
-    public var isInfinite: Bool { self.special == .infinite }
-
+    public var isInfinite: Bool { special.isInfinity }
+    
     /// Is *true* if *self* < 0, *false* otherwise
-    public var isNegative: Bool { self.signum < 0 }
+    public var isNegative: Bool { self.signum < 0 || special.isNegative }
 
     /// Is *true* if *self* > 0, *false* otherwise
-    public var isPositive: Bool { self.signum > 0 }
+    public var isPositive: Bool { self.signum > 0 || special.isPositive }
 
     /// Is *true* if *self* = 0, *false* otherwise
-    public var isZero: Bool { self.special != .none ? false : self.signum == 0 }
+    public var isZero: Bool { special != .none ? false : self.signum == 0 }
 
-    /// Is 0 if *self* = 0 or *self* is NaN, 1 if *self* > 0, and -1 if *self* < 0
-    public var signum: Int { self.digits.signum }
+    /// Is 0 if *self* = 0 or *self* is NaN, 1 if *self* > 0, and -1
+    /// if *self* < 0
+    public var signum: Int {
+        special == .none ? self.digits.signum : special.isNegative ? -1 : 1
+    }
     
-    /// The same value as *self* with any trailing zeros removed from its significand
+    /// The same value as *self* with any trailing zeros removed from its
+    /// significand
     public var trim: Self {
         if self.isNaN {
             return Self.flagNaN()
@@ -542,10 +607,10 @@ extension BigDecimal {
         if self.isNaN {
             var flag = "NaN"
             if self.isSignalingNaN { flag = "S" + flag }
-            if self.digits.isNegative { return "-" + flag }
+            if self.isNegative { return "-" + flag }
             return flag
         } else if self.isInfinite {
-            return self.digits.isNegative ? "-Infinity" : "+Infinity"
+            return self.isNegative ? "-Infinity" : "+Infinity"
         }
         var exp = self.precision + self.exponent - 1
         var s = self.digits.abs.asString()
@@ -1238,13 +1303,17 @@ extension BigDecimal {
         }
         
         // detect nan, snan, and inf
-        if sl == "nan" {
-            let _ = Self.flagNaN()
-            return Self(.qnan, sign: sign)
+        if sl.hasPrefix("nan") {
+            sl.removeFirst(3)
+            Self.nanFlag = true // set flag
+            if let payload = Int(sl) {
+                return Self(sign == .minus ? .nanNeg : .nanPos, payload)
+            }
+            return Self(sign == .minus ? .nanNeg : .nanPos)
         } else if sl.hasPrefix("inf") {
-            return Self(.infinite, sign: sign)
+            return Self(sign == .minus ? .infNeg : .infPos)
         } else if sl == "snan" {
-            return Self(.snan, sign: sign)
+            return Self(sign == .minus ? .snanNeg : .snanPos)
         }
         for c in sl {
             switch c {
