@@ -17,7 +17,7 @@ import UInt128
 import BigInt
 
 /// Implementation of the 128-bit Decimal128 floating-point operations from
-/// IEEE STD 754-2000 for Floating-Point Arithmetic.
+/// IEEE STD 754-2008 for Floating-Point Arithmetic.
 ///
 /// The IEEE Standard 754-2008 for Floating-Point Arithmetic supports two
 /// encoding formats: the decimal encoding format, and the binary encoding

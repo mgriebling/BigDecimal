@@ -58,7 +58,7 @@ protocol DecimalType : Codable, Hashable {
     ///   - signaling: Pass `true` to create a signaling NaN or `false` to
     ///     create a quiet NaN.
     ///   - sign: Sets the sign bit in the number when `.minus`.
-    init(nan payload: BInt, signaling: Bool, sign: Sign)
+    init(nan payload: RawSignificand, signaling: Bool, sign: Sign)
     
     //////////////////////////////////////////////////////////////////
     /// Essential data to extract or update from the fields
@@ -312,7 +312,7 @@ extension DecimalType {
         }
     }
 
-    public init(nan payload: BInt, signaling: Bool, sign: Sign = .plus) {
+    public init(nan payload: RawSignificand, signaling: Bool, sign: Sign = .plus) {
         let pattern = signaling ? Self.snanPattern : Self.nanPattern
         let man = payload > Self.largestNumber/10 ? 0 : RawBitPattern(payload)
         self.init(0)
@@ -325,7 +325,7 @@ extension DecimalType {
         let max = BigDecimal(BInt(Self.largestNumber), Self.maxExponent)
         let sign = value.sign
         if value.isNaN || value.isSignalingNaN {
-            let load = value.magnitude.digits
+            let load = RawSignificand(value.magnitude.digits)
             self.init(nan: load, signaling: value.isSignalingNaN, sign: sign)
         } else if value.isInfinite {
             let x = Self.infinite(sign)
@@ -573,7 +573,7 @@ extension DecimalType {
         }
         
         if nan {
-            return RawSignificand(Self(nan: BInt(mant), signaling: false).bid) 
+            return RawSignificand(Self(nan: mant, signaling: false).bid)
         } else {
             let value = Self(sign: sign, exponentBitPattern: exp,
                              significandBitPattern: mant)

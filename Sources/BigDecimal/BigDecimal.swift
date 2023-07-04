@@ -606,6 +606,11 @@ extension BigDecimal {
         
         if self.isNaN {
             var flag = "NaN"
+            if let ext = self.digits.asInt() {
+                if !self.digits.isZero {
+                    flag += String(ext)
+                }
+            }
             if self.isSignalingNaN { flag = "S" + flag }
             if self.isNegative { return "-" + flag }
             return flag
