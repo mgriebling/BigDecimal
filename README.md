@@ -47,7 +47,7 @@ In your project's Package.swift file add a dependency like
 ## Basics
 ### Creating BigDecimal's
 	  
-```swift
+    ```swift
 	// From an integer
 	let x1 = BigDecimal(270) // = 270
 	let x2 = BigDecimal(270, -2)  // = 2.70
@@ -73,7 +73,7 @@ In your project's Package.swift file add a dependency like
 	let x32 = BigDecimal(UInt32(0x223000f0), .dpd) // = 1.70
 	let x64 = BigDecimal(UInt64(0x22300000000000f0), .dpd) // = 1.70
 	let x128 = BigDecimal(UInt128(0x2207800000000000, 0x00000000000000f0), .dpd) // = 1.70
-```
+    ```
 
 Because Double values cannot represent all decimal values exactly,
 one sees that BigDecimal(0.1) is not exactly equal to 1 / 10 as one might expect.
@@ -84,26 +84,26 @@ BigDecimal values can be converted to String values, Double values, Decimal (the
 
 #### To String
 
-```swift
+    ```swift
 	let x1 = BigDecimal("2.1").pow(3)
 	print(x1.asString()) // = 9.261
-```
+    ```
 
 #### To Double
-```swift
+    ```swift
 	let x2 = BigDecimal("2.1").pow(3)
 	print(x2.asDouble()) // = 9.261
-```
+    ```
 
 #### To Decimal (the Swift Foundation type)
-```swift
+    ```swift
 	let x3 = BigDecimal("1.70")
 	let xd: Decimal = x3.asDecimal()
 	print(xd) // = 1.70
-```
+    ```
 
 #### To Decimal32 / 64 / 128
-```swift
+    ```swift
 	let x4 = BigDecimal("1.70")
 	let x32: UInt32 = x4.asDecimal32(.dpd)
 	let x64: UInt64 = x4.asDecimal64(.dpd)
@@ -111,7 +111,7 @@ BigDecimal values can be converted to String values, Double values, Decimal (the
 	print(String(x32, radix: 16))  // = 223000f0
 	print(String(x64, radix: 16))  // = 22300000000000f0
 	print(String(x128, radix: 16)) // = 220780000000000000000000000000f0
-```
+    ```
 
 ### Comparing BigDecimal's
 
@@ -129,7 +129,7 @@ The static function *BigDecimal.minimum(x, y)* returns NaN if either x or y is N
 
 The '+', '-', and '\*' operators always produce exact results. The '/' operator truncates the exact result to an integer.
 
-```swift
+    ```swift
 	let a = BigDecimal("25.1")
 	let b = BigDecimal("12.0041")
 
@@ -137,13 +137,13 @@ The '+', '-', and '\*' operators always produce exact results. The '/' operator 
 	print(a - b) // = 13.0959
 	print(a * b) // = 301.30291
 	print(a / b) // = 2
-```
+    ```
 
 The *quotientAndRemainder* function produces an integer quotient and exact remainder
 
-```swift
+    ```swift
 	print(a.quotientAndRemainder(b)) // = (quotient: 2, remainder: 1.0918)
- ```   
+    ```   
 
 ### Rounded Arithmetic
 
@@ -163,7 +163,7 @@ The *add*, *subtract* and *multiply* methods have a Rounding parameter that cont
 
 #### Examples
 
-```swift
+    ```swift
 	let a = BigDecimal("25.1E-2")
 	let b = BigDecimal("12.0041E-3")
 	let rnd = Rounding(.ceiling, 3)
@@ -174,7 +174,7 @@ The *add*, *subtract* and *multiply* methods have a Rounding parameter that cont
 	print(a.subtract(b, rnd)) // = 0.239
 	print(a * b) // = 0.0030130291
 	print(a.multiply(b, rnd)) // = 0.00302
- ```   
+    ```   
 
 ### Precise division
 
@@ -183,7 +183,7 @@ If the quotient has finite decimal expansion, the rounding parameter may or may 
 If the quotient has infinite decimal expansion, the rounding parameter must be present and is used to round the result.
 
 #### Examples
-```swift
+    ```swift
 	let x1 = BigDecimal(3)
 	let x2 = BigDecimal(48)
 	print(x1.divide(x2))  // = 0.0625
@@ -194,7 +194,7 @@ If the quotient has infinite decimal expansion, the rounding parameter must be p
 	let x4 = BigDecimal(49)
 	print(x3.divide(x4))       // = NaN because the quotient has infinite decimal expansion 0.06122448...
 	print(x3.divide(x4, rnd))  // = 0.062
- ```   
+    ```   
 
 ## Data Encoding
 BigDecimal's can be encoded as Data objects (perhaps for long term storage) using the *asData* method,
@@ -208,7 +208,7 @@ The encoding rules are:
 	- infinityN is encoded as a single byte = 2
 
 ### Examples
-```swift
+    ```swift
 	let x1 = BigDecimal(1000, 3) // = 1000000
 	print(Bytes(x1.asData()))   // = [0, 0, 0, 0, 0, 0, 0, 3, 3, 232]
 
@@ -220,7 +220,7 @@ The encoding rules are:
 
 	let x4 = BigDecimal(-1000, -3) // = -1.000
 	print(Bytes(x4.asData()))   // = [255, 255, 255, 255, 255, 255, 255, 253, 252, 24]
- ```   
+    ```   
 
 ## Decimal Formats
 Decimal values can be represented not only as BigDecimal's but also as Double values,
@@ -236,7 +236,7 @@ The strategy for working with other than BigDecimal values can be summarized as 
 As an example, suppose you must compute the average value of three values a, b and c which are encoded as Decimal32 values using Densely Packed Decimal (DPD) encoding.
 The result x must likewise be a Decimal32 value encoded using DPD.
 
-```swift
+    ```swift
 	// Input values
 	let a = UInt32(0x223e1117)  // = 7042.17 DPD encoded
 	let b = UInt32(0x22300901)  // =   22.01 DPD encoded
@@ -254,14 +254,14 @@ The result x must likewise be a Decimal32 value encoded using DPD.
 	// Convert result back to Decimal32
 	let x = X.asDecimal32(.dpd)
 	print(String(x, radix: 16)) // = 2a2513a7 (= 2244.727 DPD encoded)
- ```   
+    ```   
 	
 ## About Infinities
 The constants `BigDecimal.infinity* and *BigDecimal.infinity* represent +Infinity and -Infinity respectively. 
 infinityN compares less than every finite number,
 and every finite number compares less than infinity. Arithmetic operations involving infinite values is illustrated by the examples below:
 
-```swift
+    ```swift
 	let InfP = BigDecimal.infinity // Just to save some writing
 	let InfN = BigDecimal.infinityN
 	
@@ -286,7 +286,7 @@ and every finite number compares less than infinity. Arithmetic operations invol
 	print(InfP.scale(4))    // +Infinity
 	print(InfP.scale(-4))   // +Infinity
 	print(InfP.withExponent(10, .ceiling))   // NaN
- ```   
+    ```   
 
 ## About NaN's
 The IEEE 754 standard specifies two NaN's, a quiet NaN (qNaN) and a signaling NaN (sNaN).
@@ -295,7 +295,7 @@ The constant *BigDecimal.NaN* corresponds to the quiet NaN. There is no correspo
 Arithmetic operations where one or more input is NaN, return NaN as result.
 Comparing NaN values is illustrated by the example below:
 	
- ```swift   
+    ```swift   
 	let NaN = BigDecimal.NaN // Just to save some writing
 	
 	print(3 < NaN)      // false
@@ -316,7 +316,7 @@ Comparing NaN values is illustrated by the example below:
 	print(3 != NaN)     // true
 	print(NaN != 3)     // true
 	print(NaN != NaN)   // true !!!
- ```   
+    ```   
 
 Because NaN != NaN is true, sorting a collection of BigDecimal's doesn't work if the collection contains one or more NaN's.
 This is so, even if BigDecimal conforms to the Comparable protocol.
