@@ -3,7 +3,10 @@
 The BigDecimal package provides arbitrary-precision decimal arithmetic in Swift.
 
 Its functionality falls in the following categories:
-- Arithmetic: addition, subtraction, multiplication, division, remainder and exponentiation
+- Arithmetic: addition, subtraction, multiplication, division, remainder and 
+  exponentiation
+- Constants: pi, zero, one, ten
+- Functions: *Coming Soon* (e.g. exp, log, pow, trig)
 - Rounding and scaling according to one of the rounding modes
     - awayFromZero - Round towards +infinity
     - down - Round towards 0
@@ -13,27 +16,29 @@ Its functionality falls in the following categories:
     - up - Round away from 0
 
 - Comparison: the six standard operators == != < <= > >=
-- Conversion: to String, to Double, to Decimal (the Swift Foundation type), to Decimal32 / 64 / 128
-- Support for Decimal32, Decimal64 and Decimal128 values stored as UInt32, UInt64 and UInt128 values respectively,
-using Densely Packed Decimal (DPD) encoding or Binary Integer Decimal (BID) encoding
+- Conversion: to String, to Double, to Decimal (the Swift Foundation type), to 
+  Decimal32 / Decimal64 / Decimal128
+- Support for Decimal32, Decimal64 and Decimal128 values stored as UInt32, 
+  UInt64 and UInt128 values respectively, using Densely Packed Decimal (DPD) 
+  encoding or Binary Integer Decimal (BID) encoding
 - Supports the IEEE 754 concepts of Infinity and NaN (Not a Number)
 
 ## Dependencies
 BigDecimal requires Swift 5. It also requires that the Int type be a 64 bit type.
 The BigDecimal package depends on the BigInt and UInt128 packages.
 
-    dependencies: [
-        .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.0"),
-        .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.0.0"),
-        .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
-    ]
+dependencies: [
+  .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.0"),
+  .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.0.0"),
+  .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
+]
 
 ## Usage
 In your project's Package.swift file add a dependency like
 
-    dependencies: [
-        .package(url: "https://github.com/mgriebling/BigDecimal.git", from: "2.0.0"),
-    ]
+dependencies: [
+  .package(url: "https://github.com/mgriebling/BigDecimal.git", from: "2.0.0"),
+]
 
 ## Basics
 ### Creating BigDecimal's
@@ -330,4 +335,10 @@ There are references in the source code where appropriate.
 
 ## Acknowledgement
 
-Most of the unit test cases come from General Decimal Arithmetic - http://speleotrove.com/decimal
+1. Much of the original `BigDecimal` (pre-V2) was created by Leif Ibsen 
+   - https://github.com/leif-ibsen/BigDecimal.git
+2. Some unit test cases come from General Decimal Arithmetic  
+    - http://speleotrove.com/decimal
+3. Additional unit test cases and some algorithms are from the Intel C Decimal 
+   Floating-Point Math library - 
+   https://www.intel.com/content/www/us/en/developer/articles/tool/intel-decimal-floating-point-math-library.html

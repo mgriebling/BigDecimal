@@ -21,10 +21,11 @@ import BigInt
 ///
 /// The IEEE Standard 754-2008 for Floating-Point Arithmetic supports two
 /// encoding formats: the decimal encoding format, and the binary encoding
-/// format. The Intel(R) Decimal Floating-Point Math Library supports primarily
-/// the binary encoding format for decimal floating-point values, but the
-/// decimal encoding format is supported too in the library, by means of
-/// conversion functions between the two encoding formats.
+/// format. This package supports both the binary encoding format for
+/// decimal floating-point values and the decimal encoding format.
+///
+/// Calculations convert Decimal64 numbers to BigDecimal format, perform
+/// the operation, and convert back to Decimal64 format.
 public struct Decimal64 : DecimalType, Codable, Hashable {
     
     // Decimal64 characteristics
