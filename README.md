@@ -22,22 +22,18 @@ using Densely Packed Decimal (DPD) encoding or Binary Integer Decimal (BID) enco
 BigDecimal requires Swift 5. It also requires that the Int type be a 64 bit type.
 The BigDecimal package depends on the BigInt and UInt128 packages.
 
-    ```
     dependencies: [
         .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.0"),
         .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.0.0"),
         .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
     ]
-    ```
 
 ## Usage
 In your project's Package.swift file add a dependency like
 
-    ```
     dependencies: [
         .package(url: "https://github.com/mgriebling/BigDecimal.git", from: "2.0.0"),
     ]
-    ```   
 
 ## Basics
 ### Creating BigDecimal's
@@ -78,19 +74,27 @@ On the other hand, BigDecimal("0.1") is in fact exactly equal to 1 / 10.
 BigDecimal values can be converted to String values, Double values, Decimal (the Swift Foundation type) values, and Decimal32 / 64 / 128 values.
 
 #### To String
+
+```swift
 	let x1 = BigDecimal("2.1").pow(3)
 	print(x1.asString()) // = 9.261
+```
 
 #### To Double
+```swift
 	let x2 = BigDecimal("2.1").pow(3)
 	print(x2.asDouble()) // = 9.261
+```
 
 #### To Decimal (the Swift Foundation type)
+```swift
 	let x3 = BigDecimal("1.70")
 	let xd: Decimal = x3.asDecimal()
 	print(xd) // = 1.70
+```
 
 #### To Decimal32 / 64 / 128
+```swift
 	let x4 = BigDecimal("1.70")
 	let x32: UInt32 = x4.asDecimal32(.dpd)
 	let x64: UInt64 = x4.asDecimal64(.dpd)
@@ -98,6 +102,7 @@ BigDecimal values can be converted to String values, Double values, Decimal (the
 	print(String(x32, radix: 16))  // = 223000f0
 	print(String(x64, radix: 16))  // = 22300000000000f0
 	print(String(x128, radix: 16)) // = 220780000000000000000000000000f0
+```
 
 ### Comparing BigDecimal's
 
