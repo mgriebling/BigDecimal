@@ -27,18 +27,22 @@ Its functionality falls in the following categories:
 BigDecimal requires Swift 5. It also requires that the Int type be a 64 bit type.
 The BigDecimal package depends on the BigInt and UInt128 packages.
 
-dependencies: [
-  .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.0"),
-  .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.0.0"),
-  .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
-]
+```
+  dependencies: [
+    .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.0"),
+    .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.0.0"),
+    .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
+  ]
+```
 
 ## Usage
 In your project's Package.swift file add a dependency like
 
-dependencies: [
-  .package(url: "https://github.com/mgriebling/BigDecimal.git", from: "2.0.0"),
-]
+```
+  dependencies: [
+    .package(url: "https://github.com/mgriebling/BigDecimal.git", from: "2.0.0"),
+  ]
+```
 
 ## Basics
 ### Creating BigDecimal's
