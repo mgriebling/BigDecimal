@@ -35,7 +35,7 @@ In your project's Package.swift file add a dependency like
 
     ```
     dependencies: [
-        .package(url: "https://github.com/leif-ibsen/BigDecimal", from: "1.1.0"),
+        .package(url: "https://github.com/mgriebling/BigDecimal.git", from: "2.0.0"),
     ]
     ```   
 
