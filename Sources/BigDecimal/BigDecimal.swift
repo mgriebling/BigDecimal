@@ -11,13 +11,15 @@ import UInt128      // For UInt128 data type
 
 public typealias Sign = FloatingPointSign
 
-/// A signed decimal value of unbounded precision.
-/// A ``BigDecimal`` value is represented as a signed *BInt* significand
-/// and a signed *Int* exponent.
-/// The value of a Self is *significand* \* 10^*exponent*.
+/// A signed decimal value of unbounded precision (actually there is a
+/// practical limit defined by ``maxDigits`` of 200 that the user can change).
+/// A ``BigDecimal`` value is represented as a signed `BInt` significand
+/// and a signed `Int` exponent that is limited to ten digits.
+/// The value of a Self is ``digits`` \* 10^``exponent``.
+/// 
 /// There are three special ``BigDecimal`` values: ``nan`` designating
-/// Not a Number, ``infinity`` designating +Infinity and *infinityN*
-/// designating -Infinity.
+/// Not a Number, ``infinity`` designating Infinity, ``signalingNaN``
+/// designating a Signaling Not a Number.
 public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     
     // MARK: - Constants
@@ -45,17 +47,24 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     
     // MARK: - Special encodings for infinite, NaN, sNaN, etc.
     enum Special : Codable {
-        case none, nanPos, nanNeg, snanPos, snanNeg, infPos, infNeg
+        case none, nanPos, nanNeg, snanPos, snanNeg, infPos, infNeg, zeroNeg
         
-        var isNegative: Bool { [.nanNeg,.snanNeg,.infNeg].contains(self) }
+        static let negs = [Self.nanNeg, .snanNeg, .infNeg, .zeroNeg]
+        var isNegative: Bool { Self.negs.contains(self) }
         var isPositive: Bool { [.nanPos,.snanPos,.infPos].contains(self) }
         var isInfinity: Bool { [.infPos,.infNeg].contains(self) }
         var isNan: Bool { [.nanPos,.nanNeg,.snanPos,.snanNeg].contains(self) }
         var isSignalingNan: Bool { [.snanPos,.snanNeg].contains(self) }
+        var isZero: Bool { self == .zeroNeg }
     }
     
     // MARK: - Initializers
     
+    /// Constructs a special BigDecimal based on the ``Special`` type.
+    ///
+    /// - Parameters:
+    ///   - type: Kind of special number (includes sign)
+    ///   - payload: Digits added as a payload to a NaN
     init(_ type: Special, _ payload: Int = 0) {
         self.special = type
         self.digits = BInt(payload)
@@ -261,6 +270,8 @@ extension BigDecimal : SignedNumeric {
             return Self.flagNaN()
         } else if x.isInfinite {
             return x.isNegative ? Self.infinity : Self(.infNeg)
+        } else if x.isZero {
+            return x.isNegative ? Self.zero : Self(.zeroNeg)
         } else {
             return Self(-x.digits, x.exponent)
         }
@@ -539,13 +550,13 @@ extension BigDecimal {
     public var isInfinite: Bool { special.isInfinity }
     
     /// Is *true* if *self* < 0, *false* otherwise
-    public var isNegative: Bool { self.signum < 0 || special.isNegative }
+    public var isNegative: Bool { self.signum < 0 }
 
     /// Is *true* if *self* > 0, *false* otherwise
-    public var isPositive: Bool { self.signum > 0 || special.isPositive }
+    public var isPositive: Bool { self.signum > 0 }
 
     /// Is *true* if *self* = 0, *false* otherwise
-    public var isZero: Bool { special != .none ? false : self.signum == 0 }
+    public var isZero: Bool { self.signum == 0 || special == .zeroNeg }
 
     /// Is 0 if *self* = 0 or *self* is NaN, 1 if *self* > 0, and -1
     /// if *self* < 0
@@ -607,9 +618,7 @@ extension BigDecimal {
         if self.isNaN {
             var flag = "NaN"
             if let ext = self.digits.asInt() {
-                if !self.digits.isZero {
-                    flag += String(ext)
-                }
+                if !self.digits.isZero { flag += String(ext) }
             }
             if self.isSignalingNaN { flag = "S" + flag }
             if self.isNegative { return "-" + flag }
@@ -685,7 +694,7 @@ extension BigDecimal {
                 s += exp.description
             }
         }
-        if self.digits.isNegative {
+        if self.isNegative {
             return "-" + s
         }
         return s
@@ -1377,12 +1386,19 @@ extension BigDecimal {
         if (state == .startExponent || state == .inExponent) && expDigits==0 {
             return Self.flagNaN()
         }
-        let w = sign == .minus ? -BInt(val)! : BInt(val)!
+        var w = BInt(val)!
         let E = Int(exp)
         if E == nil && expDigits > 0 {
             return Self.flagNaN()
         }
         let e = expDigits == 0 ? 0 : (negExponent ? -E! : E!)
+        if sign == .minus {
+            if w.isZero {
+                var z = BigDecimal(.zeroNeg); z.exponent = e - scale
+                return z
+            }
+            w = -w
+        }
         return Self(w, e - scale)
     }
     

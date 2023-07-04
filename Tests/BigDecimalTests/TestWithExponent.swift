@@ -86,14 +86,14 @@ final class TestWithExponent: XCTestCase {
         test("0E+1", 0, "0"),
         test("0E+1", 1, "0E+1"),
         test("-0", 1, "0E+1"),
-        test("-0", 0, "0"),
+        test("-0", 0, "-0"),
         test("-0", -1, "0.0"),
-        test("-0.0", -1, "0.0"),
+        test("-0.0", -1, "-0.0"),
         test("-0.0", 0, "0"),
         test("-0.0", 1, "0E+1"),
         test("-0E+1", -1, "0.0"),
         test("-0E+1", 0, "0"),
-        test("-0E+1", 1, "0E+1"),
+        test("-0E+1", 1, "-0E+1"),
     ]
 
     func test3() throws {

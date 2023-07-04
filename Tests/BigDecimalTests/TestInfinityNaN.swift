@@ -101,13 +101,7 @@ final class TestInfinityNaN: XCTestCase {
 
     func testSub() throws {
         for t in testsSub {
-            var n = BigDecimal(t.x) - BigDecimal(t.y)
-            let s = n.asString()
-            if s != t.result {
-                print(s, t.result)
-                n = BigDecimal(t.x) - BigDecimal(t.y)
-            }
-            XCTAssertEqual(s, t.result)
+            XCTAssertEqual((BigDecimal(t.x) - BigDecimal(t.y)).asString(), t.result)
         }
         XCTAssertTrue(BigDecimal.nanFlag)
     }
@@ -149,10 +143,6 @@ final class TestInfinityNaN: XCTestCase {
     
     func testMul() throws {
         for t in testsMul {
-            let a = BigDecimal(t.x)
-            let b = BigDecimal(t.y)
-            let c = a * b
-            let d = c.asString()
             XCTAssertEqual((BigDecimal(t.x) * BigDecimal(t.y)).asString(), t.result)
         }
         XCTAssertTrue(BigDecimal.nanFlag)
@@ -167,7 +157,7 @@ final class TestInfinityNaN: XCTestCase {
         test("+Infinity", "-Infinity", "NaN"),
         test("+Infinity", "-1000", "-Infinity"),
         test("+Infinity", "-1", "-Infinity"),
-        test("+Infinity", "-0", "+Infinity"),
+        test("+Infinity", "-0", "-Infinity"),
         test("+Infinity", "0", "+Infinity"),
         test("+Infinity", "1", "+Infinity"),
         test("+Infinity", "1000", "+Infinity"),
@@ -183,7 +173,7 @@ final class TestInfinityNaN: XCTestCase {
         test("-Infinity", "-Infinity", "NaN"),
         test("-Infinity", "-1000", "+Infinity"),
         test("-Infinity", "-1", "+Infinity"),
-        test("-Infinity", "-0", "-Infinity"),
+        test("-Infinity", "-0", "+Infinity"),
         test("-Infinity", "0", "-Infinity"),
         test("-Infinity", "1", "-Infinity"),
         test("-Infinity", "1000", "-Infinity"),
@@ -223,7 +213,7 @@ final class TestInfinityNaN: XCTestCase {
         test("-Infinity", "+Infinity", "NaN"),
         test("-1", "+Infinity", "-1"),
         test("0", "+Infinity", "0"),
-        test("-0", "+Infinity", "0"),
+        test("-0", "+Infinity", "-0"),
         test("1", "+Infinity", "1"),
         test("1000", "+Infinity", "1000"),
         test("+Infinity", "+Infinity", "NaN"),
@@ -238,7 +228,7 @@ final class TestInfinityNaN: XCTestCase {
         test("-Infinity", "-Infinity", "NaN"),
         test("-1000", "+Infinity", "-1000"),
         test("-1", "-Infinity", "-1"),
-        test("-0", "-Infinity", "0"),
+        test("-0", "-Infinity", "-0"),
         test("0", "-Infinity", "0"),
         test("1", "-Infinity", "1"),
         test("1000", "-Infinity", "1000"),
@@ -366,9 +356,6 @@ final class TestInfinityNaN: XCTestCase {
 
     func testQuantize() throws {
         for t in testsQuantize {
-            let x = BigDecimal(t.x)
-            let y = BigDecimal(t.y)
-            let r = x.quantize(y, .toNearestOrEven)
             XCTAssertEqual(BigDecimal(t.x).quantize(BigDecimal(t.y),
                             RoundingRule.toNearestOrEven).asString(), t.result)
         }

@@ -312,7 +312,8 @@ extension DecimalType {
         }
     }
 
-    public init(nan payload: RawSignificand, signaling: Bool, sign: Sign = .plus) {
+    public init(nan payload: RawSignificand, signaling: Bool,
+                sign: Sign = .plus) {
         let pattern = signaling ? Self.snanPattern : Self.nanPattern
         let man = payload > Self.largestNumber/10 ? 0 : RawBitPattern(payload)
         self.init(0)
@@ -325,8 +326,12 @@ extension DecimalType {
         let max = BigDecimal(BInt(Self.largestNumber), Self.maxExponent)
         let sign = value.sign
         if value.isNaN || value.isSignalingNaN {
-            let load = RawSignificand(value.magnitude.digits)
-            self.init(nan: load, signaling: value.isSignalingNaN, sign: sign)
+            if let load = value.digits.asInt() {
+                self.init(nan: RawSignificand(load),
+                          signaling: value.isSignalingNaN, sign: sign)
+            } else {
+                self.init(nan: 0, signaling: value.isSignalingNaN, sign: sign)
+            }
         } else if value.isInfinite {
             let x = Self.infinite(sign)
             self.init(RawData(x))
@@ -393,7 +398,6 @@ extension DecimalType {
     public var isCanonical: Bool {
       if isNaN {
         if (bid & 0x01f0 << (Self.maxBit - 16)) != 0 {
-          // FIXME: - what is this? Decimal32 had mask of 0x01fc
           return false
         } else if bid.get(range:Self.manLower) > Self.largestNumber/10 {
           return false
@@ -615,13 +619,13 @@ extension DecimalType {
             let expUpper = signBit-4...signBit-3
             let manUpper = signBit-5...signBit-5
             res.set(range: Self.specialBits, with: Self.specialPattern)
-            res.set(range: expUpper, with: exp >> (Self.exponentBits-2)) // upper exponent bits
-            res.set(range: manUpper, with: Int(significand) & 1) // upper mantisa bits
+            res.set(range: expUpper, with: exp >> (Self.exponentBits-2))
+            res.set(range: manUpper, with: Int(significand) & 1)
         } else {
             let expUpper = signBit-2...signBit-1
             let manUpper = signBit-5...signBit-3
-            res.set(range: expUpper, with: exp >> (Self.exponentBits-2)) // upper exponent bits
-            res.set(range: manUpper, with: Int(significand)) // upper mantisa bits
+            res.set(range: expUpper, with: exp >> (Self.exponentBits-2))
+            res.set(range: manUpper, with: Int(significand))
         }
         res.set(bit: signBit, with: sign.rawValue)
         res.set(range: expLower, with: exp)
@@ -776,7 +780,7 @@ extension DecimalFloatingPoint {
       } else if deltaWidth < 0 {
         payload /= scale // scale down the payload
       }
-      if payload > Self.greatestFiniteMagnitude.significandBitPattern/10 {
+      if payload > greatestFiniteMagnitude.significandBitPattern/10 {
         payload = 0
       }
       
@@ -869,6 +873,7 @@ extension DecimalFloatingPoint {
   /// - Parameter value: A decimal floating-point value to be converted.
   public init<Source:BinaryFloatingPoint>(_ value:Source, rounding: Rounding) {
     self.init(0)
+      assertionFailure("Not defined yet")
       // FIXME: - Use new code
 //    if let x = value as? Double {
 //      if Self.self == Decimal32.self {
@@ -890,6 +895,7 @@ extension DecimalFloatingPoint {
   /// - Parameter value: A floating-point value to be converted.
   public init?<Source:BinaryFloatingPoint>(exactly value: Source) {
       // FIXME: - Use new code
+      assertionFailure("Not defined yet")
 //    if let x = value as? Double {
 //      self.init(value, rounding: .toNearestOrEven)
 //      guard Double(self) == x else { return nil }
