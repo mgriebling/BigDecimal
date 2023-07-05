@@ -60,20 +60,40 @@ extension BinaryFloatingPoint {
     @inline(__always)
     public init<T: DecimalFloatingPoint>(_ source: T,
                                     round: RoundingRule = .toNearestOrEven) {
-        let t : Double
-        if let x = source as? Decimal32 {
-            t = x.bd.asDouble()
-        } else if let x = source as? Decimal64 {
-            t = x.bd.asDouble()
-        } else if let x = source as? Decimal128 {
-            t = x.bd.asDouble()
-        } else if let x = source as? BigDecimal {
-            t = x.asDouble()
+        if Self.self == Double.self {
+            let t : Double
+            if let x = source as? Decimal32 {
+                t = x.bd.asDouble()
+            } else if let x = source as? Decimal64 {
+                t = x.bd.asDouble()
+            } else if let x = source as? Decimal128 {
+                t = x.bd.asDouble()
+            } else if let x = source as? BigDecimal {
+                t = x.asDouble()
+            } else {
+                t = Double.nan
+                assertionFailure("Unknown Decimal Floating Point type \(T.self)")
+            }
+            self = Self(t)
+        } else if Self.self == Float.self {
+            let t : Float
+            if let x = source as? Decimal32 {
+                t = x.bd.asFloat()
+            } else if let x = source as? Decimal64 {
+                t = x.bd.asFloat()
+            } else if let x = source as? Decimal128 {
+                t = x.bd.asFloat()
+            } else if let x = source as? BigDecimal {
+                t = x.asFloat()
+            } else {
+                t = Float.nan
+                assertionFailure("Unknown Decimal Floating Point type \(T.self)")
+            }
+            self = Self(t)
         } else {
-            t = Double.nan
-            assertionFailure("Unknown Decimal Floating Point type \(T.self)")
+            self = Self.nan
+            assertionFailure("Unsupported Binary Floating Point type \(Self.self)")
         }
-        self = Self(t)
     }
 }
 

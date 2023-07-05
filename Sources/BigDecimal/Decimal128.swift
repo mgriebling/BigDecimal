@@ -17,7 +17,7 @@ import UInt128
 import BigInt
 
 /// Implementation of the 128-bit Decimal128 floating-point operations from
-/// IEEE STD 754-2008 for Floating-Point Arithmetic.
+/// IEEE STD 754-2019 for Floating-Point Arithmetic.
 ///
 /// The IEEE Standard 754-2008 for Floating-Point Arithmetic supports two
 /// encoding formats: the decimal encoding format, and the binary encoding
@@ -258,7 +258,7 @@ extension Decimal128 : DecimalFloatingPoint {
     /// are interpreted in the decimal interchange format defined by the
     /// [IEEE 754 specification][spec].
     ///
-    /// [spec]: https://ieeexplore.ieee.org/servlet/opac?punumber=4610933
+    /// [spec]: https://ieeexplore.ieee.org/servlet/opac?punumber=8766227
     ///
     /// The `significandBitPattern` are the big-endian, binary integer decimal
     /// digits of the number. For example, the integer number `314` represents
@@ -310,7 +310,7 @@ extension Decimal128 : DecimalFloatingPoint {
     /// value of `0x22404003`. Passing these numbers to the appropriate
     /// initializer recreates the original value "1000.3".
     ///
-    /// [spec]: https://ieeexplore.ieee.org/servlet/opac?punumber=4610933
+    /// [spec]: https://ieeexplore.ieee.org/servlet/opac?punumber=8766227
     public func bitPattern(_ encoding: ID.Encoding) -> RawSignificand {
         encoding == .bid ? bid : self.dpd
     }

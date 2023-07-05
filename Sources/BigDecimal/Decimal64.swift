@@ -17,7 +17,7 @@ limitations under the License.
 import BigInt
 
 /// Implementation of the 64-bit Decimal64 floating-point operations from
-/// IEEE STD 754-2008 for Floating-Point Arithmetic.
+/// IEEE STD 754-2019 for Floating-Point Arithmetic.
 ///
 /// The IEEE Standard 754-2008 for Floating-Point Arithmetic supports two
 /// encoding formats: the decimal encoding format, and the binary encoding
@@ -257,7 +257,7 @@ extension Decimal64 : DecimalFloatingPoint {
     /// interpreted in the decimal interchange format defined by the [IEEE 754
     /// specification][spec].
     ///
-    /// [spec]: http://ieeexplore.ieee.org/servlet/opac?punumber=4610933
+    /// [spec]: https://ieeexplore.ieee.org/servlet/opac?punumber=8766227
     ///
     /// The `significandBitPattern` are the big-endian, binary integer decimal
     /// digits of the number. For example, the integer number `314` represents a
@@ -310,7 +310,7 @@ extension Decimal64 : DecimalFloatingPoint {
     /// numbers to the appropriate initialize recreates the original value
     /// "1000.3".
     ///
-    /// [spec]: http://ieeexplore.ieee.org/servlet/opac?punumber=4610933
+    /// [spec]: https://ieeexplore.ieee.org/servlet/opac?punumber=8766227
     public func bitPattern(_ encoding: ID.Encoding) -> RawSignificand {
         encoding == .bid ? bid : self.dpd
     }

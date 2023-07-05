@@ -45,7 +45,9 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     /// BigDecimal('sNaN')
     public static let signalingNaN = Self(.snanPos)
     
-    // MARK: - Special encodings for infinite, NaN, sNaN, etc.
+    // MARK: - Special encodings for infinite, NaN, sNaN, and negative zero.
+    
+    /// Encodings for infinite, NaN, sNaN, and negative zero.
     enum Special : Codable {
         case none, nanPos, nanNeg, snanPos, snanNeg, infPos, infNeg, zeroNeg
         
@@ -721,6 +723,11 @@ extension BigDecimal {
     ///
     /// - Returns: *self* encoded as a Double, possibly *Infinity* or NaN
     public func asDouble() -> Double { Double(self.asString())! }
+    
+    /// *self* as a Float
+    ///
+    /// - Returns: *self* encoded as a Float, possibly *Infinity* or NaN
+    public func asFloat() -> Float { Float(self.asString())! }
 
     /// *self* as a Decimal (the Swift Foundation type)
     ///

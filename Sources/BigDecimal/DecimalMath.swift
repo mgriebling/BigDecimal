@@ -17,12 +17,9 @@ public extension BigDecimal {
     /// Creates a BigDecimal for the integer _n_ where the
     /// integer can be any type conforming to the _BinaryInteger_ protocols.
     init<T:BinaryInteger>(_ int: T) {
-        var x = Self.zero
+        var x = Self.zero, m = Self.one
         var n = int.magnitude, r = T.Magnitude.zero
-        var m = Self.one
-        let d = 1_000_000_000 // base
-        let rd = Self(d)
-        let id = T(d)
+        let base = 1_000_000_000, rd = Self(base), id = T(base)
         while n != 0 {
             (n, r) = n.quotientAndRemainder(dividingBy: id.magnitude)
             if r != 0 { x.addProduct(m, Self(r)) }
@@ -48,11 +45,11 @@ public extension BigDecimal {
     }
     
     /**
-     * Returns whether the specified {@link BigDecimal} value can be represented as <code>int</code>.
+     * Returns whether the specified `BigDecimal` value can be represented as <code>int</code>.
      *
-     * <p>If this returns <code>true</code> you can call {@link BigDecimal#intValueExact()} without fear of an {@link ArithmeticException}.</p>
+     * If this returns <code>true</code> you can call {@link BigDecimal#intValueExact()} without fear of an {@link ArithmeticException}.</p>
      *
-     * @param value the {@link BigDecimal} to check
+     * @param value the `BigDecimal` to check
      * @return <code>true</code> if the value can be represented as <code>int</code> value
      */
     static func isIntValue(_ value:Self) -> Bool {
@@ -66,25 +63,25 @@ public extension BigDecimal {
     }
     
     /**
-     * Returns whether the specified {@link BigDecimal} value can be represented as <code>double</code>.
+     * Returns whether the specified `BigDecimal` value can be represented as <code>double</code>.
      *
-     * <p>If this returns <code>true</code> you can call {@link BigDecimal#doubleValue()}
+     * If this returns <code>true</code> you can call {@link BigDecimal#doubleValue()}
      * without fear of getting {@link Double#POSITIVE_INFINITY} or {@link Double#NEGATIVE_INFINITY} as result.</p>
      *
-     * <p>Example: <code>BigDecimalMath.isDoubleValue(new BigDecimal("1E309"))</code> returns <code>false</code>,
+     * Example: <code>BigDecimalMath.isDoubleValue(new BigDecimal("1E309"))</code> returns <code>false</code>,
      * because <code>new BigDecimal("1E309").doubleValue()</code> returns <code>Infinity</code>.</p>
      *
-     * <p>Note: This method does <strong>not</strong> check for possible loss of precision.</p>
+     * Note: This method does <strong>not</strong> check for possible loss of precision.</p>
      *
-     * <p>For example <code>BigDecimalMath.isDoubleValue(new BigDecimal("1.23400000000000000000000000000000001"))</code> will return <code>true</code>,
+     * For example <code>BigDecimalMath.isDoubleValue(new BigDecimal("1.23400000000000000000000000000000001"))</code> will return <code>true</code>,
      * because <code>new BigDecimal("1.23400000000000000000000000000000001").doubleValue()</code> returns a valid double value,
      * although it loses precision and returns <code>1.234</code>.</p>
      *
-     * <p><code>BigDecimalMath.isDoubleValue(new BigDecimal("1E-325"))</code> will return <code>true</code>
+     * <code>BigDecimalMath.isDoubleValue(new BigDecimal("1E-325"))</code> will return <code>true</code>
      * although this value is smaller than {@link Double#MIN_VALUE} (and therefore outside the range of values that can be represented as <code>double</code>)
      * because <code>new BigDecimal("1E-325").doubleValue()</code> returns <code>0</code> which is a legal value with loss of precision.</p>
      *
-     * @param value the {@link BigDecimal} to check
+     * @param value the `BigDecimal` to check
      * @return <code>true</code> if the value can be represented as <code>double</code> value
      */
     static func isDoubleValue(_ value:Self) -> Bool {
@@ -98,9 +95,9 @@ public extension BigDecimal {
     }
     
     /**
-     * Returns the integral part of the specified {@link BigDecimal} (left of the decimal point).
+     * Returns the integral part of the specified `BigDecimal` (left of the decimal point).
      *
-     * @param value the {@link BigDecimal}
+     * @param value the `BigDecimal`
      * @return the integral part
      * @see #fractionalPart(BigDecimal)
      */
@@ -109,9 +106,9 @@ public extension BigDecimal {
     }
     
     /**
-     * Returns the fractional part of the specified {@link BigDecimal} (right of the decimal point).
+     * Returns the fractional part of the specified `BigDecimal` (right of the decimal point).
      *
-     * @param value the {@link BigDecimal}
+     * @param value the `BigDecimal`
      * @return the fractional part
      * @see #integralPart(BigDecimal)
      */
@@ -120,14 +117,14 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the square root of ``BigDecimal`` ``x``.
+     * Calculates the square root of ``BigDecimal`` `x`.
      *
      * See Wikipedia: Square root. http://en.wikipedia.org/wiki/Square_root.
      * - Parameters:
      *   - x: The ``BigDecimal`` value to calculate the square root
      *   - mc: The ``Rounding`` used for the result
-     * - Returns: The calculated square root of ``x`` with the precision specified
-     *            in the ``mc``
+     * - Returns: The calculated square root of `x` with the precision specified
+     *            in the `mc`
      * */
     static func sqrt(_ x: BigDecimal, _ mc: Rounding) -> BigDecimal {
         guard x.signum >= 0 else { return BigDecimal.nan }
@@ -175,8 +172,8 @@ public extension BigDecimal {
      *
      * See Wikipedia: Nth root -> https://en.wikipedia.org/wiki/Nth_root
      * - Parameters:
-     *  - x: the {@link BigDecimal} value to calculate the n'th root
-     *  - n: the {@link BigDecimal} defining the root
+     *  - x: the `BigDecimal` value to calculate the n'th root
+     *  - n: the `BigDecimal` defining the root
      *  - mc: the {@link MathContext} used for the result
      * - Returns: The calculated n'th root of x with the precision specified in the mathContext
      **/
@@ -230,10 +227,10 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates {@link BigDecimal} x to the power of {@link BigDecimal} y (x<sup>y</sup>).
+     * Calculates `BigDecimal` x to the power of `BigDecimal` y (x<sup>y</sup>).
      *
-     * @param x the {@link BigDecimal} value to take to the power
-     * @param y the {@link BigDecimal} value to serve as exponent
+     * @param x the `BigDecimal` value to take to the power
+     * @param y the `BigDecimal` value to serve as exponent
      * @param mathContext the {@link MathContext} used for the result
      * @return the calculated x to the power of y with the precision specified in the <code>mathContext</code>
      * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
@@ -263,12 +260,12 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates {@link BigDecimal} x to the power of the integer value y (x<sup>y</sup>).
+     * Calculates `BigDecimal` x to the power of the integer value y (x<sup>y</sup>).
      *
-     * <p>The value y MUST be an integer value.</p>
+     * The value y MUST be an integer value.</p>
      *
-     * @param x the {@link BigDecimal} value to take to the power
-     * @param integerY the {@link BigDecimal} <strong>integer</strong> value to serve as exponent
+     * @param x the `BigDecimal` value to take to the power
+     * @param integerY the `BigDecimal` <strong>integer</strong> value to serve as exponent
      * @param mathContext the {@link MathContext} used for the result
      * @return the calculated x to the power of y with the precision specified in the <code>mathContext</code>
      * @see #pow(BigDecimal, long, MathContext)
@@ -313,7 +310,7 @@ public extension BigDecimal {
     /**
      * Returns the number pi.
      *
-     * <p>See <a href="https://en.wikipedia.org/wiki/Pi">Wikipedia: Pi</a></p>
+     * See <a href="https://en.wikipedia.org/wiki/Pi">Wikipedia: Pi</a></p>
      *
      * @param mathContext the {@link MathContext} used for the result
      * @return the number pi with the precision specified in the <code>mathContext</code>
@@ -378,13 +375,13 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the natural exponent of {@link BigDecimal} x (e<sup>x</sup>).
+     * Calculates the natural exponent of `BigDecimal` x (e<sup>x</sup>).
      *
-     * <p>See: <a href="http://en.wikipedia.org/wiki/Exponent">Wikipedia: Exponent</a></p>
+     * See: <a href="http://en.wikipedia.org/wiki/Exponent">Wikipedia: Exponent</a></p>
      *
-     * @param x the {@link BigDecimal} to calculate the exponent for
+     * @param x the `BigDecimal` to calculate the exponent for
      * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated exponent {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @return the calculated exponent `BigDecimal` with the precision specified in the <code>mathContext</code>
      * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
      */
     static func exp(_ x:Self, _ mc: Rounding) -> Self {
@@ -430,13 +427,14 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the natural logarithm of {@link BigDecimal} x.
+     * Calculates the natural logarithm of `BigDecimal` `x`.
      *
-     * <p>See: <a href="http://en.wikipedia.org/wiki/Natural_logarithm">Wikipedia: Natural logarithm</a></p>
+     * See: [Wikipedia: Natural logarithm][REF]
+     * [REF]: http://en.wikipedia.org/wiki/Natural_logarithm
      *
-     * @param x the {@link BigDecimal} to calculate the natural logarithm for
+     * @param x the `BigDecimal` to calculate the natural logarithm for
      * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated natural logarithm {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @return the calculated natural logarithm `BigDecimal` with the precision specified in the <code>mathContext</code>
      */
     static func log(_ x:Self, _ mc:Rounding) -> Self {
         // checkMathContext(mathContext);
@@ -453,11 +451,11 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the logarithm of {@link BigDecimal} x to the base 2.
+     * Calculates the logarithm of `BigDecimal` x to the base 2.
      *
-     * @param x the {@link BigDecimal} to calculate the logarithm base 2 for
+     * @param x the `BigDecimal` to calculate the logarithm base 2 for
      * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated natural logarithm {@link BigDecimal} to the base 2 with the precision specified in the <code>mathContext</code>
+     * @return the calculated natural logarithm `BigDecimal` to the base 2 with the precision specified in the <code>mathContext</code>
      * @throws ArithmeticException if x &lt;= 0
      * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
      */
@@ -470,11 +468,11 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the logarithm of {@link BigDecimal} x to the base 10.
+     * Calculates the logarithm of `BigDecimal` x to the base 10.
      *
-     * @param x the {@link BigDecimal} to calculate the logarithm base 10 for
+     * @param x the `BigDecimal` to calculate the logarithm base 10 for
      * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated natural logarithm {@link BigDecimal} to the base 10 with the precision specified in the <code>mathContext</code>
+     * @return the calculated natural logarithm `BigDecimal` to the base 10 with the precision specified in the <code>mathContext</code>
      * @throws ArithmeticException if x &lt;= 0
      * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
      */

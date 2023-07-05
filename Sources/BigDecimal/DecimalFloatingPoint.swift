@@ -27,7 +27,7 @@ protocol DecimalType : Codable, Hashable {
     associatedtype RawSignificand : UnsignedInteger & FixedWidthInteger
     
     /// Storage of the Decimal number in a raw binary integer decimal
-    /// encoding as per IEEE STD 754-2008
+    /// encoding as per IEEE STD 754-2019
     var bid: RawData { get set }
     
     //////////////////////////////////////////////////////////////////
@@ -109,13 +109,13 @@ protocol DecimalType : Codable, Hashable {
 
 /// A radix-10 (decimal) floating-point type.
 ///
-/// The `DecimalFloatingPoint` protocol extends the `FloatingPoint` protocol
+/// The ``DecimalFloatingPoint`` protocol extends the `FloatingPoint` protocol
 /// with operations specific to floating-point decimal types, as defined by the
-/// [IEEE 754 specification][spec]. `DecimalFloatingPoint` is implemented in
-/// the standard library by `Decimal32`, `Decimal64`, and `Decimal128` where
-/// available.
+/// [IEEE 754 specification][spec]. ``DecimalFloatingPoint`` is implemented in
+/// the standard library by ``Decimal32``, ``Decimal64``, and ``Decimal128``
+/// where available.
 ///
-/// [spec]: http://ieeexplore.ieee.org/servlet/opac?punumber=4610933
+/// [spec]: https://ieeexplore.ieee.org/servlet/opac?punumber=8766227
 public protocol DecimalFloatingPoint : FloatingPoint {
   
   /// A type that represents the encoded significand of a value.
@@ -126,7 +126,7 @@ public protocol DecimalFloatingPoint : FloatingPoint {
   /// The values passed as `exponentBitPattern` is interpreted in the
   /// decimal interchange format defined by the [IEEE 754 specification][spec].
   ///
-  /// [spec]: http://ieeexplore.ieee.org/servlet/opac?punumber=4610933
+  /// [spec]: https://ieeexplore.ieee.org/servlet/opac?punumber=8766227
   ///
   /// The `significandBitPattern` are the big-endian, integer decimal digits
   /// of the number.  For example, the integer number `314` represents a
@@ -918,7 +918,7 @@ extension DecimalFloatingPoint {
   /// The `isTotallyOrdered(belowOrEqualTo:)` method implements the total order
   /// relation as defined by the [IEEE 754 specification][spec].
   ///
-  /// [spec]: http://ieeexplore.ieee.org/servlet/opac?punumber=4610933
+  /// [spec]: https://ieeexplore.ieee.org/servlet/opac?punumber=8766227
   ///
   /// - Parameter other: A floating-point value to compare to this value.
   /// - Returns: `true` if this value is ordered below or the same as `other`

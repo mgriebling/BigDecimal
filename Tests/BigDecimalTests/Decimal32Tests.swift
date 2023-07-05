@@ -5098,7 +5098,7 @@ final class Decimal32Tests: XCTestCase {
         func getNumber(_ s: String) -> Decimal32 {
             if s.hasPrefix("0x") {
                 var s = s; s.removeFirst(2)
-                return Decimal32(UInt32(s, radix:16) ?? 0)
+                return Decimal32(bitPattern: UInt32(s, radix:16) ?? 0, encoding: .bid)
             }
             let d = BigDecimal(s).round(round)
             return Decimal32(d.asDecimal32(.bid))
@@ -5126,6 +5126,9 @@ final class Decimal32Tests: XCTestCase {
           let error = "\(d1) != \(t1d)"
           checkValues(test, t1d.bitPattern, state, error)
         case "bid32_to_binary32":
+              if testID == 70 {
+                  print(getNumber(test.istr))
+              }
           let t1 = getNumber(test.istr)
           let t1f = Float(t1, round: test.roundMode)
           let d1 = Float(bitPattern: UInt32(test.res))

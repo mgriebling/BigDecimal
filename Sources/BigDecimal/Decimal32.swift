@@ -17,12 +17,12 @@
 import BigInt
 
 /// Implementation of the 32-bit Decimal32 floating-point operations from
-/// IEEE STD 754-2008 for Floating-Point Arithmetic.
+/// IEEE STD 754-2019 for Floating-Point Arithmetic.
 ///
-/// The IEEE Standard 754-2008 for Floating-Point Arithmetic supports two
-/// encoding formats: the decimal encoding format, and the binary encoding
-/// format. This package supports both the binary encoding format for
-/// decimal floating-point values and the decimal encoding format.
+/// The IEEE 754 for Floating-Point Arithmetic supports two
+/// encoding formats for Decimal numbers: the decimal encoding format, and
+/// the binary encoding format. This package supports both the binary and
+/// decimal encoding formats for decimal floating-point values.
 ///
 /// Calculations convert Decimal32 numbers to BigDecimal format, perform
 /// the operation, and convert back to Decimal32 format.
@@ -39,8 +39,8 @@ public struct Decimal32 : DecimalType, Codable, Hashable {
     public typealias RawSignificand = UInt32
     public typealias RawBitPattern = UInt32
     
-    // Internal data store for the binary integer decimal encoded number.
-    // The internal representation is always binary integer decimal.
+    /// Internal data store for the binary integer decimal encoded number
+    /// is always a binary encoded decimal.
     var bid : UInt32 = 0
     
     // Raw data initializer -- only for internal use.
@@ -254,7 +254,7 @@ extension Decimal32 : DecimalFloatingPoint {
     /// interpreted in the decimal interchange format defined by the [IEEE 754
     /// specification][spec].
     ///
-    /// [spec]: http://ieeexplore.ieee.org/servlet/opac?punumber=4610933
+    /// [spec]: https://ieeexplore.ieee.org/servlet/opac?punumber=8766227
     ///
     /// The `significandBitPattern` are the big-endian, binary integer decimal
     /// digits of the number. For example, the integer number `314` represents a
@@ -307,7 +307,7 @@ extension Decimal32 : DecimalFloatingPoint {
     /// numbers to the appropriate initialize recreates the original value
     /// "1000.3".
     ///
-    /// [spec]: http://ieeexplore.ieee.org/servlet/opac?punumber=4610933
+    /// [spec]: https://ieeexplore.ieee.org/servlet/opac?punumber=8766227
     public func bitPattern(_ encoding: ID.Encoding) -> RawSignificand {
         encoding == .bid ? bid : self.dpd
     }
