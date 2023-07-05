@@ -1,6 +1,7 @@
 # ``BigDecimal``
 
-The BigDecimal package provides arbitrary-precision decimal arithmetic in Swift.
+The BigDecimal package provides arbitrary-precision (with an adjustable upper
+limit for performance) and fixed-precision decimal arithmetic in Swift.
 
 Its functionality falls in the following categories:
 - Arithmetic: addition, subtraction, multiplication, division, remainder and 
@@ -26,54 +27,57 @@ Its functionality falls in the following categories:
   latter having a `signaling` option.
 
 ## Dependencies
-BigDecimal requires Swift 5. It also requires that the Int type be a 64 bit type.
+BigDecimal requires Swift from macOS 13.3+, iOS 16.4+, macCatalyst 16.4+, 
+tvOS 16.4+, or watchOS 9.4+. It also requires that the `Int` type be a 64-bit 
+type.
+
 The BigDecimal package depends on the BigInt and UInt128 packages.
 
 ```
-  dependencies: [
-    .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.0"),
-    .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.0.0")
-  ]
+dependencies: [
+  .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.0"),
+  .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.0.0")
+]
 ```
 
 ## Usage
 In your project's Package.swift file add a dependency like
 
 ```
-  dependencies: [
-    .package(url: "https://github.com/mgriebling/BigDecimal.git", from: "2.0.0"),
-  ]
+dependencies: [
+  .package(url: "https://github.com/mgriebling/BigDecimal.git", from: "2.0.0"),
+]
 ```
 
 ## Basics
 ### Creating BigDecimal's
 	  
 ```swift
-	// From an integer
-	let x1 = BigDecimal(270) // = 270
-	let x2 = BigDecimal(270, -2)  // = 2.70
-	let x3 = BigDecimal(314159265, -8) // = 3.14159265
+// From an integer
+let x1 = BigDecimal(270) // = 270
+let x2 = BigDecimal(270, -2)  // = 2.70
+let x3 = BigDecimal(314159265, -8) // = 3.14159265
   
-	// From a BInt
-	let x4 = BigDecimal(BInt(314159265), -8) // = 3.14159265
-	let x5 = BigDecimal(BInt(100), -3) // = 0.100
+// From a BInt
+let x4 = BigDecimal(BInt(314159265), -8) // = 3.14159265
+let x5 = BigDecimal(BInt(100), -3) // = 0.100
   
-	// From a string literal
-	let rnd1 = Rounding(.halfEven, 2)
-	let x6 = BigDecimal("0.123").round(rnd1) // = 0.12
-	let x7 = BigDecimal("3.14159265") // = 3.14159265
+// From a string literal
+let rnd1 = Rounding(.halfEven, 2)
+let x6 = BigDecimal("0.123").round(rnd1) // = 0.12
+let x7 = BigDecimal("3.14159265") // = 3.14159265
   
-	// From a double
-	let rnd2 = Rounding(.halfEven, 9)
-	let x8 = BigDecimal(0.1).round(rnd2)  // = 0.100000000
-	let x9 = BigDecimal(0.1) // = 0.1000000000000000055511151231257827021181583404541015625
-	let x10 = BigDecimal(3.14159265) // = 3.141592650000000208621031561051495373249053955078125
-	let x11 = BigDecimal(3.14159265).round(rnd2) // = 3.14159265
+// From a double
+let rnd2 = Rounding(.halfEven, 9)
+let x8 = BigDecimal(0.1).round(rnd2)  // = 0.100000000
+let x9 = BigDecimal(0.1) // = 0.1000000000000000055511151231257827021181583404541015625
+let x10 = BigDecimal(3.14159265) // = 3.141592650000000208621031561051495373249053955078125
+let x11 = BigDecimal(3.14159265).round(rnd2) // = 3.14159265
 
-	// From Decimal32 / 64 / 128 encoded values
-	let x32 = BigDecimal(UInt32(0x223000f0), .dpd) // = 1.70
-	let x64 = BigDecimal(UInt64(0x22300000000000f0), .dpd) // = 1.70
-	let x128 = BigDecimal(UInt128(0x2207800000000000, 0x00000000000000f0), .dpd) // = 1.70
+// From Decimal32 / 64 / 128 encoded values
+let x32 = BigDecimal(UInt32(0x223000f0), .dpd) // = 1.70
+let x64 = BigDecimal(UInt64(0x22300000000000f0), .dpd) // = 1.70
+let x128 = BigDecimal(UInt128(0x2207800000000000, 0x00000000000000f0), .dpd) // = 1.70
 ```
 
 Because Double values cannot represent all decimal values exactly,
@@ -88,32 +92,32 @@ and ``Decimal128`` values.
 #### To String
 
 ```swift
-	let x1 = BigDecimal("2.1").pow(3)
-	print(x1.asString()) // = 9.261
+let x1 = BigDecimal("2.1").pow(3)
+print(x1.asString()) // = 9.261
 ```
 
 #### To Double
 ```swift
-	let x2 = BigDecimal("2.1").pow(3)
-	print(x2.asDouble()) // = 9.261
+let x2 = BigDecimal("2.1").pow(3)
+print(x2.asDouble()) // = 9.261
 ```
 
 #### To Decimal (the Swift Foundation type)
 ```swift
-	let x3 = BigDecimal("1.70")
-	let xd: Decimal = x3.asDecimal()
-	print(xd) // = 1.70
+let x3 = BigDecimal("1.70")
+let xd: Decimal = x3.asDecimal()
+print(xd) // = 1.70
 ```
 
 #### To Decimal32 / 64 / 128
 ```swift
-	let x4 = BigDecimal("1.70")
-	let x32: UInt32 = x4.asDecimal32(.dpd)
-	let x64: UInt64 = x4.asDecimal64(.dpd)
-	let x128: UInt128 = x4.asDecimal128(.dpd)
-	print(String(x32, radix: 16))  // = 223000f0
-	print(String(x64, radix: 16))  // = 22300000000000f0
-	print(String(x128, radix: 16)) // = 220780000000000000000000000000f0
+let x4 = BigDecimal("1.70")
+let x32: UInt32 = x4.asDecimal32(.dpd)
+let x64: UInt64 = x4.asDecimal64(.dpd)
+let x128: UInt128 = x4.asDecimal128(.dpd)
+print(String(x32, radix: 16))  // = 223000f0
+print(String(x64, radix: 16))  // = 22300000000000f0
+print(String(x128, radix: 16)) // = 220780000000000000000000000000f0
 ```
 
 ### Comparing BigDecimal's
@@ -138,13 +142,13 @@ The '+', '-', and '\*' operators always produce exact results. The '/' operator
 truncates the exact result to an integer.
 
 ```swift
-	let a = BigDecimal("25.1")
-	let b = BigDecimal("12.0041")
+let a = BigDecimal("25.1")
+let b = BigDecimal("12.0041")
 
-	print(a + b) // = 37.1041
-	print(a - b) // = 13.0959
-	print(a * b) // = 301.30291
-	print(a / b) // = 2
+print(a + b) // = 37.1041
+print(a - b) // = 13.0959
+print(a * b) // = 301.30291
+print(a / b) // = 2
 ```
 
 The *quotientAndRemainder* function produces an integer quotient and exact remainder
@@ -210,13 +214,13 @@ BigDecimal's can be encoded as Data objects (perhaps for long term storage) usin
 and they can be regenerated from their Data encoding using the appropriate initializer.
 The encoding rules are:
 
-	- The encoding contains nine or more bytes. The first eight bytes is a 
-        Big Endian encoding of the signed exponent.
-		The remaining bytes is a Big Endian encoding of the signed significand.
-	- NaN's (and signaling NaNs) are encoded as a single byte = 0
-	- positive infinity is encoded as a single byte = 1
-	- negative infinity is encoded as a single byte = 2
-    - negative zero is encoded as a single byte = 3
+- The encoding contains nine or more bytes. The first eight bytes is a 
+   Big Endian encoding of the signed exponent.
+    The remaining bytes is a Big Endian encoding of the signed significand.
+- NaN's (and signaling NaNs) are encoded as a single byte = 0
+- positive infinity is encoded as a single byte = 1
+- negative infinity is encoded as a single byte = 2
+- negative zero is encoded as a single byte = 3
 
 It is also possible to encode BigDecimal's using the `JSONEncoder` or as a
 property list using the `PropertyListEncoder` as in the second example.
@@ -264,23 +268,23 @@ As an example, suppose you must compute the average value of three values a, b a
 The result x must likewise be a Decimal32 value encoded using DPD.
 
 ```swift
-	// Input values
-	let a = UInt32(0x223e1117)  // = 7042.17 DPD encoded
-	let b = UInt32(0x22300901)  // =   22.01 DPD encoded
-	let c = UInt32(0xa230cc00)  // = -330.00 DPD encoded
+// Input values
+let a = UInt32(0x223e1117)  // = 7042.17 DPD encoded
+let b = UInt32(0x22300901)  // =   22.01 DPD encoded
+let c = UInt32(0xa230cc00)  // = -330.00 DPD encoded
 	
-	// Convert to BigDecimal's
-	let A = BigDecimal(a, .dpd)
-	let B = BigDecimal(b, .dpd)
-	let C = BigDecimal(c, .dpd)
+// Convert to BigDecimal's
+let A = BigDecimal(a, .dpd)
+let B = BigDecimal(b, .dpd)
+let C = BigDecimal(c, .dpd)
 	
-	// Compute result
-	let X = (A + B + C).divide(3, Rounding.decimal32)
-	print(X)                    // = 2244.727
+// Compute result
+let X = (A + B + C).divide(3, Rounding.decimal32)
+print(X)                    // = 2244.727
 	
-	// Convert result back to Decimal32
-	let x = X.asDecimal32(.dpd)
-	print(String(x, radix: 16)) // = 2a2513a7 (= 2244.727 DPD encoded)
+// Convert result back to Decimal32
+let x = X.asDecimal32(.dpd)
+print(String(x, radix: 16)) // = 2a2513a7 (= 2244.727 DPD encoded)
 ```   
 	
 ## About Infinities
@@ -291,30 +295,30 @@ and every finite number compares less than `infinity`. Arithmetic operations
 involving infinite values is illustrated by the examples below:
 
 ```swift
-    let InfP = BigDecimal.infinity // Just to save some writing
-    let InfN = -BigDecimal.infinity
+let InfP = BigDecimal.infinity // Just to save some writing
+let InfN = -BigDecimal.infinity
 
-    print(InfP + 3)     // +Infinity
-    print(InfN + 3)     // -Infinity
-    print(InfP + InfP)  // +Infinity
-    print(InfP - InfP)  // NaN
-    print(InfP * 3)     // +Infinity
-    print(InfP * InfP)  // +Infinity
-    print(InfP * InfN)  // -Infinity
-    print(InfP * 0)     // NaN
-    print(InfP / 3)     // +Infinity
-    print(InfP / 0)     // +Infinity
-    print(1 / InfP)     // 0
-    print(1 / InfN)     // 0
-    print(InfP / InfP)  // NaN
-    print(InfP < InfP)  // false
-    print(InfP == InfP) // true
-    print(InfP != InfP) // false
-    print(InfP > InfP)  // false
-    print(Rounding.decimal32.round(InfP))    // +Infinity
-    print(InfP.scale(4))    // +Infinity
-    print(InfP.scale(-4))   // +Infinity
-    print(InfP.withExponent(10, .up))   // NaN
+print(InfP + 3)     // +Infinity
+print(InfN + 3)     // -Infinity
+print(InfP + InfP)  // +Infinity
+print(InfP - InfP)  // NaN
+print(InfP * 3)     // +Infinity
+print(InfP * InfP)  // +Infinity
+print(InfP * InfN)  // -Infinity
+print(InfP * 0)     // NaN
+print(InfP / 3)     // +Infinity
+print(InfP / 0)     // +Infinity
+print(1 / InfP)     // 0
+print(1 / InfN)     // 0
+print(InfP / InfP)  // NaN
+print(InfP < InfP)  // false
+print(InfP == InfP) // true
+print(InfP != InfP) // false
+print(InfP > InfP)  // false
+print(Rounding.decimal32.round(InfP))    // +Infinity
+print(InfP.scale(4))    // +Infinity
+print(InfP.scale(-4))   // +Infinity
+print(InfP.withExponent(10, .up))   // NaN
 ```   
 
 ## About NaN's
@@ -326,27 +330,27 @@ Arithmetic operations where one or more input is NaN, return NaN as result.
 Comparing NaN values is illustrated by the example below:
 	
 ```swift   
-	let NaN = BigDecimal.NaN // Just to save some writing
+let NaN = BigDecimal.NaN // Just to save some writing
 	
-	print(3 < NaN)      // false
-	print(NaN < 3)      // false
-	print(NaN < NaN)    // false
-	print(3 <= NaN)     // false
-	print(NaN <= 3)     // false
-	print(NaN <= NaN)   // false
-	print(3 > NaN)      // false
-	print(NaN > 3)      // false
-	print(NaN > NaN)    // false
-	print(3 >= NaN)     // false
-	print(NaN >= 3)     // false
-	print(NaN >= NaN)   // false
-	print(3 == NaN)     // false
-	print(NaN == 3)     // false
-	print(NaN == NaN)   // false
-	print(3 != NaN)     // true
-	print(NaN != 3)     // true
-	print(NaN != NaN)   // true !!!
- ```   
+print(3 < NaN)      // false
+print(NaN < 3)      // false
+print(NaN < NaN)    // false
+print(3 <= NaN)     // false
+print(NaN <= 3)     // false
+print(NaN <= NaN)   // false
+print(3 > NaN)      // false
+print(NaN > 3)      // false
+print(NaN > NaN)    // false
+print(3 >= NaN)     // false
+print(NaN >= 3)     // false
+print(NaN >= NaN)   // false
+print(3 == NaN)     // false
+print(NaN == 3)     // false
+print(NaN == NaN)   // false
+print(3 != NaN)     // true
+print(NaN != 3)     // true
+print(NaN != NaN)   // true !!!
+```   
 
 Because NaN != NaN is true, sorting a collection of BigDecimal's doesn't 
 work if the collection contains one or more NaN's. This is so, even if 
@@ -358,10 +362,10 @@ The following example uses `isTotallyOrdered(belowOrEqualTo:)` to sort an
 array of floating-point values, including some that are NaN:
 
 ```swift
-    var numbers = [2.5, 21.25, 3.0, .nan, -9.5]
-    numbers.sort { !$1.isTotallyOrdered(belowOrEqualTo: $0) }
-    print(numbers)
-    // Prints "[-9.5, 2.5, 3.0, 21.25, nan]"
+var numbers = [2.5, 21.25, 3.0, .nan, -9.5]
+numbers.sort { !$1.isTotallyOrdered(belowOrEqualTo: $0) }
+print(numbers)
+// Prints "[-9.5, 2.5, 3.0, 21.25, nan]"
 ```
 
 There is a static boolean variable *BigDecimal.NaNFlag* which is set to 
