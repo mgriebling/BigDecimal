@@ -150,7 +150,7 @@ truncates the exact result to an integer.
 The *quotientAndRemainder* function produces an integer quotient and exact remainder
 
 ```swift
-	print(a.quotientAndRemainder(b)) // = (quotient: 2, remainder: 1.0918)
+print(a.quotientAndRemainder(b)) // = (quotient: 2, remainder: 1.0918)
 ```   
 
 ### Rounded Arithmetic
@@ -160,29 +160,29 @@ precision, which is the number of digits in the rounded result.
 
 The rounding modes are:
 
-- ceiling - round towards +infinity
-- floor - round towards -infinity
-- up - round away from 0
-- down - round towards 0
-- halfDown - round to nearest, tie towards 0
-- halfUp - round to nearest, tie away from 0
-- halfEven - round to nearest, tie to even
+- awayFromZero - round away from 0
+- down - round towards -infinity
+- up - round towards +infinity
+- towardZero - round towards 0
+- toNearestOrEven - round to nearest, ties to even
+- toNearestOrAwayFromZero - round to nearest, ties away from 0
 
-The *add*, *subtract* and *multiply* methods have a Rounding parameter that controls how the result is rounded.
+The *add*, *subtract* and *multiply* methods have a Rounding parameter that 
+controls how the result is rounded.
 
 #### Examples
 
 ```swift
-	let a = BigDecimal("25.1E-2")
-	let b = BigDecimal("12.0041E-3")
-	let rnd = Rounding(.ceiling, 3)
+let a = BigDecimal("25.1E-2")
+let b = BigDecimal("12.0041E-3")
+let rnd = Rounding(.ceiling, 3)
 	
-	print(a + b) // = 0.2630041
-	print(a.add(b, rnd)) // = 0.264
-	print(a - b) // = 0.2389959
-	print(a.subtract(b, rnd)) // = 0.239
-	print(a * b) // = 0.0030130291
-	print(a.multiply(b, rnd)) // = 0.00302
+print(a + b) // = 0.2630041
+print(a.add(b, rnd)) // = 0.264
+print(a - b) // = 0.2389959
+print(a.subtract(b, rnd)) // = 0.239
+print(a * b) // = 0.0030130291
+print(a.multiply(b, rnd)) // = 0.00302
 ```   
 
 ### Precise division
@@ -193,16 +193,16 @@ If the quotient has infinite decimal expansion, the rounding parameter must be p
 
 #### Examples
 ```swift
-	let x1 = BigDecimal(3)
-	let x2 = BigDecimal(48)
-	print(x1.divide(x2))  // = 0.0625
-	let rnd = Rounding(.ceiling, 2)
-	print(x1.divide(x2, rnd))  // = 0.063
+let x1 = BigDecimal(3)
+let x2 = BigDecimal(48)
+print(x1.divide(x2))  // = 0.0625
+let rnd = Rounding(.ceiling, 2)
+print(x1.divide(x2, rnd))  // = 0.063
 	
-	let x3 = BigDecimal(3)
-	let x4 = BigDecimal(49)
-	print(x3.divide(x4))       // = NaN because the quotient has infinite decimal expansion 0.06122448...
-	print(x3.divide(x4, rnd))  // = 0.062
+let x3 = BigDecimal(3)
+let x4 = BigDecimal(49)
+print(x3.divide(x4))       // = NaN because the quotient has infinite decimal expansion 0.06122448...
+print(x3.divide(x4, rnd))  // = 0.062
 ```   
 
 ## Data Encoding
@@ -210,26 +210,44 @@ BigDecimal's can be encoded as Data objects (perhaps for long term storage) usin
 and they can be regenerated from their Data encoding using the appropriate initializer.
 The encoding rules are:
 
-	- The encoding contains nine or more bytes. The first eight bytes is a Big Endian encoding of the signed exponent.
+	- The encoding contains nine or more bytes. The first eight bytes is a 
+        Big Endian encoding of the signed exponent.
 		The remaining bytes is a Big Endian encoding of the signed significand.
-	- NaN's are encoded as a single byte = 0
-	- infinity is encoded as a single byte = 1
-	- infinityN is encoded as a single byte = 2
+	- NaN's (and signaling NaNs) are encoded as a single byte = 0
+	- positive infinity is encoded as a single byte = 1
+	- negative infinity is encoded as a single byte = 2
+    - negative zero is encoded as a single byte = 3
+
+It is also possible to encode BigDecimal's using the `JSONEncoder` or as a
+property list using the `PropertyListEncoder` as in the second example.
 
 ### Examples
 ```swift
-	let x1 = BigDecimal(1000, 3) // = 1000000
-	print(Bytes(x1.asData()))   // = [0, 0, 0, 0, 0, 0, 0, 3, 3, 232]
+let x1 = BigDecimal(1000, 3) // = 1000000
+print(Bytes(x1.asData()))   // = [0, 0, 0, 0, 0, 0, 0, 3, 3, 232]
 
-	let x2 = BigDecimal(1000, -3) // = 1.000
-	print(Bytes(x2.asData()))   // = [255, 255, 255, 255, 255, 255, 255, 253, 3, 232]
+let x2 = BigDecimal(1000, -3) // = 1.000
+print(Bytes(x2.asData()))   // = [255, 255, 255, 255, 255, 255, 255, 253, 3, 232]
 
-	let x3 = BigDecimal(-1000, 3) // = -1000000
-	print(Bytes(x3.asData()))   // = [0, 0, 0, 0, 0, 0, 0, 3, 252, 24]
+let x3 = BigDecimal(-1000, 3) // = -1000000
+print(Bytes(x3.asData()))   // = [0, 0, 0, 0, 0, 0, 0, 3, 252, 24]
 
-	let x4 = BigDecimal(-1000, -3) // = -1.000
-	print(Bytes(x4.asData()))   // = [255, 255, 255, 255, 255, 255, 255, 253, 252, 24]
+let x4 = BigDecimal(-1000, -3) // = -1.000
+print(Bytes(x4.asData()))   // = [255, 255, 255, 255, 255, 255, 255, 253, 252, 24]
 ```   
+
+```swift
+let encoder = JSONEncoder()
+let x1 = BigDecimal(1000, 3) // = 1000000
+if let encoded = try? encoder.encode(x1) {
+    // save `encoded` data somewhere or
+
+    // extract the JSON string from the data
+    if let json = String(data: encoded, encoding: .utf8) {
+        print(json)
+    }
+}
+```
 
 ## Decimal Formats
 Decimal values can be represented not only as BigDecimal's but also as Double values,
@@ -266,40 +284,43 @@ The result x must likewise be a Decimal32 value encoded using DPD.
 ```   
 	
 ## About Infinities
-The constants `BigDecimal.infinity* and *BigDecimal.infinity* represent +Infinity and -Infinity respectively. 
-infinityN compares less than every finite number,
-and every finite number compares less than infinity. Arithmetic operations involving infinite values is illustrated by the examples below:
+The constants `BigDecimal.infinity` and `-BigDecimal.infinity` represent 
++Infinity and -Infinity respectively. 
+`-infinity` compares less than every finite number,
+and every finite number compares less than `infinity`. Arithmetic operations
+involving infinite values is illustrated by the examples below:
 
 ```swift
-	let InfP = BigDecimal.infinity // Just to save some writing
-	let InfN = BigDecimal.infinityN
-	
-	print(InfP + 3)     // +Infinity
-	print(InfN + 3)     // -Infinity
-	print(InfP + InfP)  // +Infinity
-	print(InfP - InfP)  // NaN
-	print(InfP * 3)     // +Infinity
-	print(InfP * InfP)  // +Infinity
-	print(InfP * InfN)  // -Infinity
-	print(InfP * 0)     // NaN
-	print(InfP / 3)     // +Infinity
-	print(InfP / 0)     // +Infinity
-	print(1 / InfP)     // 0
-	print(1 / InfN)     // 0
-	print(InfP / InfP)  // NaN
-	print(InfP < InfP)  // false
-	print(InfP == InfP) // true
-	print(InfP != InfP) // false
-	print(InfP > InfP)  // false
-	print(Rounding.decimal32.round(InfP))    // +Infinity
-	print(InfP.scale(4))    // +Infinity
-	print(InfP.scale(-4))   // +Infinity
-	print(InfP.withExponent(10, .ceiling))   // NaN
+    let InfP = BigDecimal.infinity // Just to save some writing
+    let InfN = -BigDecimal.infinity
+
+    print(InfP + 3)     // +Infinity
+    print(InfN + 3)     // -Infinity
+    print(InfP + InfP)  // +Infinity
+    print(InfP - InfP)  // NaN
+    print(InfP * 3)     // +Infinity
+    print(InfP * InfP)  // +Infinity
+    print(InfP * InfN)  // -Infinity
+    print(InfP * 0)     // NaN
+    print(InfP / 3)     // +Infinity
+    print(InfP / 0)     // +Infinity
+    print(1 / InfP)     // 0
+    print(1 / InfN)     // 0
+    print(InfP / InfP)  // NaN
+    print(InfP < InfP)  // false
+    print(InfP == InfP) // true
+    print(InfP != InfP) // false
+    print(InfP > InfP)  // false
+    print(Rounding.decimal32.round(InfP))    // +Infinity
+    print(InfP.scale(4))    // +Infinity
+    print(InfP.scale(-4))   // +Infinity
+    print(InfP.withExponent(10, .up))   // NaN
 ```   
 
 ## About NaN's
 The IEEE 754 standard specifies two NaN's, a quiet NaN (qNaN) and a signaling NaN (sNaN).
-The constant *BigDecimal.NaN* corresponds to the quiet NaN. There is no corresponding signaling NaN.
+The constant *BigDecimal.NaN* corresponds to the quiet NaN and 
+`BigDecimal.signalingNan` to the signaling NaN.
 
 Arithmetic operations where one or more input is NaN, return NaN as result.
 Comparing NaN values is illustrated by the example below:
@@ -327,19 +348,33 @@ Comparing NaN values is illustrated by the example below:
 	print(NaN != NaN)   // true !!!
  ```   
 
-Because NaN != NaN is true, sorting a collection of BigDecimal's doesn't work if the collection contains one or more NaN's.
-This is so, even if BigDecimal conforms to the Comparable protocol.
+Because NaN != NaN is true, sorting a collection of BigDecimal's doesn't 
+work if the collection contains one or more NaN's. This is so, even if 
+BigDecimal conforms to the Comparable protocol. Note: It is possible to
+sort values including NaNs using the `isTotallyOrdered(belowOrEqualTo:)`
+method.
 
-There is a static boolean variable *BigDecimal.NaNFlag* which is set to *true* whenever a NaN value is generated.
-It can be set to *false* by application code. Therefore, to check if a sequence of code generates NaN,
-set NaNFlag to *false* before the code and check it after the code. Since a BigDecimal has a stored property *isNaN*,
-it is of course also possible to check for a NaN value at any time.
+The following example uses `isTotallyOrdered(belowOrEqualTo:)` to sort an
+array of floating-point values, including some that are NaN:
+
+```swift
+    var numbers = [2.5, 21.25, 3.0, .nan, -9.5]
+    numbers.sort { !$1.isTotallyOrdered(belowOrEqualTo: $0) }
+    print(numbers)
+    // Prints "[-9.5, 2.5, 3.0, 21.25, nan]"
+```
+
+There is a static boolean variable *BigDecimal.NaNFlag* which is set to 
+*true* whenever a NaN value is generated. It can be set to *false* by 
+application code. Therefore, to check if a sequence of code generates NaN,
+set NaNFlag to *false* before the code and check it after the code. Since 
+a BigDecimal has a stored property *isNaN*, it is of course also possible to 
+check for a NaN value at any time.
   
 ## References
 
 Algorithms from the following books and papers have been used in the implementation.
 There are references in the source code where appropriate.
-
 
 - [GRANLUND] - Moller and Granlund: Improved Division by Invariant Integers, 2011
 - [IEEE] - IEEE Standard for Floating-Point Arithmetic, 2019
