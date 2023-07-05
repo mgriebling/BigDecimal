@@ -116,6 +116,8 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
                     self = Self.infinity
                 } else if d[0] == 2 {
                     self = -Self.infinity
+                } else if d[0] == 3 {
+                    self = Self(.zeroNeg)
                 } else {
                     self = Self.flagNaN()
                 }
@@ -710,6 +712,8 @@ extension BigDecimal {
             return Data([0])
         } else if self.isInfinite {
             return self.isPositive ? Data([1]) : Data([2])
+        } else if self.isZero && self.isNegative {
+            return Data([3])
         }
         var expBytes = [UInt8](repeating: 0, count: 8)
         var exp = self.exponent

@@ -15,17 +15,17 @@ extension RoundingRule : CustomStringConvertible {
     public var description: String {
         switch self {
             case .awayFromZero:
-                return "Round towards +infinity"
-            case .down:
-                return "Round towards 0"
-            case .towardZero:
-                return "Round towards -infinity"
-            case .toNearestOrEven:
-                return "Round to nearest, tie to even"
-            case .toNearestOrAwayFromZero:
-                return "Round to nearest, tie away from 0"
-            case .up:
                 return "Round away from 0"
+            case .down:
+                return "Round towards -infinity"
+            case .towardZero:
+                return "Round towards 0"
+            case .toNearestOrEven:
+                return "Round to nearest, ties to even"
+            case .toNearestOrAwayFromZero:
+                return "Round to nearest, ties away from 0"
+            case .up:
+                return "Round towards +infinity"
             @unknown default:
                 assertionFailure("Unknown \(Self.self) rounding mode")
                 return ""

@@ -1,6 +1,7 @@
 import XCTest
 @testable import BigDecimal
 @testable import UInt128
+@testable import BigInt
 
 let verbose = true  // set to false to skip test-by-test passes
 
@@ -5433,8 +5434,6 @@ final class Decimal32Tests: XCTestCase {
       let q = a1.divided(by:b1, rounding: .toNearestOrEven); print(q)
       a1 = a1 - q * b1
       print("\(a1)")
-    
-    // let x2 = Decimal32(56.7)
       
 //    for n in -450..<Tables.bid_exponents_bid32.count-450 {
 //      let calc = Tables.exponents_bid32(n+450)
