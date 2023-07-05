@@ -6,7 +6,7 @@
 //
 
 import BigInt
-import RealModule
+import Foundation
 
 public extension BigDecimal {
     
@@ -187,7 +187,7 @@ public extension BigDecimal {
 
         if x.isFinite && n.isFinite {
             let xd = x.asDouble(), nd = n.asDouble()
-            let initialResult = Double.pow(xd, 1.0 / nd)
+            let initialResult = Foundation.pow(xd, 1.0 / nd)
             if initialResult.isFinite {
                 return rootUsingNewtonRaphson(x, n, Self(initialResult), mc)
             }
@@ -498,7 +498,7 @@ public extension BigDecimal {
         var adaptivePrecision: Int
         let doubleX = x.asDouble()
         if doubleX > 0.0 && isDoubleValue(x) {
-            result = BigDecimal(Double.log(doubleX))
+            result = BigDecimal(Foundation.log(doubleX))
             adaptivePrecision = expectedInitialPrecision
         } else {
             result = x.divide(2, mc)

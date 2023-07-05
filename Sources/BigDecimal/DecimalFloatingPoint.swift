@@ -871,19 +871,17 @@ extension DecimalFloatingPoint {
   /// with more trailing zeros in its significand bit pattern.
   ///
   /// - Parameter value: A decimal floating-point value to be converted.
-  public init<Source:BinaryFloatingPoint>(_ value:Source, rounding: Rounding) {
+  public init<Source:BinaryFloatingPoint>(_ value:Source, rounding: RoundingRule) {
     self.init(0)
-      assertionFailure("Not defined yet")
-      // FIXME: - Use new code
-//    if let x = value as? Double {
-//      if Self.self == Decimal32.self {
-//        self = Self(Decimal32(bid:IntDecimal32.bid(from: x, .toNearestOrEven)))
-//      } else if Self.self == Decimal64.self {
-//        self = Self(Decimal64(bid:IntDecimal64.bid(from: x, .toNearestOrEven)))
-//      } else if Self.self == Decimal128.self {
-//        self = Self(Decimal128(bid:IntDecimal128.bid(from:x,.toNearestOrEven)))
-//      }
-//    }
+    if let x = value as? Double {
+      if Self.self == Decimal32.self {
+          self = Self(Decimal32(floatLiteral: x).rounded(rounding))
+      } else if Self.self == Decimal64.self {
+          self = Self(Decimal64(floatLiteral: x).rounded(rounding))
+      } else if Self.self == Decimal128.self {
+          self = Self(Decimal128(floatLiteral: x).rounded(rounding))
+      }
+    }
   }
   
   /// Creates a new instance from the given value, if it can be represented
@@ -894,13 +892,11 @@ extension DecimalFloatingPoint {
   ///
   /// - Parameter value: A floating-point value to be converted.
   public init?<Source:BinaryFloatingPoint>(exactly value: Source) {
-      // FIXME: - Use new code
-      assertionFailure("Not defined yet")
-//    if let x = value as? Double {
-//      self.init(value, rounding: .toNearestOrEven)
-//      guard Double(self) == x else { return nil }
-//      return
-//    }
+    if let x = value as? Double {
+      self.init(value, rounding: .toNearestOrEven)
+      guard Double(self) == x else { return nil }
+      return
+    }
     return nil
   }
   

@@ -79,7 +79,7 @@ public struct Rounding: Equatable {
     ///   - x: The value to be rounded
     /// - Returns: The value of *x* rounded according to *self*
     public func round(_ x: BigDecimal) -> BigDecimal {
-        if x.isNaN { return BigDecimal.flagNaN() }
+        if x.isNaN { let _ = BigDecimal.flagNaN(); return x }
         else if x.isInfinite { return x }
         let d = x.precision - self.precision
         if d <= 0 {
