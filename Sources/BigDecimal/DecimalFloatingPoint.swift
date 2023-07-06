@@ -348,6 +348,7 @@ extension DecimalType {
             while exp < 0 {
                 exp += 1; sig /= 10
             }
+            if sig > Self.largestNumber { sig = 0 }
             self.init(sign: sign, exponentBitPattern: exp,
                       significandBitPattern: sig)
         }

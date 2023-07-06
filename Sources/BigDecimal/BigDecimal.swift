@@ -249,9 +249,12 @@ extension BigDecimal : Strideable {
 }
 
 extension BigDecimal : ExpressibleByIntegerLiteral {
-    public init(integerLiteral value: StaticBigInt) {
-        let bint = BInt(integerLiteral: value)
-        self = Self(bint)
+//    public init(integerLiteral value: StaticBigInt) {
+//        let bint = BInt(integerLiteral: value)
+//        self = Self(bint)
+//    }
+    public init(integerLiteral value: Int) {
+        self.init(value)
     }
 }
 
@@ -739,7 +742,7 @@ extension BigDecimal {
     public func asDecimal() -> Decimal {
         let maxExp = 127
         let minExp = -128
-        let maxDec = Self(BInt(0xffffffff_ffffffff_ffffffff_ffffffff), maxExp)
+        let maxDec = Self(BInt("ffffffffffffffffffffffffffffffff", radix:16)!, maxExp)
         
         if self.isNaN || self.abs > maxDec {
             return Decimal.nan

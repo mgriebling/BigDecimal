@@ -45,12 +45,14 @@ public extension BigDecimal {
     }
     
     /**
-     * Returns whether the specified `BigDecimal` value can be represented as <code>int</code>.
+     * Returns whether the specified ``BigDecimal`` value can be represented as
+     * an `Int`.
      *
-     * If this returns <code>true</code> you can call {@link BigDecimal#intValueExact()} without fear of an {@link ArithmeticException}.</p>
+     * If this returns `true` you can call ``asInt()`
+     * without fear of an `ArithmeticException`.
      *
-     * @param value the `BigDecimal` to check
-     * @return <code>true</code> if the value can be represented as <code>int</code> value
+     * - Parameter value the ``BigDecimal`` to check
+     * - Returns: `true` if the value can be represented as `Int` value
      */
     static func isIntValue(_ value:Self) -> Bool {
         if value > BigDecimal(Int.max) {
@@ -63,26 +65,29 @@ public extension BigDecimal {
     }
     
     /**
-     * Returns whether the specified `BigDecimal` value can be represented as <code>double</code>.
+     * Returns whether the specified ``BigDecimal`` value can be represented
+     * as `Double`.
      *
-     * If this returns <code>true</code> you can call {@link BigDecimal#doubleValue()}
-     * without fear of getting {@link Double#POSITIVE_INFINITY} or {@link Double#NEGATIVE_INFINITY} as result.</p>
+     * If this returns `true` you can call ``asDouble()``
+     * without fear of getting ``infinity`` or -``infinity`` as result.
      *
-     * Example: <code>BigDecimalMath.isDoubleValue(new BigDecimal("1E309"))</code> returns <code>false</code>,
-     * because <code>new BigDecimal("1E309").doubleValue()</code> returns <code>Infinity</code>.</p>
+     * Example: `BigDecimal.isDoubleValue(BigDecimal("1E309"))` returns `false`,
+     * because `BigDecimal("1E309").asDouble()` returns ``infinity``.
      *
-     * Note: This method does <strong>not</strong> check for possible loss of precision.</p>
+     * Note: This method does **not** check for possible loss of precision.
      *
-     * For example <code>BigDecimalMath.isDoubleValue(new BigDecimal("1.23400000000000000000000000000000001"))</code> will return <code>true</code>,
-     * because <code>new BigDecimal("1.23400000000000000000000000000000001").doubleValue()</code> returns a valid double value,
-     * although it loses precision and returns <code>1.234</code>.</p>
+     * For example `BigDecimalMath.isDoubleValue(BigDecimal("1.23400000000000000000000000000000001"))` will return `true`,
+     * because `BigDecimal("1.23400000000000000000000000000000001").asDouble()` returns a valid double value,
+     * although it loses precision and returns `1.234`.
      *
-     * <code>BigDecimalMath.isDoubleValue(new BigDecimal("1E-325"))</code> will return <code>true</code>
-     * although this value is smaller than {@link Double#MIN_VALUE} (and therefore outside the range of values that can be represented as <code>double</code>)
-     * because <code>new BigDecimal("1E-325").doubleValue()</code> returns <code>0</code> which is a legal value with loss of precision.</p>
+     * `BigDecimalMath.isDoubleValue(BigDecimal("1E-325"))` will return `true`
+     * although this value is smaller than -`Double.greatestFiniteMagnitude`
+     * (and therefore outside the range of values that can be represented as `Double`)
+     * because `BigDecimal("1E-325").asDouble()` returns `0` which is a legal
+     * value with loss of precision.
      *
-     * @param value the `BigDecimal` to check
-     * @return <code>true</code> if the value can be represented as <code>double</code> value
+     * - Parameter value: ``BigDecimal`` number to check
+     * - Returns: `true` if the `value` can be represented as `Double` value
      */
     static func isDoubleValue(_ value:Self) -> Bool {
         if value > doubleMax {
@@ -95,38 +100,41 @@ public extension BigDecimal {
     }
     
     /**
-     * Returns the integral part of the specified `BigDecimal` (left of the decimal point).
+     * Returns the integral part of the specified ``BigDecimal`` (left of
+     * the decimal point). See ``fractionalPart(_:)``.
      *
-     * @param value the `BigDecimal`
-     * @return the integral part
-     * @see #fractionalPart(BigDecimal)
+     * - Parameter value: the ``BigDecimal``
+     * - Returns: the integral part
      */
     static func integralPart(_ value:Self) -> Self {
-        return value.withExponent(0, .down) //  setScale(0, Rou ROUND_DOWN);
+        return value.withExponent(0, .down)
     }
     
     /**
-     * Returns the fractional part of the specified `BigDecimal` (right of the decimal point).
+     * Returns the fractional part of the specified `BigDecimal` (right of
+     * the decimal point). See ``integralPart(_:)``.
      *
-     * @param value the `BigDecimal`
-     * @return the fractional part
-     * @see #integralPart(BigDecimal)
+     * - Parameter value: the ``BigDecimal``
+     * - Returns: the fractional part
      */
     static func fractionalPart(_ value:Self) -> Self {
-        return value - integralPart(value) // subtract(integralPart(value), Rounding(.HALF_EVEN, 0))
+        return value - integralPart(value)
     }
     
     /**
      * Calculates the square root of ``BigDecimal`` `x`.
      *
-     * See Wikipedia: Square root. http://en.wikipedia.org/wiki/Square_root.
+     * See Wikipedia: [Square root][lsqrt]
+     *
+     * [lsqrt]: https://en.wikipedia.org/wiki/Square_root
+     *
      * - Parameters:
      *   - x: The ``BigDecimal`` value to calculate the square root
      *   - mc: The ``Rounding`` used for the result
      * - Returns: The calculated square root of `x` with the precision specified
      *            in the `mc`
-     * */
-    static func sqrt(_ x: BigDecimal, _ mc: Rounding) -> BigDecimal {
+     */
+    static func sqrt(_ x: Self, _ mc: Rounding) -> Self {
         guard x.signum >= 0 else { return BigDecimal.nan }
         if x.isZero { return zero }
         
@@ -170,13 +178,18 @@ public extension BigDecimal {
     /**
      * Calculates the n'th root of ``BigDecimal`` `x`.
      *
-     * See Wikipedia: Nth root -> https://en.wikipedia.org/wiki/Nth_root
+     * See Wikipedia: [Nth root][nsqrt].
+     *
+     * [nsqrt]: https://en.wikipedia.org/wiki/Nth_root
+     *
      * - Parameters:
-     *  - x: the `BigDecimal` value to calculate the n'th root
-     *  - n: the `BigDecimal` defining the root
-     *  - mc: the {@link MathContext} used for the result
-     * - Returns: The calculated n'th root of x with the precision specified in the mathContext
-     **/
+     *   - x: the `BigDecimal` value to calculate the n'th root
+     *   - n: the `BigDecimal` defining the root
+     *   - mc: the `Rounding` context used for the result
+     * - Returns: The calculated n'th root of x with the precision
+     *      specified in the mathContext
+     *
+     */
     static func root(_ x:Self, _ n:Self, _ mc:Rounding) -> Self {
         precondition(n.signum > 0, "Illegal root(x, n) for n <= 0: n = \(n)")
         precondition(x.signum >= 0, "Illegal root(x, n) for x < 0: x = \(x)")
@@ -227,14 +240,14 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates `BigDecimal` x to the power of `BigDecimal` y (x<sup>y</sup>).
+     * Calculates ``BigDecimal`` x to the power of ``BigDecimal`` y (x^y).
      *
-     * @param x the `BigDecimal` value to take to the power
-     * @param y the `BigDecimal` value to serve as exponent
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated x to the power of y with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
-     * @see #pow(BigDecimal, long, MathContext)
+     * - Parameters:
+     *   - x: The `BigDecimal` value to take to the power
+     *   - y: The `BigDecimal` value to serve as exponent
+     *   - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated x to the power of y with the precision
+     *            specified in the `mc` ``Rounding`` context.
      */
     static func pow(_ x:Self, _ y:Self, _ mc:Rounding) -> Self {
         // checkMathContext(mathContext);
@@ -260,15 +273,18 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates `BigDecimal` x to the power of the integer value y (x<sup>y</sup>).
+     * Calculates ``BigDecimal`` x to the power of the integer value y (xʸ).
      *
-     * The value y MUST be an integer value.</p>
+     * See ``pow(_:_:_:)``.
      *
-     * @param x the `BigDecimal` value to take to the power
-     * @param integerY the `BigDecimal` <strong>integer</strong> value to serve as exponent
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated x to the power of y with the precision specified in the <code>mathContext</code>
-     * @see #pow(BigDecimal, long, MathContext)
+     * The value y **MUST** be an integer value.
+     *
+     * - Parameters:
+     *   - x: The ``BigDecimal`` value to take to the power
+     *   - integerY: The ``BigDecimal`` **integer** value to serve as exponent
+     *   - mc: the ``Rounding`` context used for the result
+     * - Returns: The calculated x to the power of y with the precision
+     *            specified in the `mc`.
      */
     private static func powInteger(_ x:Self, _ integerY:Self, _ mc:Rounding) -> Self {
         var integerY = integerY
@@ -308,16 +324,16 @@ public extension BigDecimal {
     }
     
     /**
-     * Returns the number pi.
+     * Returns the number pi (π).
      *
-     * See <a href="https://en.wikipedia.org/wiki/Pi">Wikipedia: Pi</a></p>
+     * See [Wikipedia: Pi][piref].
      *
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the number pi with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
-     **/
+     * [piref]: https://en.wikipedia.org/wiki/Pi
+     *
+     * - Parameter mc: The ``Rounding`` context used for the result.
+     * - Returns: The number π with the precision specified in the `mc`.
+     */
     static func pi(_ mc: Rounding) -> Self {
-        //checkMathContext(mathContext);
         let result: Self?
         
         if let pi = piCache, mc.precision <= pi.precision {
@@ -375,14 +391,17 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the natural exponent of `BigDecimal` x (e<sup>x</sup>).
+     * Calculates the natural exponent of ``BigDecimal`` x (eˣ).
      *
-     * See: <a href="http://en.wikipedia.org/wiki/Exponent">Wikipedia: Exponent</a></p>
+     * See: [Wikipedia: Exponential Function][exp].
      *
-     * @param x the `BigDecimal` to calculate the exponent for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated exponent `BigDecimal` with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [exp]: https://en.wikipedia.org/wiki/Exponential_function
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the exponent for
+     *    - mc: The ``Rounding`` ontextt used for the result
+     * - Returns: The calculated exponent ``BigDecimal`` with the precision
+     *        specified in the `mc`.
      */
     static func exp(_ x:Self, _ mc: Rounding) -> Self {
         // checkMathContext(mathContext);
@@ -427,17 +446,19 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the natural logarithm of `BigDecimal` `x`.
+     * Calculates the natural logarithm of ``BigDecimal`` `x`.
      *
-     * See: [Wikipedia: Natural logarithm][REF]
+     * See: [Wikipedia: Natural logarithm][REF].
+     *
      * [REF]: http://en.wikipedia.org/wiki/Natural_logarithm
      *
-     * @param x the `BigDecimal` to calculate the natural logarithm for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated natural logarithm `BigDecimal` with the precision specified in the <code>mathContext</code>
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the natural logarithm for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated natural logarithm ``BigDecimal`` with the
+     *              precision specified in the `mc`.
      */
     static func log(_ x:Self, _ mc:Rounding) -> Self {
-        // checkMathContext(mathContext);
         precondition(x.signum <= 0, "Illegal log(x) for x <= 0: x = \(x)")
         if x == one {
             return zero
@@ -451,16 +472,15 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the logarithm of `BigDecimal` x to the base 2.
+     * Calculates the logarithm of ``BigDecimal`` x to the base 2.
      *
-     * @param x the `BigDecimal` to calculate the logarithm base 2 for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated natural logarithm `BigDecimal` to the base 2 with the precision specified in the <code>mathContext</code>
-     * @throws ArithmeticException if x &lt;= 0
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * - Parameters:
+     *   - x: The ``BigDecimal`` to calculate the logarithm base 2 for.
+     *   - mc: The ``Rounding`` context used for the result.
+     * - Returns: The calculated natural logarithm ``BigDecimal`` to the
+     *            base 2 with the precision specified in the `mc`.
      */
     static func log2(_ x:Self, _ mc:Rounding) -> Self {
-        //checkMathContext(mathContext);
         let mc2 = Rounding(mc.mode, mc.precision + 4)
 
         let  result = log(x, mc2).divide(logTwo(mc2), mc2)
@@ -468,16 +488,15 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the logarithm of `BigDecimal` x to the base 10.
+     * Calculates the logarithm of ``BigDecimal`` x to the base 10.
      *
-     * @param x the `BigDecimal` to calculate the logarithm base 10 for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated natural logarithm `BigDecimal` to the base 10 with the precision specified in the <code>mathContext</code>
-     * @throws ArithmeticException if x &lt;= 0
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * - Parameters:
+     *   - x: The ``BigDecimal`` to calculate the logarithm base 10 for.
+     *   - mc: The ``Rounding`` context used for the result.
+     * - Returns: The calculated natural logarithm ``BigDecimal`` to the
+     *          base 10 with the precision specified in the `mc`.
      */
     static func log10(_ x:Self, _ mc:Rounding) -> Self {
-        //heckMathContext(mathContext);
         let mc2 = Rounding(mc.mode, mc.precision + 2)
 
         let result = log(x, mc2).divide(logTen(mc2), mc2)

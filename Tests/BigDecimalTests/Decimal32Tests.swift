@@ -5078,8 +5078,7 @@ final class Decimal32Tests: XCTestCase {
     
     func checkValues(_ test: TestCase, _ x: UInt128, _ s: Status,
                      _ msg: String) {
-      let pass1 = test.reshi == x >> 64 && test.reslo == x &
-                                      UInt128(0xFFFFFFFF_FFFFFFFF)
+      let pass1 = test.reshi == x >> 64 && test.reslo == x & UInt128.max
       let pass2 = true // test.status == s
       XCTAssert(pass1, "Expected: " + msg)
       XCTAssert(pass2, "[\(test.status)] != [\(s)]")
@@ -5130,8 +5129,8 @@ final class Decimal32Tests: XCTestCase {
               if testID == 70 {
                   print(getNumber(test.istr))
               }
-          let t1 = getNumber(test.istr)
-          let t1f = Float(t1, round: test.roundMode)
+              let t1 = getNumber(test.istr)
+              let t1f = Float(t1, round: test.roundMode)
           let d1 = Float(bitPattern: UInt32(test.res))
           let error = "\(d1) != \(t1f)"
           checkValues(test, UInt64(t1f.bitPattern), state, error)

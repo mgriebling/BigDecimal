@@ -28,8 +28,7 @@ import BigInt
 /// the operation, and convert back to Decimal128 format.
 public struct Decimal128 : DecimalType, Codable, Hashable {    
     // Decimal64 characteristics
-    static let largestNumber =
-    UInt128(9_999_999_999_999_999_999_999_999_999_999_999)
+    static let largestNumber = UInt128("9999999999999999999999999999999999")!
     static let exponentBias   = 6176
     static let maxExponent    = 6111
     static let exponentBits   = 14
