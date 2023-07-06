@@ -13,6 +13,7 @@ public extension BigDecimal {
     static private let expectedInitialPrecision = 15
     static private let oneHalf = BigDecimal(0.5)
     static private let doubleMax = BigDecimal(Double.greatestFiniteMagnitude)
+    static private let roughly2Pi = BigDecimal(Double.pi * 2)
     
     /// Creates a BigDecimal for the integer _n_ where the
     /// integer can be any type conforming to the _BinaryInteger_ protocols.
@@ -438,11 +439,186 @@ public extension BigDecimal {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
 
         let x = x.divide(BigDecimal(256), mc2)
-  // FIXME: - Need ExpCalculator
-//        var result = ExpCalculator.INSTANCE.calculate(x, mc2);
-//        result = BigDecimalMath.pow(result, 256, mc2);
-        let result = x
+        var result = ExpCalculator.instance.calculate(x, mc2)
+        result = Self.pow(result, 256, mc2)
         return result.round(mc)
+    }
+    
+    /**
+     * Calculates the sine (sinus) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Sine">Wikipedia: Sine</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the sine for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated sine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func sin(_ x:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 6)
+        var x = x
+
+        if x.abs.compare(roughly2Pi) > 0 {
+            let mc3 = Rounding(mc.mode, mc2.precision + 4)
+            let twoPi = pi(mc3) * 2
+            x = x.quotientAndRemainder(twoPi).remainder
+        }
+
+        let result = SinCalculator.instance.calculate(x, mc2);
+        return result.round(mc)
+    }
+    
+    /**
+     * Calculates the arc sine (inverted sine) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Arcsine">Wikipedia: Arcsine</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the arc sine for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated arc sine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws ArithmeticException if x &gt; 1 or x &lt; -1
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func asin(_ x:Self, _ mc:Rounding) -> Self {
+        precondition(x.compare(one) > 0, "Illegal asin(x) for x > 1: x = \(x)")
+        precondition(x.compare(-1) < 0, "Illegal asin(x) for x < -1: x = \(x)")
+        
+        if x.signum == -1 {
+            return -asin(-x, mc)
+        }
+        
+        let mc2 = Rounding(mc.mode, mc.precision + 6)
+
+        if x.compare(BigDecimal(0.707107)) >= 0 {
+            let xTransformed = sqrt(one - x * x, mc2)
+            return acos(xTransformed, mc)
+        }
+
+        let result = AsinCalculator.instance.calculate(x, mc)
+        return result.round(mc)
+    }
+    
+    /**
+     * Calculates the cosine of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Cosine">Wikipedia: Cosine</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the cosine for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated cosine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func cos(_ x:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 6)
+    
+        var x = x
+        if x.abs.compare(roughly2Pi) > 0 {
+            let mc3 = Rounding(mc.mode, mc2.precision + 4)
+            let twoPi = pi(mc3) * 2
+            x = x.quotientAndRemainder(twoPi).remainder
+        }
+        
+        let result = CosCalculator.instance.calculate(x, mc2)
+        return result.round(mc)
+    }
+
+    /**
+     * Calculates the arc cosine (inverted cosine) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Arccosine">Wikipedia: Arccosine</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the arc cosine for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated arc sine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws ArithmeticException if x &gt; 1 or x &lt; -1
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func acos(_ x:Self, _ mc:Rounding) -> Self {
+        precondition(x.compare(one) > 0, "Illegal acos(x) for x > 1: x = \(x)")
+        precondition(x.compare(-1) < 0, "Illegal acos(x) for x < -1: x = \(x)")
+
+        let mc2 = Rounding(mc.mode, mc.precision + 6)
+
+        let result = pi(mc2).divide(2, mc2) - asin(x, mc2)
+        return result.round(mc)
+    }
+    
+    /**
+     * Calculates the tangent of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Tangens">Wikipedia: Tangens</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the tangens for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated tangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func tan(_ x:Self, _ mc:Rounding) -> Self {
+        if x.signum == 0 { return zero }
+
+        let mc2 = Rounding(mc.mode, mc.precision + 4)
+        let result = sin(x, mc2).divide(cos(x, mc2), mc2)
+        return result.round(mc)
+    }
+    
+    /**
+     * Calculates the arc tangent (inverted tangent) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Arctangens">Wikipedia: Arctangens</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the arc tangens for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated arc tangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func atan(_ x:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 6)
+
+        var x = x
+        x = x.divide(sqrt(one + x.multiply(x, mc2), mc2), mc2)
+
+        let result = asin(x, mc2)
+        return result.round(mc)
+    }
+    
+    /**
+     * Calculates the arc tangent (inverted tangent) of {@link BigDecimal} y / x in the range -<i>pi</i> to <i>pi</i>.
+     *
+     * <p>This is useful to calculate the angle <i>theta</i> from the conversion of rectangular
+     * coordinates (<code>x</code>,&nbsp;<code>y</code>) to polar coordinates (r,&nbsp;<i>theta</i>).</p>
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Atan2">Wikipedia: Atan2</a></p>
+     *
+     * @param y the {@link BigDecimal}
+     * @param x the {@link BigDecimal}
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated arc tangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws ArithmeticException if x = 0 and y = 0
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func atan(_ x:Self, _ y:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 3)
+
+        if x.signum > 0 { // x > 0
+            return atan(y.divide(x, mc2), mc)
+        } else if x.signum < 0 {
+            if y.signum > 0 {  // x < 0 && y > 0
+                return atan(y.divide(x, mc2), mc2).add(pi(mc2), mc)
+            } else if y.signum < 0 { // x < 0 && y < 0
+                return atan(y.divide(x, mc2), mc2).subtract(pi(mc2), mc)
+            } else { // x < 0 && y = 0
+                return pi(mc)
+            }
+        } else {
+            if y.signum > 0 { // x == 0 && y > 0
+                return pi(mc2).divide(2, mc)
+            } else if (y.signum < 0) {  // x == 0 && y < 0
+                return -pi(mc2).divide(2, mc)
+            } else {
+                assertionFailure("Illegal atan2(y, x) for x = 0; y = 0")
+                return 0
+            }
+        }
     }
     
     /**
@@ -664,3 +840,4 @@ public extension BigDecimal {
         }
     }
 }
+
