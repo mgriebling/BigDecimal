@@ -1,13 +1,23 @@
-/**
- * Calculates cosinus using the Maclaurin series.
- *
- * <p>See <a href="https://de.wikipedia.org/wiki/Taylorreihe">Wikipedia: Taylorreihe</a></p>
- *
- * <p>No argument checking or optimizations are done.
- * This implementation is <strong>not</strong> intended to be called directly.</p>
- */
+
+//
+//  CosCalculator.swift
+//
+//
+//  Created by Mike Griebling on 07.07.2023.
+//
+
 import BigInt
 
+/**
+ * Calculates cosine using the Maclaurin/Taylor series.
+ *
+ * See Wikipedia: [Taylor Series][tser].
+ *
+ * [tser]: https://en.wikipedia.org/wiki/Taylor_series
+ *
+ * No argument checking or optimizations are done.
+ * This implementation is **not** intended to be called directly.
+ */
 public struct CosCalculator : SeriesCalculator {
     public var calculateInPairs: Bool
     public var factors: [BigInt.BFraction]

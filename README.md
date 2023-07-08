@@ -1,4 +1,4 @@
-# ``BigDecimal``
+# BigDecimal
 
 The BigDecimal package provides arbitrary-precision (with an adjustable upper
 limit for performance) and fixed-precision decimal arithmetic in Swift.
@@ -7,7 +7,8 @@ Its functionality falls in the following categories:
 - Arithmetic: addition, subtraction, multiplication, division, remainder and 
   exponentiation
 - Constants: pi, zero, one, ten
-- Functions: *Coming Soon* (e.g. exp, log, pow, trig)
+- Functions: exp, log, log10, log2, pow, sqrt, root, factorial, gamma, 
+             trig + inverse, hyperbolic + inverse
 - Rounding and scaling according to one of the rounding modes:
     - awayFromZero
     - down
@@ -15,7 +16,6 @@ Its functionality falls in the following categories:
     - toNearestOrEven
     - toNearestOrAwayFromZero
     - up
-
 - Comparison: the six standard operators `==`, `!=`, `<`, `<=`, `>`, and `>=`
 - Conversion: to String, to Double, to Decimal (the Swift Foundation type), to 
   Decimal32 / Decimal64 / Decimal128

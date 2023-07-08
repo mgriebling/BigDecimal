@@ -4,8 +4,19 @@
 //
 //  Created by Mike Griebling on 06.07.2023.
 //
+
 import BigInt
 
+/**
+ * Calculates exp using the Maclaurin/Taylor series.
+ *
+ * See Wikipedia: [Taylor Series][tser].
+ *
+ * [tser]: https://en.wikipedia.org/wiki/Taylor_series
+ *
+ * No argument checking or optimizations are done.
+ * This implementation is **not** intended to be called directly.
+ */
 public struct ExpCalculator : SeriesCalculator {    
     public static var instance = ExpCalculator()
     

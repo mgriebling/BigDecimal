@@ -11,12 +11,6 @@ import BigInt
 
 class TestOperations: XCTestCase {
 
-    func testPi() throws {
-        let pi = BigDecimal.pi(Rounding.decimal128)
-        XCTAssertEqual(pi.description,"3.141592653589793238462643383279503")
-        XCTAssertEqual(Decimal32.pi.description, "3.141593")
-    }
-    
     func testMathFunctions() throws {
         let fact1000s =
         """
@@ -62,6 +56,10 @@ class TestOperations: XCTestCase {
         let decimal128 = Rounding.decimal128
         let decimal138 = Rounding(decimal128.mode, decimal128.precision+10)
         
+        let pi = BigDecimal.pi(Rounding.decimal128)
+        XCTAssertEqual(pi.description,"3.141592653589793238462643383279503")
+        XCTAssertEqual(Decimal32.pi.description, "3.141593")
+        
         let sqrt1 = BigDecimal.sqrt(BigDecimal.one, decimal128)
         XCTAssertEqual(sqrt1, BigDecimal.one)
         
@@ -92,10 +90,14 @@ class TestOperations: XCTestCase {
         let fact1000limited = BigDecimal.factorial(1000, decimal128)
         XCTAssertEqual(fact1000limited.description,
                        "4.023872600770937735437024339230040E+2567")
-        print(fact1000limited)
-        
+
         let gammaHalf = BigDecimal.gamma(BigDecimal("0.5"), decimal128)
-        print(gammaHalf)
+        XCTAssertEqual(gammaHalf.description,
+                       "1.772453850905516027298167483341145") // sqrt(pi)
+        
+        let gammaQuarter = BigDecimal.gamma(BigDecimal("0.25"), decimal128)
+        XCTAssertEqual(gammaQuarter.description,
+                       "3.625609908221908311930685155867672")
         
         let ln10 = BigDecimal.log(BigDecimal.ten, decimal128)
         XCTAssertEqual(ln10.description, "2.302585092994045684017991454684364")

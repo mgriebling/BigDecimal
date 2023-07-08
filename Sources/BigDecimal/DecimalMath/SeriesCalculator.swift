@@ -15,32 +15,35 @@ public protocol SeriesCalculator {
     var factors: [BigInt.BFraction] { get set }
     
     /**
-     * Constructs a {@link SeriesCalculator} with control over whether the sum terms are calculated in pairs.
+     * Constructs a ``SeriesCalculator`` with control over whether the sum
+     * terms are calculated in pairs.
      *
-     * <p>Calculation of pairs is useful for taylor series where the terms alternate the sign.
-     * In these cases it is more efficient to calculate two terms at once check then whether the acceptable error has been reached.</p>
+     * Calculation of pairs is useful for taylor series where the terms alternate the sign.
+     * In these cases it is more efficient to calculate two terms at once check then whether the acceptable error has been reached.
      *
-     * @param calculateInPairs <code>true</code> to calculate the terms in pairs, <code>false</code> to calculate single terms
+     * - Parameter calculateInPairs: Set to `true` to calculate the terms in pairs, `false` to calculate single terms
      */
+    init(_ calculateInPairs: Bool)
     init()
     
-    init(_ calculateInPairs: Bool)
-    
     /**
-     * Calculates the series for the specified value x and the precision defined in the {@link MathContext}.
+     * Calculates the series for the specified value x and the precision
+     * defined in the ``Rounding`` context.
      *
-     * @param x the value x
-     * @param mathContext the {@link MathContext}
-     * @return the calculated result
+     * - Parameters:
+     *   - x: The value x
+     *   - mc: The ``Rounding`` context
+     * - Returns: The calculated result
      */
     mutating func calculate(_ x: BigDecimal, _ mc: Rounding) -> BigDecimal
     
     /**
-     * Creates the {@link PowerIterator} used for this series.
+     * Creates the ``PowerIterator`` used for this series.
      *
-     * @param x the value x
-     * @param mathContext the {@link MathContext}
-     * @return the {@link PowerIterator}
+     * - Parameters:
+     *    - x: the value x
+     *    - mc: the ``Rounding`` context
+     * - Returns:the ``PowerIterator``
      */
     func createPowerIterator(_ x: BigDecimal, _ mc: Rounding) -> PowerIterator
     
@@ -50,8 +53,8 @@ public protocol SeriesCalculator {
      * All mutable state of this class (and all its subclasses) must be modified in this method.
      * This method is synchronized to allow thread-safe usage of this class.
      *
-     * @param index the index (starting with 0)
-     * @return the factor of the specified term
+     * - Parameter index: The index (starting with 0)
+     * - Returns: The factor of the specified term
      */
     mutating func getFactor(_ index: Int) -> BigRational
 
@@ -59,10 +62,10 @@ public protocol SeriesCalculator {
 
     /**
      * Returns the factor of the highest term already calculated.
-     * <p>When called for the first time will return the factor of the first term (index 0).</p>
-     * <p>After this call the method {@link #calculateNextFactor()} will be called to prepare for the next term.</p>
+     * When called for the first time will return the factor of the first term (index 0).
+     * After this call the method ``calculateNextFactor()`` will be called to prepare for the next term.
      *
-     * @return the factor of the highest term
+     * - Returns: The factor of the highest term
      */
     func getCurrentFactor() -> BigRational
     
@@ -128,7 +131,7 @@ public protocol PowerIterator {
     /**
      * Returns the current power.
      *
-     * @return the current power.
+     * - Returns: the current power.
      */
     func getCurrentPower() -> BigDecimal
     
@@ -157,7 +160,7 @@ public struct PowerNIterator : PowerIterator {
 }
 
 /**
- * {@link PowerIterator} to calculate x<sup>2*n+1</sup>.
+ * ``PowerIterator`` to calculate the 2*n+1 term.
  */
 public struct PowerTwoNPlusOneIterator : PowerIterator {
 
@@ -179,7 +182,7 @@ public struct PowerTwoNPlusOneIterator : PowerIterator {
 }
 
 /**
- * {@link PowerIterator} to calculate x<sup>2*n</sup>.
+ * ``PowerIterator`` to calculate the 2*n term.
  */
 public struct PowerTwoNIterator : PowerIterator {
 

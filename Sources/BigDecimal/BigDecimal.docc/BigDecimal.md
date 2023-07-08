@@ -7,7 +7,8 @@ Its functionality falls in the following categories:
 - Arithmetic: addition, subtraction, multiplication, division, remainder and 
   exponentiation
 - Constants: pi, zero, one, ten
-- Functions: *Coming Soon* (e.g. exp, log, pow, trig)
+- Functions: exp, log, log10, log2, pow, sqrt, root, factorial, gamma, 
+             trig + inverse, hyperbolic + inverse
 - Rounding and scaling according to one of the rounding modes:
     - awayFromZero
     - down

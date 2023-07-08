@@ -8,12 +8,14 @@
 import BigInt
 
 /**
- * Calculates sine using the Maclaurin series.
+ * Calculates sine using the Maclaurin/Taylor series.
  *
- * <p>See <a href="https://de.wikipedia.org/wiki/Taylorreihe">Wikipedia: Taylorreihe</a></p>
+ * See Wikipedia: [Taylor Series][tser].
  *
- * <p>No argument checking or optimizations are done.
- * This implementation is <strong>not</strong> intended to be called directly.</p>
+ * [tser]: https://en.wikipedia.org/wiki/Taylor_series
+ *
+ * No argument checking or optimizations are done.
+ * This implementation is **not** intended to be called directly.
  */
 public struct SinCalculator : SeriesCalculator {
     public var calculateInPairs: Bool
