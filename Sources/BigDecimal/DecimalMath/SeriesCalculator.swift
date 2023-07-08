@@ -22,6 +22,8 @@ public protocol SeriesCalculator {
      *
      * @param calculateInPairs <code>true</code> to calculate the terms in pairs, <code>false</code> to calculate single terms
      */
+    init()
+    
     init(_ calculateInPairs: Bool)
     
     /**
@@ -72,7 +74,10 @@ public protocol SeriesCalculator {
 
 extension SeriesCalculator {
     
-    public init() { self.init(false) }
+    public init(_ calculateInPairs: Bool) {
+        self.init()
+        self.calculateInPairs = calculateInPairs
+    }
     
     public mutating func calculate(_ x: BigDecimal, _ mc: Rounding) -> BigDecimal {
         let acceptableError = BigDecimal(1, -(mc.precision+1))
@@ -82,16 +87,14 @@ extension SeriesCalculator {
         var step: BigDecimal
         var i = 0
         repeat {
-            var factor: BigRational
-            var xToThePower: BigDecimal
+            var factor = getFactor(i)
+            var xToThePower = powerIterator.getCurrentPower()
             
-            factor = getFactor(i)
-            xToThePower = powerIterator.getCurrentPower()
             powerIterator.calculateNextPower()
             step = (BigDecimal(factor.numerator) * xToThePower).divide(factor.denominator, mc)
             i+=1
             
-            if (calculateInPairs) {
+            if calculateInPairs {
                 factor = getFactor(i);
                 xToThePower = powerIterator.getCurrentPower();
                 powerIterator.calculateNextPower();
@@ -101,7 +104,6 @@ extension SeriesCalculator {
             }
             
             sum = sum + step
-            //System.out.println(sum + " " + step);
         } while step.abs.compare(acceptableError) > 0
         
         return sum.round(mc)

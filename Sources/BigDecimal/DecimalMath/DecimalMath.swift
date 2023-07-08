@@ -10,8 +10,11 @@ import Foundation
 
 public extension BigDecimal {
     
+    typealias BigRational = BigInt.BFraction
+    
     static private let expectedInitialPrecision = 15
     static private let oneHalf = BigDecimal(0.5)
+    static private let oneHundredEighty = BigDecimal(180)
     static private let doubleMax = BigDecimal(Double.greatestFiniteMagnitude)
     static private let roughly2Pi = BigDecimal(Double.pi * 2)
     
@@ -19,11 +22,11 @@ public extension BigDecimal {
     /// integer can be any type conforming to the _BinaryInteger_ protocols.
     init<T:BinaryInteger>(_ int: T) {
         var x = Self.zero, m = Self.one
-        var n = int.magnitude, r = T.Magnitude.zero
-        let base = 1_000_000_000, rd = Self(base), id = T(base)
+        var n = BInt(int.magnitude), r = BInt.zero
+        let base = 1_000_000_000, rd = Self(base), id = BInt(base)
         while n != 0 {
-            (n, r) = n.quotientAndRemainder(dividingBy: id.magnitude)
-            if r != 0 { x.addProduct(m, Self(r)) }
+            (n, r) = n.quotientAndRemainder(dividingBy: id)
+            if r != 0 { x = x.addingProduct(m, Self(r)) }
             m *= rd
         }
         self = int.signum() < 0 ? -x : x
@@ -56,6 +59,7 @@ public extension BigDecimal {
      * - Returns: `true` if the value can be represented as `Int` value
      */
     static func isIntValue(_ value:Self) -> Bool {
+        if !fractionalPart(value).isZero { return false }
         if value > BigDecimal(Int.max) {
             return false
         }
@@ -120,6 +124,176 @@ public extension BigDecimal {
      */
     static func fractionalPart(_ value:Self) -> Self {
         return value - integralPart(value)
+    }
+    
+    private static var factorialCache: [BigDecimal] = {
+        let initialSize = 100
+        var cache = [BigDecimal](); cache.reserveCapacity(initialSize)
+        var result = one
+        cache.append(result)
+        for i in 1..<initialSize {
+            result = result * BigDecimal(i)
+            cache.append(result)
+        }
+        return cache
+    }()
+    
+    static func factorial(_ n: Int) -> BigDecimal {
+        precondition(n >= 0, "Illegal factorial(n) for n < 0: n = \(n)")
+        
+        if n < factorialCache.count { return factorialCache[n] }
+        
+        // fill up cache with more values
+        let result = factorialCache[factorialCache.count - 1]
+        return result * factorialRecursion(factorialCache.count, n)
+    }
+    
+    private static func factorialLoop(_ n1: Int, _ n2: Int) -> BigDecimal  {
+        let limit = Int.max / n2
+        var n1 = n1
+        var accu = 1
+        var result = BigDecimal.one
+        while n1 <= n2 {
+            if accu <= limit {
+                accu *= n1
+            } else {
+                result = result * BigDecimal(accu)
+                accu = n1
+            }
+            n1 += 1
+        }
+        return result * BigDecimal(accu)
+    }
+    
+    private static func factorialRecursion(_ n1: Int, _ n2: Int) -> BigDecimal {
+        let threshold = n1 > 200 ? 80 : 150
+        if n2 - n1 < threshold {
+            return factorialLoop(n1, n2)
+        }
+        let mid = (n1 + n2) >> 1
+        return factorialRecursion(mid + 1, n2) * factorialRecursion(n1, mid)
+    }
+    
+    /**
+     * Calculates the factorial of the specified {@link BigDecimal}.
+     *
+     * <p>This implementation uses
+     * <a href="https://en.wikipedia.org/wiki/Spouge%27s_approximation">Spouge's approximation</a>
+     * to calculate the factorial for non-integer values.</p>
+     *
+     * <p>This involves calculating a series of constants that depend on the desired precision.
+     * Since this constant calculation is quite expensive (especially for higher precisions),
+     * the constants for a specific precision will be cached
+     * and subsequent calls to this method with the same precision will be much faster.</p>
+     *
+     * <p>It is therefore recommended to do one call to this method with the standard precision of your application during the startup phase
+     * and to avoid calling it with many different precisions.</p>
+     *
+     * <p>See: <a href="https://en.wikipedia.org/wiki/Factorial#Extension_of_factorial_to_non-integer_values_of_argument">Wikipedia: Factorial - Extension of factorial to non-integer values of argument</a></p>
+     *
+     * @param x the {@link BigDecimal}
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the factorial {@link BigDecimal}
+     * @throws ArithmeticException if x is a negative integer value (-1, -2, -3, ...)
+     * @throws UnsupportedOperationException if x is a non-integer value and the {@link MathContext} has unlimited precision
+     * @see #factorial(int)
+     * @see #gamma(BigDecimal, MathContext)
+     */
+    static func factorial(_ x: Self, _ mc: Rounding) -> Self  {
+        if isIntValue(x) {
+            return factorial(x.asInt()!).round(mc)
+        }
+
+        // https://en.wikipedia.org/wiki/Spouge%27s_approximation
+        let mc2 = Rounding(mc.mode, mc.precision << 1)
+
+        let a = mc.precision * 13 / 10
+        let constants = getSpougeFactorialConstants(a)
+
+        let bigA = BigDecimal(a)
+
+        var negative = false
+        var factor = constants[0]
+        for k in 1..<a {
+            let bigK = BigDecimal(k)
+            factor = factor + constants[k].divide(x + bigK, mc2)
+            negative = !negative
+        }
+
+        var result = pow(x + bigA, x + oneHalf, mc2);
+        result = result * exp((-x) - bigA, mc2)
+        result = result * factor
+
+        return result.round(mc)
+    }
+    
+    private static var spougeFactorialConstantsCache = [Int: [BigDecimal]]()
+
+    static func getSpougeFactorialConstants(_ a: Int) -> [BigDecimal] {
+        if let constants = spougeFactorialConstantsCache[a] {
+            return constants
+        } else {
+            var constants = [BigDecimal](); constants.reserveCapacity(a)
+            let mc = Rounding(RoundingRule.toNearestOrEven, a * 15 / 10)
+            
+            let c0 = sqrt(pi(mc).multiply(2, mc), mc)
+            constants.append(c0)
+            
+            var negative = false
+            for k in 1..<a {
+                let bigK = BigDecimal(k)
+                let deltaAK = a - k
+                var ck = pow(BigDecimal(deltaAK), bigK - oneHalf, mc)
+                ck = ck.multiply(exp(BigDecimal(deltaAK), mc), mc)
+                ck = ck.divide(factorial(k - 1), mc)
+                if negative { ck.negate() }
+                constants.append(ck)
+                negative = !negative
+            }
+            spougeFactorialConstantsCache[a] = constants
+            return constants
+        }
+    }
+    
+    /**
+     * Calculates the gamma function of the specified {@link BigDecimal}.
+     *
+     * <p>This implementation uses {@link #factorial(BigDecimal, MathContext)} internally,
+     * therefore the performance implications described there apply also for this method.
+     *
+     * <p>See: <a href="https://en.wikipedia.org/wiki/Gamma_function">Wikipedia: Gamma function</a></p>
+     *
+     * @param x the {@link BigDecimal}
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the gamma {@link BigDecimal}
+     * @throws ArithmeticException if x-1 is a negative integer value (-1, -2, -3, ...)
+     * @throws UnsupportedOperationException if x is a non-integer value and the {@link MathContext} has unlimited precision
+     * @see #factorial(BigDecimal, MathContext)
+     */
+    static func gamma(_ x: Self, _ mc: Rounding) -> Self {
+        factorial(x - one, mc)
+    }
+    
+    /**
+     * Calculates the Bernoulli number for the specified index.
+     *
+     * <p>This function calculates the <strong>first Bernoulli numbers</strong> and therefore <code>bernoulli(1)</code> returns -0.5</p>
+     * <p>Note that <code>bernoulli(x)</code> for all odd x &gt; 1 returns 0</p>
+     * <p>See: <a href="https://en.wikipedia.org/wiki/Bernoulli_number">Wikipedia: Bernoulli number</a></p>
+     *
+     * @param n the index of the Bernoulli number to be calculated (starting at 0)
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the Bernoulli number for the specified index
+     * @throws ArithmeticException if x &lt; 0
+     * @throws ArithmeticException if the result is inexact but the
+     *         rounding mode is {@code UNNECESSARY} or
+     *         {@code mc.precision == 0} and the quotient has a
+     *         non-terminating decimal expansion.
+     */
+    static func bernoulli(_ n:Int, _ mc: Rounding) -> Self {
+        precondition(n >= 0, "Illegal bernoulli(n) for n < 0: n = \(n)")
+        let b = BigRational.bernoulli(n)
+        return BigDecimal(b.numerator).divide(b.denominator, mc)   //.toBigDecimal(mc)
     }
     
     /**
@@ -260,16 +434,17 @@ public extension BigDecimal {
         // TODO optimize y=0, y=1, y=10^k, y=-1, y=-10^k
 
         // try integral powers of y
-        if let longValue : Int = y.asInt() {
-            return x.pow(longValue)
-        } else if fractionalPart(y) == 0 {
-            return powInteger(x, y, mc)
+        if fractionalPart(y) == 0 {
+            if let longValue : Int = y.asInt() {
+                return x.pow(longValue).round(mc)
+            } else {
+                return powInteger(x, y, mc)
+            }
         }
 
         // x^y = exp(y*log(x))
         let mc2 = Rounding(mc.mode, mc.precision+6)
-        let result = exp(y.multiply(log(x, mc2), mc2), mc2)
-
+        let result = exp(y * log(x, mc2), mc2)
         return result.round(mc)
     }
     
@@ -290,8 +465,7 @@ public extension BigDecimal {
     private static func powInteger(_ x:Self, _ integerY:Self, _ mc:Rounding) -> Self {
         var integerY = integerY
         var x = x
-        let trunc = Rounding(.towardZero, 0)
-        if integerY != integerY.round(trunc) {
+        if integerY != integralPart(integerY) {
             assertionFailure("Not integer value: \(integerY)")
         }
         
@@ -306,7 +480,7 @@ public extension BigDecimal {
         while integerY.signum > 0 {
             var halfY = integerY.divide(TWO, mc2)
 
-            if halfY != halfY.round(trunc) {
+            if halfY != integralPart(halfY) {
                 // odd exponent -> multiply result with x
                 result = result.multiply(x, mc2)
                 integerY = integerY.subtract(one, mc2)
@@ -413,34 +587,26 @@ public extension BigDecimal {
 
     private static func expIntegralFractional(_ x:Self, _ mc:Rounding) -> Self {
         let integralPart = integralPart(x)
-        
         if integralPart.signum == 0 {
             return expTaylor(x, mc)
         }
         
         let fractionalPart = x - integralPart
-
         let mc2 = Rounding(mc.mode, mc.precision + 10)
 
         let z = one + fractionalPart.divide(integralPart, mc2)
         let t = expTaylor(z, mc2)
 
-        let result: Self
-        if let int : Int = integralPart.asInt() {
-            result = t.pow(int, mc2)
-        } else {
-            result = zero
-        }
-
+        let result = powInteger(t, integralPart, mc2)
         return result.round(mc)
     }
     
     private static func expTaylor(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
 
-        let x = x.divide(BigDecimal(256), mc2)
+        let x = x.divide(256, mc2)
         var result = ExpCalculator.instance.calculate(x, mc2)
-        result = Self.pow(result, 256, mc2)
+        result = powInteger(result, 256, mc2)
         return result.round(mc)
     }
     
@@ -480,8 +646,8 @@ public extension BigDecimal {
      * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
      */
     static func asin(_ x:Self, _ mc:Rounding) -> Self {
-        precondition(x.compare(one) > 0, "Illegal asin(x) for x > 1: x = \(x)")
-        precondition(x.compare(-1) < 0, "Illegal asin(x) for x < -1: x = \(x)")
+        precondition(x.compare(one) <= 0, "Illegal asin(x) for x > 1: x = \(x)")
+        precondition(x.compare(-1) >= 0, "Illegal asin(x) for x < -1: x = \(x)")
         
         if x.signum == -1 {
             return -asin(-x, mc)
@@ -534,8 +700,8 @@ public extension BigDecimal {
      * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
      */
     static func acos(_ x:Self, _ mc:Rounding) -> Self {
-        precondition(x.compare(one) > 0, "Illegal acos(x) for x > 1: x = \(x)")
-        precondition(x.compare(-1) < 0, "Illegal acos(x) for x < -1: x = \(x)")
+        precondition(x.compare(one) <= 0, "Illegal acos(x) for x > 1: x = \(x)")
+        precondition(x.compare(-1) >= 0, "Illegal acos(x) for x < -1: x = \(x)")
 
         let mc2 = Rounding(mc.mode, mc.precision + 6)
 
@@ -578,6 +744,7 @@ public extension BigDecimal {
         x = x.divide(sqrt(one + x.multiply(x, mc2), mc2), mc2)
 
         let result = asin(x, mc2)
+        print(result)
         return result.round(mc)
     }
     
@@ -622,6 +789,201 @@ public extension BigDecimal {
     }
     
     /**
+     * Calculates the cotangent of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Cotangens">Wikipedia: Cotangent</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the cotangens for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated cotanges {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws ArithmeticException if x = 0
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func cot(_ x:Self, _ mc:Rounding) -> Self {
+        precondition(x.signum != 0, "Illegal cot(x) for x = 0")
+
+        let mc2 = Rounding(mc.mode, mc.precision + 4)
+        let result = cos(x, mc2).divide(sin(x, mc2), mc2)
+        return result.round(mc)
+    }
+
+    /**
+     * Calculates the inverse cotangent (arc cotangent) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="http://en.wikipedia.org/wiki/Arccotangens">Wikipedia: Arccotangens</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the arc cotangens for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated arc cotangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func acot(_ x:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 4)
+        let result = pi(mc2).divide(2, mc2) - atan(x, mc2)
+        return result.round(mc)
+    }
+
+    /**
+     * Calculates the hyperbolic sine of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the hyperbolic sine for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated hyperbolic sine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func sinh(_ x:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 4)
+        let result = SinhCalculator.instance.calculate(x, mc2);
+        return result.round(mc)
+    }
+
+    /**
+     * Calculates the hyperbolic cosine of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the hyperbolic cosine for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated hyperbolic cosine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func cosh(_ x:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 4)
+        let result = CoshCalculator.instance.calculate(x, mc2)
+        return result.round(mc)
+    }
+
+    /**
+     * Calculates the hyperbolic tangens of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the hyperbolic tangens for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated hyperbolic tangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func tanh(_ x:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 6)
+        let result = sinh(x, mc).divide(cosh(x, mc2), mc2)
+        return result.round(mc)
+    }
+
+    /**
+     * Calculates the hyperbolic cotangens of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the hyperbolic cotangens for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated hyperbolic cotangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func coth(_ x:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 6)
+        let result = cosh(x, mc2).divide(sinh(x, mc2), mc2)
+        return result.round(mc)
+    }
+    
+    /**
+     * Calculates the arc hyperbolic sine (inverse hyperbolic sine) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the arc hyperbolic sine for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated arc hyperbolic sine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func asinh(_ x:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 10)
+        let result = log(x + sqrt(x.multiply(x, mc2).add(one, mc2), mc2), mc2)
+        return result.round(mc)
+    }
+    
+    /**
+     * Calculates the arc hyperbolic cosine (inverse hyperbolic cosine) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the arc hyperbolic cosine for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated arc hyperbolic cosine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func acosh(_ x:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 6)
+        let result = log(x + sqrt(x * x - one, mc2), mc2)
+        return result.round(mc)
+    }
+
+    /**
+     * Calculates the arc hyperbolic tangens (inverse hyperbolic tangens) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the arc hyperbolic tangens for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated arc hyperbolic tangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func atanh(_ x:Self, _ mc:Rounding) -> Self {
+        precondition(x.compare(one) < 0, "Illegal atanh(x) for x >= 1: x = \(x)")
+        precondition(x.compare(-one) > 0, "Illegal atanh(x) for x <= -1: x = \(x)")
+
+        let mc2 = Rounding(mc.mode, mc.precision + 6)
+        let result = log((one + x).divide(one - x, mc2), mc2) * oneHalf
+        return result.round(mc)
+    }
+
+    /**
+     * Calculates the arc hyperbolic cotangens (inverse hyperbolic cotangens) of {@link BigDecimal} x.
+     *
+     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     *
+     * @param x the {@link BigDecimal} to calculate the arc hyperbolic cotangens for
+     * @param mathContext the {@link MathContext} used for the result
+     * @return the calculated arc hyperbolic cotangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func acoth(_ x:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 6)
+        let result = log((x + one).divide(x - one, mc2), mc2) * oneHalf
+        return result.round(mc)
+    }
+    
+    /**
+     * Converts an angle measured in radians to an approximately equivalent angle measured in degrees.
+     * The conversion from radians to degrees is generally inexact, it uses the number PI with the precision specified in the mathContext.
+     * @param x An angle in radians.
+     * @param mathContext the {@link MathContext} used for the result
+     * @return The angle in degrees.
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func toDegrees(_ x:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 6)
+        let result = x.multiply(oneHundredEighty.divide(pi(mc2), mc2),  mc2)
+        return result.round(mc)
+    }
+
+     /**
+     * Converts an angle measured in degrees to an approximately equivalent angle measured in radians.
+     * The conversion from degrees to radians is generally inexact, it uses the number PI with the precision specified in the mathContext.
+     *
+     * @param x An angle in degrees.
+     * @param mathContext the {@link MathContext} used for the result
+     * @return The angle in radians.
+     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     */
+    static func toRadians(_ x:Self, _ mc:Rounding) -> Self {
+        let mc2 = Rounding(mc.mode, mc.precision + 6)
+        let result = x.multiply(pi(mc2).divide(oneHundredEighty, mc2), mc2)
+        return result.round(mc)
+    }
+    
+    /**
      * Calculates the natural logarithm of ``BigDecimal`` `x`.
      *
      * See: [Wikipedia: Natural logarithm][REF].
@@ -635,7 +997,7 @@ public extension BigDecimal {
      *              precision specified in the `mc`.
      */
     static func log(_ x:Self, _ mc:Rounding) -> Self {
-        precondition(x.signum <= 0, "Illegal log(x) for x <= 0: x = \(x)")
+        precondition(x.signum > 0, "Illegal log(x) for x <= 0: x = \(x)")
         if x == one {
             return zero
         }

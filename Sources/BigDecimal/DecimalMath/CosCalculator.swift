@@ -18,9 +18,9 @@ public struct CosCalculator : SeriesCalculator {
     private var negative = false
     private var factorial2n = BigRational.ONE
     
-    public init(_ calculateInPairs: Bool) {
-        self.init()
-        self.calculateInPairs = calculateInPairs
+    public init() {
+        self.factors = []
+        self.calculateInPairs = true
     }
     
     public func getCurrentFactor() -> BigRational {

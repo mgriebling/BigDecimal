@@ -26,9 +26,9 @@ public struct AsinCalculator : SeriesCalculator {
     private var factorialN = BigRational.ONE
     private var fourPowerN = BigRational.ONE
     
-    public init(_ calculateInPairs: Bool) {
-        self.init()
-        self.calculateInPairs = calculateInPairs
+    public init() {
+        self.factors = []
+        self.calculateInPairs = false
     }
     
     public func getCurrentFactor() -> BigRational {

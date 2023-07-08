@@ -6,7 +6,7 @@
 //
 import BigInt
 
-public struct ExpCalculator : SeriesCalculator {
+public struct ExpCalculator : SeriesCalculator {    
     public static var instance = ExpCalculator()
     
     public var calculateInPairs: Bool
@@ -15,8 +15,9 @@ public struct ExpCalculator : SeriesCalculator {
     private var n = 0
     private var oneOverFactorialOfN = BigRational.ONE
     
-    public init(_ calculateInPairs: Bool) {
-        self.calculateInPairs = calculateInPairs
+    public init() {
+        self.factors = []
+        self.calculateInPairs = false
     }
     
     public func createPowerIterator(_ x: BigDecimal, _ mc: Rounding) -> PowerIterator {

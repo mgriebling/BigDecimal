@@ -1,29 +1,29 @@
+
 //
-//  SinCalculator.swift
-//  
+//  CinhCalculator.swift
 //
-//  Created by Mike Griebling on 06.07.2023.
+//
+//  Created by Mike Griebling on 07.07.2023.
 //
 
 import BigInt
 
 /**
- * Calculates sine using the Maclaurin series.
+ * Calculates the hyperbolic cosine using the Taylor series.
  *
  * <p>See <a href="https://de.wikipedia.org/wiki/Taylorreihe">Wikipedia: Taylorreihe</a></p>
  *
  * <p>No argument checking or optimizations are done.
  * This implementation is <strong>not</strong> intended to be called directly.</p>
  */
-public struct SinCalculator : SeriesCalculator {
+public struct CoshCalculator : SeriesCalculator {
     public var calculateInPairs: Bool
     public var factors: [BigRational]
     
-    static var instance = SinCalculator()
+    static var instance = CoshCalculator()
     
     private var n = 0
-    private var negative = false
-    private var factorial2nPlus1 = BigRational.ONE
+    private var factorial2n = BigRational.ONE
     
     public init() {
         self.factors = []
@@ -31,21 +31,15 @@ public struct SinCalculator : SeriesCalculator {
     }
     
     public func getCurrentFactor() -> BigRational {
-        var factor = factorial2nPlus1.invert() // reciprocal?
-        if negative {
-            factor = -factor
-        }
-        return factor
+        factorial2n.invert() // reciprocal
     }
     
     public mutating func calculateNextFactor() {
         n+=1
-        factorial2nPlus1 = factorial2nPlus1 * BInt(2 * n)
-        factorial2nPlus1 = factorial2nPlus1 * BInt(2 * n + 1)
-        negative = !negative
+        factorial2n = factorial2n * BInt(2 * n - 1) * (2 * n)
     }
     
     public func createPowerIterator(_ x:BigDecimal, _ mc:Rounding) -> PowerIterator {
-        PowerTwoNPlusOneIterator(x, mc)
+        PowerTwoNIterator(x, mc)
     }
 }
