@@ -52,10 +52,9 @@ public extension BigDecimal {
      * Returns whether the specified ``BigDecimal`` value can be represented as
      * an `Int`.
      *
-     * If this returns `true` you can call ``asInt()`
-     * without fear of an `ArithmeticException`.
+     * If this returns `true` you can call ``asInt()`` without fear of an exception.
      *
-     * - Parameter value the ``BigDecimal`` to check
+     * - Parameter value: The ``BigDecimal`` to check
      * - Returns: `true` if the value can be represented as `Int` value
      */
     static func isIntValue(_ value:Self) -> Bool {
@@ -108,8 +107,8 @@ public extension BigDecimal {
      * Returns the integral part of the specified ``BigDecimal`` (left of
      * the decimal point). See ``fractionalPart(_:)``.
      *
-     * - Parameter value: the ``BigDecimal``
-     * - Returns: the integral part
+     * - Parameter value: The ``BigDecimal``
+     * - Returns: The integral part
      */
     static func integralPart(_ value:Self) -> Self {
         return value.withExponent(0, .down)
@@ -119,8 +118,8 @@ public extension BigDecimal {
      * Returns the fractional part of the specified `BigDecimal` (right of
      * the decimal point). See ``integralPart(_:)``.
      *
-     * - Parameter value: the ``BigDecimal``
-     * - Returns: the fractional part
+     * - Parameter value: The ``BigDecimal``
+     * - Returns: The fractional part
      */
     static func fractionalPart(_ value:Self) -> Self {
         return value - integralPart(value)
@@ -175,36 +174,38 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the factorial of the specified {@link BigDecimal}.
+     * Calculates the factorial of the specified ``BigDecimal``.
      *
-     * <p>This implementation uses
-     * <a href="https://en.wikipedia.org/wiki/Spouge%27s_approximation">Spouge's approximation</a>
-     * to calculate the factorial for non-integer values.</p>
+     * This implementation uses [Spouge's approximation][spge]
+     * to calculate the factorial for non-integer values.
      *
-     * <p>This involves calculating a series of constants that depend on the desired precision.
+     * This involves calculating a series of constants that depend on the desired precision.
      * Since this constant calculation is quite expensive (especially for higher precisions),
      * the constants for a specific precision will be cached
-     * and subsequent calls to this method with the same precision will be much faster.</p>
+     * and subsequent calls to this method with the same precision will be much faster.
      *
-     * <p>It is therefore recommended to do one call to this method with the standard precision of your application during the startup phase
-     * and to avoid calling it with many different precisions.</p>
+     * It is therefore recommended to do one call to this method with the
+     * standard precision of your application during the startup phase
+     * and to avoid calling it with many different precisions.
      *
-     * <p>See: <a href="https://en.wikipedia.org/wiki/Factorial#Extension_of_factorial_to_non-integer_values_of_argument">Wikipedia: Factorial - Extension of factorial to non-integer values of argument</a></p>
+     * See: [Wikipedia: Factorial][fact] - Extension of factorial to non-integer values of argument
      *
-     * @param x the {@link BigDecimal}
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the factorial {@link BigDecimal}
-     * @throws ArithmeticException if x is a negative integer value (-1, -2, -3, ...)
-     * @throws UnsupportedOperationException if x is a non-integer value and the {@link MathContext} has unlimited precision
-     * @see #factorial(int)
-     * @see #gamma(BigDecimal, MathContext)
+     * [fact]: https://en.wikipedia.org/wiki/Factorial#Extension_of_factorial_to_non-integer_values_of_argument
+     * [spge]: https://en.wikipedia.org/wiki/Spouge%27s_approximation
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal``
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The factorial ``BigDecimal``
+     * - Precondition: Requires x is a negative integer value (-1, -2, -3, ...)
+     *
+     * See ``factorial(_:)``, ``gamma(_:_:)``
      */
     static func factorial(_ x: Self, _ mc: Rounding) -> Self  {
         if isIntValue(x) {
             return factorial(x.asInt()!).round(mc)
         }
 
-        // https://en.wikipedia.org/wiki/Spouge%27s_approximation
         let mc2 = Rounding(mc.mode, mc.precision << 1)
 
         let a = mc.precision * 13 / 10
@@ -256,19 +257,22 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the gamma function of the specified {@link BigDecimal}.
+     * Calculates the gamma function of the specified ``BigDecimal``.
      *
-     * <p>This implementation uses {@link #factorial(BigDecimal, MathContext)} internally,
-     * therefore the performance implications described there apply also for this method.
+     * This implementation uses ``factorial(_:_:)`` internally,
+     * therefore the performance implications described there apply also
+     * for this method.
      *
-     * <p>See: <a href="https://en.wikipedia.org/wiki/Gamma_function">Wikipedia: Gamma function</a></p>
+     * See: [Wikipedia: Gamma function][gamma]
      *
-     * @param x the {@link BigDecimal}
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the gamma {@link BigDecimal}
-     * @throws ArithmeticException if x-1 is a negative integer value (-1, -2, -3, ...)
-     * @throws UnsupportedOperationException if x is a non-integer value and the {@link MathContext} has unlimited precision
-     * @see #factorial(BigDecimal, MathContext)
+     * [gamma]: https://en.wikipedia.org/wiki/Gamma_function
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal``
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The gamma ``BigDecimal``
+     * - Precondition: Requires x-1 is a negative integer value
+     *                 (-1, -2, -3, ...)
      */
     static func gamma(_ x: Self, _ mc: Rounding) -> Self {
         factorial(x - one, mc)
@@ -277,23 +281,24 @@ public extension BigDecimal {
     /**
      * Calculates the Bernoulli number for the specified index.
      *
-     * <p>This function calculates the <strong>first Bernoulli numbers</strong> and therefore <code>bernoulli(1)</code> returns -0.5</p>
-     * <p>Note that <code>bernoulli(x)</code> for all odd x &gt; 1 returns 0</p>
-     * <p>See: <a href="https://en.wikipedia.org/wiki/Bernoulli_number">Wikipedia: Bernoulli number</a></p>
+     * This function calculates the **first Bernoulli numbers** and therefore
+     * `bernoulli(1)` returns -0.5. Note that `bernoulli(x)` for all odd n > 1
+     * returns 0.
      *
-     * @param n the index of the Bernoulli number to be calculated (starting at 0)
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the Bernoulli number for the specified index
-     * @throws ArithmeticException if x &lt; 0
-     * @throws ArithmeticException if the result is inexact but the
-     *         rounding mode is {@code UNNECESSARY} or
-     *         {@code mc.precision == 0} and the quotient has a
-     *         non-terminating decimal expansion.
+     * See: [Wikipedia: Bernoulli number][bern]
+     *
+     * [bern]: https://en.wikipedia.org/wiki/Bernoulli_number
+     *
+     * - Parameters:
+     *    - n: the index of the Bernoulli number to be calculated (starting at 0)
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The Bernoulli number for the specified index
+     * - Precondition: Requires n ≥ 0
      */
     static func bernoulli(_ n:Int, _ mc: Rounding) -> Self {
         precondition(n >= 0, "Illegal bernoulli(n) for n < 0: n = \(n)")
         let b = BigRational.bernoulli(n)
-        return BigDecimal(b.numerator).divide(b.denominator, mc)   //.toBigDecimal(mc)
+        return BigDecimal(b.numerator).divide(b.denominator, mc)
     }
     
     /**
@@ -358,9 +363,9 @@ public extension BigDecimal {
      * [nsqrt]: https://en.wikipedia.org/wiki/Nth_root
      *
      * - Parameters:
-     *   - x: the `BigDecimal` value to calculate the n'th root
-     *   - n: the `BigDecimal` defining the root
-     *   - mc: the `Rounding` context used for the result
+     *   - x: The `BigDecimal` value to calculate the n'th root
+     *   - n: The `BigDecimal` defining the root
+     *   - mc: The `Rounding` context used for the result
      * - Returns: The calculated n'th root of x with the precision
      *      specified in the mathContext
      *
@@ -425,7 +430,6 @@ public extension BigDecimal {
      *            specified in the `mc` ``Rounding`` context.
      */
     static func pow(_ x:Self, _ y:Self, _ mc:Rounding) -> Self {
-        // checkMathContext(mathContext);
         if x.isZero {
             if y.isZero { return one }
             return zero
@@ -458,7 +462,7 @@ public extension BigDecimal {
      * - Parameters:
      *   - x: The ``BigDecimal`` value to take to the power
      *   - integerY: The ``BigDecimal`` **integer** value to serve as exponent
-     *   - mc: the ``Rounding`` context used for the result
+     *   - mc: The ``Rounding`` context used for the result
      * - Returns: The calculated x to the power of y with the precision
      *            specified in the `mc`.
      */
@@ -611,14 +615,17 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the sine (sinus) of {@link BigDecimal} x.
+     * Calculates the sine of ``BigDecimal`` x.
      *
-     * <p>See: <a href="http://en.wikipedia.org/wiki/Sine">Wikipedia: Sine</a></p>
+     * See [Wikipedia: Sine][sin]
      *
-     * @param x the {@link BigDecimal} to calculate the sine for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated sine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [sin]: https://en.wikipedia.org/wiki/Sine_and_cosine
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the sine for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated sine ``BigDecimal`` with the precision
+     *     specified in the `mc`
      */
     static func sin(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
@@ -635,15 +642,18 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the arc sine (inverted sine) of {@link BigDecimal} x.
+     * Calculates the arc sine (inverted sine) of ``BigDecimal`` x.
      *
-     * <p>See: <a href="http://en.wikipedia.org/wiki/Arcsine">Wikipedia: Arcsine</a></p>
+     * See: [Wikipedia: Arcsine][asine]
      *
-     * @param x the {@link BigDecimal} to calculate the arc sine for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated arc sine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws ArithmeticException if x &gt; 1 or x &lt; -1
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [asine]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the arc sine for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated arc sine ``BigDecimal`` with the precision
+     *      specified in the `mc`
+     * - Precondition: Requires x > 1 or x \< -1
      */
     static func asin(_ x:Self, _ mc:Rounding) -> Self {
         precondition(x.compare(one) <= 0, "Illegal asin(x) for x > 1: x = \(x)")
@@ -665,14 +675,17 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the cosine of {@link BigDecimal} x.
+     * Calculates the cosine of ``BigDecimal`` x.
      *
-     * <p>See: <a href="http://en.wikipedia.org/wiki/Cosine">Wikipedia: Cosine</a></p>
+     * See [Wikipedia: Cosine][cos]
      *
-     * @param x the {@link BigDecimal} to calculate the cosine for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated cosine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [cos]: https://en.wikipedia.org/wiki/Sine_and_cosine
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the cosine for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated cosine ``BigDecimal`` with the precision
+     *      specified in the `mc`
      */
     static func cos(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
@@ -689,15 +702,18 @@ public extension BigDecimal {
     }
 
     /**
-     * Calculates the arc cosine (inverted cosine) of {@link BigDecimal} x.
+     * Calculates the arccosine (inverted cosine) of ``BigDecimal`` x.
      *
-     * <p>See: <a href="http://en.wikipedia.org/wiki/Arccosine">Wikipedia: Arccosine</a></p>
+     * See: [Wikipedia: Arccosine][acos]
      *
-     * @param x the {@link BigDecimal} to calculate the arc cosine for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated arc sine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws ArithmeticException if x &gt; 1 or x &lt; -1
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [acos]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the arc cosine for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated arc sine ``BigDecimal`` with the precision
+     *          specified in the `mc`
+     * - Precondition: Requires x ≤ 1 or x ≥ -1
      */
     static func acos(_ x:Self, _ mc:Rounding) -> Self {
         precondition(x.compare(one) <= 0, "Illegal acos(x) for x > 1: x = \(x)")
@@ -710,14 +726,17 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the tangent of {@link BigDecimal} x.
+     * Calculates the tangent of ``BigDecimal`` x.
      *
-     * <p>See: <a href="http://en.wikipedia.org/wiki/Tangens">Wikipedia: Tangens</a></p>
+     * See: [Wikipedia: Tangent][tan]
      *
-     * @param x the {@link BigDecimal} to calculate the tangens for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated tangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [tan]: http://en.wikipedia.org/wiki/Tangent
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the tangens for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated tangens ``BigDecimal`` with the precision
+     *      specified in the `mc`
      */
     static func tan(_ x:Self, _ mc:Rounding) -> Self {
         if x.signum == 0 { return zero }
@@ -728,14 +747,17 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the arc tangent (inverted tangent) of {@link BigDecimal} x.
+     * Calculates the arc tangent (inverted tangent) of ``BigDecimal`` x.
      *
-     * <p>See: <a href="http://en.wikipedia.org/wiki/Arctangens">Wikipedia: Arctangens</a></p>
+     * See: [Wikipedia: Arc tangent][atan]
      *
-     * @param x the {@link BigDecimal} to calculate the arc tangens for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated arc tangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [atan]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the arc tangens for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated arc tangens ``BigDecimal`` with the precision
+     *      specified in the `mc`
      */
     static func atan(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
@@ -749,19 +771,22 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the arc tangent (inverted tangent) of {@link BigDecimal} y / x in the range -<i>pi</i> to <i>pi</i>.
+     * Calculates the arc tangent (inverted tangent) of ``BigDecimal`` y / x
+     * in the range -π to π.
      *
-     * <p>This is useful to calculate the angle <i>theta</i> from the conversion of rectangular
-     * coordinates (<code>x</code>,&nbsp;<code>y</code>) to polar coordinates (r,&nbsp;<i>theta</i>).</p>
+     * This is useful to calculate the angle *theta* from the conversion of
+     * rectangular coordinates (`x`,`y`) to polar coordinates (r, *theta*).
      *
-     * <p>See: <a href="http://en.wikipedia.org/wiki/Atan2">Wikipedia: Atan2</a></p>
+     * See: [Wikipedia: Atan2][atan2]
      *
-     * @param y the {@link BigDecimal}
-     * @param x the {@link BigDecimal}
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated arc tangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws ArithmeticException if x = 0 and y = 0
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [atan2]: http://en.wikipedia.org/wiki/Atan2
+     *
+     * - Parameters:
+     *    - y: The ``BigDecimal``
+     *    - x: The ``BigDecimal``
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated arc tangens ``BigDecimal`` with the
+     *       precision specified in the `mc`
      */
     static func atan(_ x:Self, _ y:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 3)
@@ -789,15 +814,17 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the cotangent of {@link BigDecimal} x.
+     * Calculates the cotangent of ``BigDecimal`` x.
      *
-     * <p>See: <a href="http://en.wikipedia.org/wiki/Cotangens">Wikipedia: Cotangent</a></p>
+     * See: [Wikipedia: Cotangent][cot]
      *
-     * @param x the {@link BigDecimal} to calculate the cotangens for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated cotanges {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws ArithmeticException if x = 0
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [cot]: https://en.wikipedia.org/wiki/Trigonometric_functions
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the cotangens for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated cotanges ``BigDecimal`` with the precision specified in the `mc`
+     * - Precondition: Requires x ≠ 0
      */
     static func cot(_ x:Self, _ mc:Rounding) -> Self {
         precondition(x.signum != 0, "Illegal cot(x) for x = 0")
@@ -808,14 +835,17 @@ public extension BigDecimal {
     }
 
     /**
-     * Calculates the inverse cotangent (arc cotangent) of {@link BigDecimal} x.
+     * Calculates the inverse cotangent (arc cotangent) of ``BigDecimal`` x.
      *
-     * <p>See: <a href="http://en.wikipedia.org/wiki/Arccotangens">Wikipedia: Arccotangens</a></p>
+     * See: [Wikipedia: Arccotangent][hyp]
      *
-     * @param x the {@link BigDecimal} to calculate the arc cotangens for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated arc cotangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [hyp]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the arc cotangent for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated arc cotangens ``BigDecimal`` with the
+     *          precision specified in the `mc`
      */
     static func acot(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 4)
@@ -824,14 +854,17 @@ public extension BigDecimal {
     }
 
     /**
-     * Calculates the hyperbolic sine of {@link BigDecimal} x.
+     * Calculates the hyperbolic sine of ``BigDecimal`` x.
      *
-     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     * See: [Wikipedia: Hyperbolic function][hyp]
      *
-     * @param x the {@link BigDecimal} to calculate the hyperbolic sine for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated hyperbolic sine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [hyp]: https://en.wikipedia.org/wiki/Hyperbolic_functions
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the hyperbolic sine for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated hyperbolic sine ``BigDecimal`` with the
+     *      precision specified in the `mc`
      */
     static func sinh(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 4)
@@ -840,14 +873,17 @@ public extension BigDecimal {
     }
 
     /**
-     * Calculates the hyperbolic cosine of {@link BigDecimal} x.
+     * Calculates the hyperbolic cosine of ``BigDecimal`` x.
      *
-     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     * See: [Wikipedia: Hyperbolic function][hyp]
      *
-     * @param x the {@link BigDecimal} to calculate the hyperbolic cosine for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated hyperbolic cosine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [hyp]: https://en.wikipedia.org/wiki/Hyperbolic_functions
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the hyperbolic cosine for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated hyperbolic cosine ``BigDecimal`` with the
+     *      precision specified in the `mc`
      */
     static func cosh(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 4)
@@ -856,14 +892,17 @@ public extension BigDecimal {
     }
 
     /**
-     * Calculates the hyperbolic tangens of {@link BigDecimal} x.
+     * Calculates the hyperbolic tangent of ``BigDecimal`` x.
      *
-     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     * See: [Wikipedia: Hyperbolic function][hyp]
      *
-     * @param x the {@link BigDecimal} to calculate the hyperbolic tangens for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated hyperbolic tangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [hyp]: https://en.wikipedia.org/wiki/Hyperbolic_functions
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the hyperbolic tangent for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated hyperbolic tangens ``BigDecimal`` with the
+     *      precision specified in the `mc`
      */
     static func tanh(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
@@ -872,14 +911,17 @@ public extension BigDecimal {
     }
 
     /**
-     * Calculates the hyperbolic cotangens of {@link BigDecimal} x.
+     * Calculates the hyperbolic cotangent of ``BigDecimal`` x.
      *
-     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     * See: [Wikipedia: Hyperbolic function][hyp]
      *
-     * @param x the {@link BigDecimal} to calculate the hyperbolic cotangens for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated hyperbolic cotangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [hyp]: https://en.wikipedia.org/wiki/Hyperbolic_functions
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the hyperbolic cotangens for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated hyperbolic cotangens ``BigDecimal`` with the
+     *       precision specified in the `mc`
      */
     static func coth(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
@@ -888,14 +930,18 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the arc hyperbolic sine (inverse hyperbolic sine) of {@link BigDecimal} x.
+     * Calculates the arc hyperbolic sine (inverse hyperbolic sine) of
+     * ``BigDecimal`` x.
      *
-     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     * See: [Wikipedia: Hyperbolic function][hyp]
      *
-     * @param x the {@link BigDecimal} to calculate the arc hyperbolic sine for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated arc hyperbolic sine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [hyp]: https://en.wikipedia.org/wiki/Hyperbolic_functions
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the arc hyperbolic sine for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated arc hyperbolic sine ``BigDecimal`` with the
+     *      precision specified in the `mc`
      */
     static func asinh(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 10)
@@ -904,14 +950,18 @@ public extension BigDecimal {
     }
     
     /**
-     * Calculates the arc hyperbolic cosine (inverse hyperbolic cosine) of {@link BigDecimal} x.
+     * Calculates the arc hyperbolic cosine (inverse hyperbolic cosine) of
+     * ``BigDecimal`` x.
      *
-     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     * See: [Wikipedia: Hyperbolic function][hyp]
      *
-     * @param x the {@link BigDecimal} to calculate the arc hyperbolic cosine for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated arc hyperbolic cosine {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [hyp]: https://en.wikipedia.org/wiki/Hyperbolic_functions
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the arc hyperbolic cosine for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated arc hyperbolic cosine ``BigDecimal`` with
+     *      the precision specified in the `mc`
      */
     static func acosh(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
@@ -920,14 +970,18 @@ public extension BigDecimal {
     }
 
     /**
-     * Calculates the arc hyperbolic tangens (inverse hyperbolic tangens) of {@link BigDecimal} x.
+     * Calculates the arc hyperbolic tangent (inverse hyperbolic tangent) of
+     * ``BigDecimal`` x.
      *
-     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     * See: [Wikipedia: Hyperbolic function][hyp]
      *
-     * @param x the {@link BigDecimal} to calculate the arc hyperbolic tangens for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated arc hyperbolic tangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [hyp]: https://en.wikipedia.org/wiki/Hyperbolic_functions
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the arc hyperbolic tangens for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated arc hyperbolic tangens ``BigDecimal`` with
+     *      the precision specified in the `mc`
      */
     static func atanh(_ x:Self, _ mc:Rounding) -> Self {
         precondition(x.compare(one) < 0, "Illegal atanh(x) for x >= 1: x = \(x)")
@@ -939,14 +993,18 @@ public extension BigDecimal {
     }
 
     /**
-     * Calculates the arc hyperbolic cotangens (inverse hyperbolic cotangens) of {@link BigDecimal} x.
+     * Calculates the arc hyperbolic cotangent (inverse hyperbolic cotangent)
+     * of ``BigDecimal`` x.
      *
-     * <p>See: <a href="https://en.wikipedia.org/wiki/Hyperbolic_function">Wikipedia: Hyperbolic function</a></p>
+     * See: [Wikipedia: Hyperbolic function][hyp]
      *
-     * @param x the {@link BigDecimal} to calculate the arc hyperbolic cotangens for
-     * @param mathContext the {@link MathContext} used for the result
-     * @return the calculated arc hyperbolic cotangens {@link BigDecimal} with the precision specified in the <code>mathContext</code>
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * [hyp]: https://en.wikipedia.org/wiki/Hyperbolic_functions
+     *
+     * - Parameters:
+     *    - x: The ``BigDecimal`` to calculate the arc hyperbolic cotangens for
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The calculated arc hyperbolic cotangens ``BigDecimal`` with
+     *       the precision specified in the `mc`
      */
     static func acoth(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
@@ -955,12 +1013,15 @@ public extension BigDecimal {
     }
     
     /**
-     * Converts an angle measured in radians to an approximately equivalent angle measured in degrees.
-     * The conversion from radians to degrees is generally inexact, it uses the number PI with the precision specified in the mathContext.
-     * @param x An angle in radians.
-     * @param mathContext the {@link MathContext} used for the result
-     * @return The angle in degrees.
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * Converts an angle measured in radians to an approximately equivalent
+     * angle measured in degrees. The conversion from radians to degrees is
+     * generally inexact, it uses the number π with the precision specified
+     * in the `mc` rounding context.
+     *
+     * - Parameters:
+     *    - x: An angle in radians.
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns: The angle in degrees.
      */
     static func toDegrees(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
@@ -968,14 +1029,16 @@ public extension BigDecimal {
         return result.round(mc)
     }
 
-     /**
-     * Converts an angle measured in degrees to an approximately equivalent angle measured in radians.
-     * The conversion from degrees to radians is generally inexact, it uses the number PI with the precision specified in the mathContext.
+    /**
+     * Converts an angle measured in degrees to an approximately equivalent
+     * angle measured in radians. The conversion from degrees to radians is
+     * generally inexact, it uses the number PI with the precision specified
+     * in the `mc` rounding context.
      *
-     * @param x An angle in degrees.
-     * @param mathContext the {@link MathContext} used for the result
-     * @return The angle in radians.
-     * @throws UnsupportedOperationException if the {@link MathContext} has unlimited precision
+     * - Parameters:
+     *    - x: An angle in degrees.
+     *    - mc: The ``Rounding`` context used for the result
+     * - Returns:  The angle in radians.
      */
     static func toRadians(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
