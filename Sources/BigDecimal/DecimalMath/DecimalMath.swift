@@ -197,7 +197,7 @@ public extension BigDecimal {
      *    - x: The ``BigDecimal``
      *    - mc: The ``Rounding`` context used for the result
      * - Returns: The factorial ``BigDecimal``
-     * - Precondition: Requires x is a negative integer value (-1, -2, -3, ...)
+     * - Precondition: Requires x is not a negative integer value (-1, -2, -3, ...)
      *
      * See ``factorial(_:)``, ``gamma(_:_:)``
      */
@@ -271,7 +271,7 @@ public extension BigDecimal {
      *    - x: The ``BigDecimal``
      *    - mc: The ``Rounding`` context used for the result
      * - Returns: The gamma ``BigDecimal``
-     * - Precondition: Requires x-1 is a negative integer value
+     * - Precondition: Requires x-1 is not a negative integer value
      *                 (-1, -2, -3, ...)
      */
     static func gamma(_ x: Self, _ mc: Rounding) -> Self {
