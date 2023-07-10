@@ -8,7 +8,7 @@
 import BigInt
 import Foundation
 
-public extension BigDecimal {
+extension BigDecimal {
     
     typealias BigRational = BigInt.BFraction
     
@@ -20,7 +20,7 @@ public extension BigDecimal {
     
     /// Creates a BigDecimal for the integer _n_ where the
     /// integer can be any type conforming to the _BinaryInteger_ protocols.
-    init<T:BinaryInteger>(_ int: T) {
+    public init<T:BinaryInteger>(_ int: T) {
         var x = Self.zero, m = Self.one
         var n = BInt(int.magnitude), r = BInt.zero
         let base = 1_000_000_000, rd = Self(base), id = BInt(base)
@@ -32,7 +32,7 @@ public extension BigDecimal {
         self = int.signum() < 0 ? -x : x
     }
     
-    func asInt<I:FixedWidthInteger>() -> I? {
+    public func asInt<I:FixedWidthInteger>() -> I? {
         let n = self
         if n.abs < 1 { return nil }  // check for fractions, magnitude >= 0
         if n >= Self(I.max) { return nil }
@@ -57,7 +57,7 @@ public extension BigDecimal {
      * - Parameter value: The ``BigDecimal`` to check
      * - Returns: `true` if the value can be represented as `Int` value
      */
-    static func isIntValue(_ value:Self) -> Bool {
+    public static func isIntValue(_ value:Self) -> Bool {
         if !fractionalPart(value).isZero { return false }
         if value > BigDecimal(Int.max) {
             return false
@@ -93,7 +93,7 @@ public extension BigDecimal {
      * - Parameter value: ``BigDecimal`` number to check
      * - Returns: `true` if the `value` can be represented as `Double` value
      */
-    static func isDoubleValue(_ value:Self) -> Bool {
+    public static func isDoubleValue(_ value:Self) -> Bool {
         if value > doubleMax {
             return false
         }
@@ -110,7 +110,7 @@ public extension BigDecimal {
      * - Parameter value: The ``BigDecimal``
      * - Returns: The integral part
      */
-    static func integralPart(_ value:Self) -> Self {
+    public static func integralPart(_ value:Self) -> Self {
         return value.withExponent(0, .down)
     }
     
@@ -121,7 +121,7 @@ public extension BigDecimal {
      * - Parameter value: The ``BigDecimal``
      * - Returns: The fractional part
      */
-    static func fractionalPart(_ value:Self) -> Self {
+    public static func fractionalPart(_ value:Self) -> Self {
         return value - integralPart(value)
     }
     
@@ -137,7 +137,7 @@ public extension BigDecimal {
         return cache
     }()
     
-    static func factorial(_ n: Int) -> BigDecimal {
+    public static func factorial(_ n: Int) -> BigDecimal {
         precondition(n >= 0, "Illegal factorial(n) for n < 0: n = \(n)")
         
         if n < factorialCache.count { return factorialCache[n] }
@@ -201,7 +201,7 @@ public extension BigDecimal {
      *
      * See ``factorial(_:)``, ``gamma(_:_:)``
      */
-    static func factorial(_ x: Self, _ mc: Rounding) -> Self  {
+    public static func factorial(_ x: Self, _ mc: Rounding) -> Self  {
         if isIntValue(x) {
             return factorial(x.asInt()!).round(mc)
         }
@@ -230,7 +230,7 @@ public extension BigDecimal {
     
     private static var spougeFactorialConstantsCache = [Int: [BigDecimal]]()
 
-    static func getSpougeFactorialConstants(_ a: Int) -> [BigDecimal] {
+    public static func getSpougeFactorialConstants(_ a: Int) -> [BigDecimal] {
         if let constants = spougeFactorialConstantsCache[a] {
             return constants
         } else {
@@ -274,7 +274,7 @@ public extension BigDecimal {
      * - Precondition: Requires x-1 is not a negative integer value
      *                 (-1, -2, -3, ...)
      */
-    static func gamma(_ x: Self, _ mc: Rounding) -> Self {
+    public static func gamma(_ x: Self, _ mc: Rounding) -> Self {
         factorial(x - one, mc)
     }
     
@@ -295,7 +295,7 @@ public extension BigDecimal {
      * - Returns: The Bernoulli number for the specified index
      * - Precondition: Requires n ≥ 0
      */
-    static func bernoulli(_ n:Int, _ mc: Rounding) -> Self {
+    public static func bernoulli(_ n:Int, _ mc: Rounding) -> Self {
         precondition(n >= 0, "Illegal bernoulli(n) for n < 0: n = \(n)")
         let b = BigRational.bernoulli(n)
         return BigDecimal(b.numerator).divide(b.denominator, mc)
@@ -314,7 +314,7 @@ public extension BigDecimal {
      * - Returns: The calculated square root of `x` with the precision specified
      *            in the `mc`
      */
-    static func sqrt(_ x: Self, _ mc: Rounding) -> Self {
+    public static func sqrt(_ x: Self, _ mc: Rounding) -> Self {
         guard x.signum >= 0 else { return BigDecimal.nan }
         if x.isZero { return zero }
         
@@ -370,7 +370,7 @@ public extension BigDecimal {
      *      specified in the mathContext
      *
      */
-    static func root(_ x:Self, _ n:Self, _ mc:Rounding) -> Self {
+    public static func root(_ x:Self, _ n:Self, _ mc:Rounding) -> Self {
         precondition(n.signum > 0, "Illegal root(x, n) for n <= 0: n = \(n)")
         precondition(x.signum >= 0, "Illegal root(x, n) for x < 0: x = \(x)")
         if x.isZero { return zero }
@@ -429,7 +429,7 @@ public extension BigDecimal {
      * - Returns: The calculated x to the power of y with the precision
      *            specified in the `mc` ``Rounding`` context.
      */
-    static func pow(_ x:Self, _ y:Self, _ mc:Rounding) -> Self {
+    public static func pow(_ x:Self, _ y:Self, _ mc:Rounding) -> Self {
         if x.isZero {
             if y.isZero { return one }
             return zero
@@ -512,7 +512,7 @@ public extension BigDecimal {
      * - Parameter mc: The ``Rounding`` context used for the result.
      * - Returns: The number π with the precision specified in the `mc`.
      */
-    static func pi(_ mc: Rounding) -> Self {
+    public static func pi(_ mc: Rounding) -> Self {
         let result: Self?
         
         if let pi = piCache, mc.precision <= pi.precision {
@@ -582,7 +582,7 @@ public extension BigDecimal {
      * - Returns: The calculated exponent ``BigDecimal`` with the precision
      *        specified in the `mc`.
      */
-    static func exp(_ x:Self, _ mc: Rounding) -> Self {
+    public static func exp(_ x:Self, _ mc: Rounding) -> Self {
         // checkMathContext(mathContext);
         if x.signum == 0 { return one }
 
@@ -627,7 +627,7 @@ public extension BigDecimal {
      * - Returns: The calculated sine ``BigDecimal`` with the precision
      *     specified in the `mc`
      */
-    static func sin(_ x:Self, _ mc:Rounding) -> Self {
+    public static func sin(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
         var x = x
 
@@ -655,7 +655,7 @@ public extension BigDecimal {
      *      specified in the `mc`
      * - Precondition: Requires x > 1 or x \< -1
      */
-    static func asin(_ x:Self, _ mc:Rounding) -> Self {
+    public static func asin(_ x:Self, _ mc:Rounding) -> Self {
         precondition(x.compare(one) <= 0, "Illegal asin(x) for x > 1: x = \(x)")
         precondition(x.compare(-1) >= 0, "Illegal asin(x) for x < -1: x = \(x)")
         
@@ -687,7 +687,7 @@ public extension BigDecimal {
      * - Returns: The calculated cosine ``BigDecimal`` with the precision
      *      specified in the `mc`
      */
-    static func cos(_ x:Self, _ mc:Rounding) -> Self {
+    public static func cos(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
     
         var x = x
@@ -715,7 +715,7 @@ public extension BigDecimal {
      *          specified in the `mc`
      * - Precondition: Requires x ≤ 1 or x ≥ -1
      */
-    static func acos(_ x:Self, _ mc:Rounding) -> Self {
+    public static func acos(_ x:Self, _ mc:Rounding) -> Self {
         precondition(x.compare(one) <= 0, "Illegal acos(x) for x > 1: x = \(x)")
         precondition(x.compare(-1) >= 0, "Illegal acos(x) for x < -1: x = \(x)")
 
@@ -738,7 +738,7 @@ public extension BigDecimal {
      * - Returns: The calculated tangens ``BigDecimal`` with the precision
      *      specified in the `mc`
      */
-    static func tan(_ x:Self, _ mc:Rounding) -> Self {
+    public static func tan(_ x:Self, _ mc:Rounding) -> Self {
         if x.signum == 0 { return zero }
 
         let mc2 = Rounding(mc.mode, mc.precision + 4)
@@ -759,7 +759,7 @@ public extension BigDecimal {
      * - Returns: The calculated arc tangens ``BigDecimal`` with the precision
      *      specified in the `mc`
      */
-    static func atan(_ x:Self, _ mc:Rounding) -> Self {
+    public static func atan(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
 
         var x = x
@@ -788,7 +788,7 @@ public extension BigDecimal {
      * - Returns: The calculated arc tangens ``BigDecimal`` with the
      *       precision specified in the `mc`
      */
-    static func atan(_ x:Self, _ y:Self, _ mc:Rounding) -> Self {
+    public static func atan2(_ x:Self, _ y:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 3)
 
         if x.signum > 0 { // x > 0
@@ -826,7 +826,7 @@ public extension BigDecimal {
      * - Returns: The calculated cotanges ``BigDecimal`` with the precision specified in the `mc`
      * - Precondition: Requires x ≠ 0
      */
-    static func cot(_ x:Self, _ mc:Rounding) -> Self {
+    public static func cot(_ x:Self, _ mc:Rounding) -> Self {
         precondition(x.signum != 0, "Illegal cot(x) for x = 0")
 
         let mc2 = Rounding(mc.mode, mc.precision + 4)
@@ -847,7 +847,7 @@ public extension BigDecimal {
      * - Returns: The calculated arc cotangens ``BigDecimal`` with the
      *          precision specified in the `mc`
      */
-    static func acot(_ x:Self, _ mc:Rounding) -> Self {
+    public static func acot(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 4)
         let result = pi(mc2).divide(2, mc2) - atan(x, mc2)
         return result.round(mc)
@@ -866,7 +866,7 @@ public extension BigDecimal {
      * - Returns: The calculated hyperbolic sine ``BigDecimal`` with the
      *      precision specified in the `mc`
      */
-    static func sinh(_ x:Self, _ mc:Rounding) -> Self {
+    public static func sinh(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 4)
         let result = SinhCalculator.instance.calculate(x, mc2);
         return result.round(mc)
@@ -885,7 +885,7 @@ public extension BigDecimal {
      * - Returns: The calculated hyperbolic cosine ``BigDecimal`` with the
      *      precision specified in the `mc`
      */
-    static func cosh(_ x:Self, _ mc:Rounding) -> Self {
+    public static func cosh(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 4)
         let result = CoshCalculator.instance.calculate(x, mc2)
         return result.round(mc)
@@ -904,7 +904,7 @@ public extension BigDecimal {
      * - Returns: The calculated hyperbolic tangens ``BigDecimal`` with the
      *      precision specified in the `mc`
      */
-    static func tanh(_ x:Self, _ mc:Rounding) -> Self {
+    public static func tanh(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
         let result = sinh(x, mc).divide(cosh(x, mc2), mc2)
         return result.round(mc)
@@ -923,7 +923,7 @@ public extension BigDecimal {
      * - Returns: The calculated hyperbolic cotangens ``BigDecimal`` with the
      *       precision specified in the `mc`
      */
-    static func coth(_ x:Self, _ mc:Rounding) -> Self {
+    public static func coth(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
         let result = cosh(x, mc2).divide(sinh(x, mc2), mc2)
         return result.round(mc)
@@ -943,7 +943,7 @@ public extension BigDecimal {
      * - Returns: The calculated arc hyperbolic sine ``BigDecimal`` with the
      *      precision specified in the `mc`
      */
-    static func asinh(_ x:Self, _ mc:Rounding) -> Self {
+    public static func asinh(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 10)
         let result = log(x + sqrt(x.multiply(x, mc2).add(one, mc2), mc2), mc2)
         return result.round(mc)
@@ -963,7 +963,7 @@ public extension BigDecimal {
      * - Returns: The calculated arc hyperbolic cosine ``BigDecimal`` with
      *      the precision specified in the `mc`
      */
-    static func acosh(_ x:Self, _ mc:Rounding) -> Self {
+    public static func acosh(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
         let result = log(x + sqrt(x * x - one, mc2), mc2)
         return result.round(mc)
@@ -983,7 +983,7 @@ public extension BigDecimal {
      * - Returns: The calculated arc hyperbolic tangens ``BigDecimal`` with
      *      the precision specified in the `mc`
      */
-    static func atanh(_ x:Self, _ mc:Rounding) -> Self {
+    public static func atanh(_ x:Self, _ mc:Rounding) -> Self {
         precondition(x.compare(one) < 0, "Illegal atanh(x) for x >= 1: x = \(x)")
         precondition(x.compare(-one) > 0, "Illegal atanh(x) for x <= -1: x = \(x)")
 
@@ -1006,7 +1006,7 @@ public extension BigDecimal {
      * - Returns: The calculated arc hyperbolic cotangens ``BigDecimal`` with
      *       the precision specified in the `mc`
      */
-    static func acoth(_ x:Self, _ mc:Rounding) -> Self {
+    public static func acoth(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
         let result = log((x + one).divide(x - one, mc2), mc2) * oneHalf
         return result.round(mc)
@@ -1023,7 +1023,7 @@ public extension BigDecimal {
      *    - mc: The ``Rounding`` context used for the result
      * - Returns: The angle in degrees.
      */
-    static func toDegrees(_ x:Self, _ mc:Rounding) -> Self {
+    public static func toDegrees(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
         let result = x.multiply(oneHundredEighty.divide(pi(mc2), mc2),  mc2)
         return result.round(mc)
@@ -1040,7 +1040,7 @@ public extension BigDecimal {
      *    - mc: The ``Rounding`` context used for the result
      * - Returns:  The angle in radians.
      */
-    static func toRadians(_ x:Self, _ mc:Rounding) -> Self {
+    public static func toRadians(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 6)
         let result = x.multiply(pi(mc2).divide(oneHundredEighty, mc2), mc2)
         return result.round(mc)
@@ -1059,7 +1059,7 @@ public extension BigDecimal {
      * - Returns: The calculated natural logarithm ``BigDecimal`` with the
      *              precision specified in the `mc`.
      */
-    static func log(_ x:Self, _ mc:Rounding) -> Self {
+    public static func log(_ x:Self, _ mc:Rounding) -> Self {
         precondition(x.signum > 0, "Illegal log(x) for x <= 0: x = \(x)")
         if x == one {
             return zero
@@ -1081,7 +1081,7 @@ public extension BigDecimal {
      * - Returns: The calculated natural logarithm ``BigDecimal`` to the
      *            base 2 with the precision specified in the `mc`.
      */
-    static func log2(_ x:Self, _ mc:Rounding) -> Self {
+    public static func log2(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 4)
 
         let  result = log(x, mc2).divide(logTwo(mc2), mc2)
@@ -1097,7 +1097,7 @@ public extension BigDecimal {
      * - Returns: The calculated natural logarithm ``BigDecimal`` to the
      *          base 10 with the precision specified in the `mc`.
      */
-    static func log10(_ x:Self, _ mc:Rounding) -> Self {
+    public static func log10(_ x:Self, _ mc:Rounding) -> Self {
         let mc2 = Rounding(mc.mode, mc.precision + 2)
 
         let result = log(x, mc2).divide(logTen(mc2), mc2)

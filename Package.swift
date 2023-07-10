@@ -9,6 +9,7 @@ let package = Package(
 //        .macOS("13.3"), .iOS("16.4"), .macCatalyst(.v16), .tvOS("16.4"),
 //        .watchOS("9.4")
 //    ],
+//  commented out due to playground incompatibility
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
@@ -19,7 +20,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.0"),
         .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.0.0")
- //       .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0") // playground incompatible
+        // .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0") // playground incompatible
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.

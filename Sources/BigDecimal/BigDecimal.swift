@@ -353,7 +353,7 @@ extension BigDecimal : FloatingPoint {
     // MARK: - FloatingPoint Static Properties
     
     // Default precision and rounding same as Decimal128
-    private static var mc = Rounding.decimal128
+    public static var mc = Rounding.decimal128
     
     public static var radix: Int     { 10 }
     public static var pi: Self       { Self.pi(mc) }

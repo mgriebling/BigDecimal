@@ -10,7 +10,9 @@ limit for performance) and fixed-precision decimal arithmetic in Swift.
 Its functionality falls in the following categories:
 - Arithmetic: addition, subtraction, multiplication, division, remainder and 
   exponentiation
-- Constants: pi, zero, one, ten
+- Compliant with `DecimalFloatingPoint` and, optionally, `Real` protocols.
+- Support for complex decimal numbers via ` if `Real` protocol compliance is enabled.
+- Constants: `pi`, `zero`, `one`, `ten`
 - Functions: exp, log, log10, log2, pow, sqrt, root, factorial, gamma, 
              trig + inverse, hyperbolic + inverse
 - Rounding and scaling according to one of the rounding modes:
@@ -20,6 +22,7 @@ Its functionality falls in the following categories:
     - toNearestOrEven
     - toNearestOrAwayFromZero
     - up
+
 - Comparison: the six standard operators `==`, `!=`, `<`, `<=`, `>`, and `>=`
 - Conversion: to String, to Double, to Decimal (the Swift Foundation type), to 
   Decimal32 / Decimal64 / Decimal128
