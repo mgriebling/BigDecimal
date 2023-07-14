@@ -156,9 +156,9 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
                 }
                 let s = BInt(d.sign == .minus ? -significand : significand)
                 if exponent < 0 {
-                    self.init(BInt.five ** (-exponent) * s, exponent)
+                    self.init(BInt.FIVE ** (-exponent) * s, exponent)
                 } else if exponent > 0 {
-                    self.init(BInt.two ** exponent * s, 0)
+                    self.init(BInt.TWO ** exponent * s, 0)
                 } else {
                     self.init(s, 0)
                 }
@@ -584,7 +584,7 @@ extension BigDecimal {
         var q = self.digits
         var n = 0
         while true {
-            let (q1, r) = q.quotientAndRemainder(dividingBy: BInt.ten)
+            let (q1, r) = q.quotientAndRemainder(dividingBy: BInt.TEN)
             if !r.isZero {
                 break
             }
@@ -596,7 +596,7 @@ extension BigDecimal {
     
     /// Unit in last place = Self(1, self.exponent)
     public var ulp: Self {
-        self.isFinite ? Self(BInt.one, self.exponent) : Self.flagNaN()
+        self.isFinite ? Self(BInt.ONE, self.exponent) : Self.flagNaN()
     }
 
     
@@ -749,7 +749,7 @@ extension BigDecimal {
         }
         var exp = self.exponent
         var sig = self.digits.abs
-        while sig.limbs.count > 2 {
+        while sig.words.count > 2 {
             sig /= 10
             exp += 1
         }
@@ -764,7 +764,7 @@ extension BigDecimal {
         if sig == 0 {
             return Decimal(0)
         }
-        assert(sig.limbs.count < 3)
+        assert(sig.words.count < 3)
         assert(minExp <= exp && exp <= maxExp)
         
         func decode() -> UInt16 {
@@ -887,7 +887,7 @@ extension BigDecimal {
         d1 >>= count2
         var count5 = 0
         while true {
-            let (q, r) = d1.quotientAndRemainder(dividingBy: BInt.five)
+            let (q, r) = d1.quotientAndRemainder(dividingBy: BInt.FIVE)
             if !r.isZero {
                 break
             }
@@ -912,7 +912,7 @@ extension BigDecimal {
         let z = Rounding.pow10(ctx.precision)
         var r = BInt.zero
         while q.abs >= z {
-            (q, r) = q.quotientAndRemainder(dividingBy: BInt.ten)
+            (q, r) = q.quotientAndRemainder(dividingBy: BInt.TEN)
             m -= 1
         }
         switch ctx.mode {

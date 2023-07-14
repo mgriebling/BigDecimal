@@ -34,3 +34,7 @@ let package = Package(
             dependencies: ["BigDecimal"]),
     ]
 )
+
+//package.dependencies.append(
+//    .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "0.12.0")
+//)

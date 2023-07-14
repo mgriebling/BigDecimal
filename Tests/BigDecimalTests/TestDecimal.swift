@@ -50,10 +50,10 @@ final class TestDecimal: XCTestCase {
         XCTAssertTrue(min > 0.0)
         let x = BigDecimal(min)
         XCTAssertEqual(x.exponent, -128)
-        XCTAssertEqual(x.digits, BInt.one)
+        XCTAssertEqual(x.digits, BInt.ONE)
         XCTAssertEqual(min, x.asDecimal())
 
-        let d = BigDecimal(BInt.one, -129).asDecimal()
+        let d = BigDecimal(BInt.ONE, -129).asDecimal()
         XCTAssertEqual(d, 0.0)
         XCTAssertFalse(BigDecimal.nanFlag)
     }
