@@ -9,6 +9,7 @@
 // Test cases from Java BigDecimal tests translated to Swift
 //
 
+import Foundation
 import XCTest
 @testable import BigDecimal
 import BigInt
@@ -380,6 +381,62 @@ class TestBigDecimal: XCTestCase {
         XCTAssertEqual(x128.description, "9.999999999999999999999999999999999E+6144")
         XCTAssertEqual(y128.description, "9.999999999999999999999999999999999E-6143")
         XCTAssertEqual(z128.description, "1E-6176")
+    }
+
+    func testPrettyResult() throws {
+        let numStrings = [
+            "0.123456789",
+            "123456789.123456789",
+            "-123456789.123456789",
+            "0.000000000123456789",
+            "-123E-45",
+            "-1.23E-5",
+            "123E-45",
+            "123E-12",
+            "2E5"
+        ]
+
+        print(
+            String(
+                format: "%@%@%@%@%@%@%@", 
+                "input".padding(toLength: 25, withPad: " ", startingAt: 0), 
+                "raw".padding(toLength: 25, withPad: " ", startingAt: 0), 
+                "exponent".padding(toLength: 10, withPad: " ", startingAt: 0), 
+                "digits".padding(toLength: 20, withPad: " ", startingAt: 0), 
+                "precision".padding(toLength: 10, withPad: " ", startingAt: 0),
+                "integral".padding(toLength: 20, withPad: " ", startingAt: 0),
+                "fractional".padding(toLength: 20, withPad: " ", startingAt: 0)
+            )
+        )
+        for numString in numStrings {
+            let num = BigDecimal(numString).round(Rounding(.toNearestOrAwayFromZero, 100))
+            let input = numString.padding(toLength: 25, withPad: " ", startingAt: 0)
+            let raw = num.asString().padding(toLength: 25, withPad: " ", startingAt: 0)
+            let digits = num.digits.asString().padding(toLength: 20, withPad: " ", startingAt: 0)
+            let integral = BigDecimal.integralPart(num).asString().padding(toLength: 20, withPad: " ", startingAt: 0)
+            let fractional = BigDecimal.fractionalPart(num).asString().padding(toLength: 20, withPad: " ", startingAt: 0)
+            print(String(format: "%@%@%-10d%@%-10d%@%@", input, raw, num.exponent, digits, num.precision, integral, fractional))
+        }
+
+        let testCases : [(String, String)] = [
+            ("123456789",""),
+            ("0.123456789",""),
+            ("0.123456789",""),
+            ("0.000000000123456789",""),
+            ("123E-12",""),
+            ("",""),
+            ("",""),
+            ("",""),
+            ("",""),
+            ("","")
+        ]
+        
+        let maxIntegralLength = 6
+        let maxFractionPartLength = 3
+
+        for (number, formated) in testCases {
+            
+        }
     }
 
 }
