@@ -39,7 +39,9 @@ extension BigDecimal {
         if n <= Self(I.min) { return nil }
         
         /// value must be in range of the return integer type
-        let digits = n.abs.round(Rounding(.towardZero, 0)) // truncate any fractions
+        //incorrect value, example BigDecimal("512").abs().round(Rounding(.towardZero, 0)) return 5E+2
+        //let digits = n.abs.round(Rounding(.towardZero, 0)) // truncate any fractions
+        let digits = BigDecimal.integralPart(n.abs)
         let coeff = digits.digits
         let power : BInt = BInt(10) ** digits.exponent
         if let int = (coeff * power).asInt() {
