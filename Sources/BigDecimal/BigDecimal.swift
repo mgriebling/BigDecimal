@@ -1278,7 +1278,7 @@ extension BigDecimal {
         } else if self.exponent < exp {
             let (q, r) = self.digits.quotientAndRemainder(dividingBy:
                                         Rounding.pow10(exp - self.exponent))
-            if r.isZero {
+            if r.isZero || q.isZero {
                 return Self(q, exp)
             }
             return Self(Rounding(mode, self.precision - self.exponent + exp)

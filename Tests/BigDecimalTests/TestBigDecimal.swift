@@ -389,6 +389,8 @@ class TestBigDecimal: XCTestCase {
             "123456789.123456789",
             "-123456789.123456789",
             "0.000000000123456789",
+            "-0.0123",
+            "1000",
             "-123E-45",
             "-1.23E-5",
             "123E-45",
@@ -398,9 +400,10 @@ class TestBigDecimal: XCTestCase {
 
         print(
             String(
-                format: "%@%@%@%@%@%@%@", 
+                format: "%@%@%@%@%@%@%@%@", 
                 "input".padding(toLength: 25, withPad: " ", startingAt: 0), 
                 "raw".padding(toLength: 25, withPad: " ", startingAt: 0), 
+                "sign".padding(toLength: 5, withPad: " ", startingAt: 0), 
                 "exponent".padding(toLength: 10, withPad: " ", startingAt: 0), 
                 "digits".padding(toLength: 20, withPad: " ", startingAt: 0), 
                 "precision".padding(toLength: 10, withPad: " ", startingAt: 0),
@@ -409,13 +412,15 @@ class TestBigDecimal: XCTestCase {
             )
         )
         for numString in numStrings {
-            let num = BigDecimal(numString).round(Rounding(.toNearestOrAwayFromZero, 100))
+            let num = BigDecimal(numString)
             let input = numString.padding(toLength: 25, withPad: " ", startingAt: 0)
             let raw = num.asString().padding(toLength: 25, withPad: " ", startingAt: 0)
+            let sign = (num.sign == .plus ? "+" : "-").padding(toLength: 5, withPad: " ", startingAt: 0)
+            let exponent = num.exponent
             let digits = num.digits.asString().padding(toLength: 20, withPad: " ", startingAt: 0)
             let integral = BigDecimal.integralPart(num).asString().padding(toLength: 20, withPad: " ", startingAt: 0)
             let fractional = BigDecimal.fractionalPart(num).asString().padding(toLength: 20, withPad: " ", startingAt: 0)
-            print(String(format: "%@%@%-10d%@%-10d%@%@", input, raw, num.exponent, digits, num.precision, integral, fractional))
+            print(String(format: "%@%@%@%-10d%@%-10d%@%@", input, raw, sign, exponent, digits, num.precision, integral, fractional))
         }
 
         let testCases : [(String, String)] = [
@@ -435,7 +440,7 @@ class TestBigDecimal: XCTestCase {
         let maxFractionPartLength = 3
 
         for (number, formated) in testCases {
-            
+            let bd = BigDecimal(number)
         }
     }
 
