@@ -383,64 +383,63 @@ class TestBigDecimal: XCTestCase {
         XCTAssertEqual(z128.description, "1E-6176")
     }
 
+    func prettyString(_ bd : BigDecimal, maxIntegral : Int, maxFractional : Int) -> String {
+        let realExponent = bd.exponent + bd.precision - 1
+        let mantissaString = BigDecimal(bd.digits).scale(-bd.precision+1).round(Rounding(.toNearestOrAwayFromZero, maxFractional+1)).trim.asString(.plain)
+        let pretty : String
+        if realExponent >= maxIntegral  {
+            pretty = "\(mantissaString)E+\(realExponent)"
+        } else if (realExponent >= 0 ) {
+            pretty = bd.round(Rounding(.toNearestOrAwayFromZero, maxFractional+realExponent+1)).asString(.plain)
+        } else if realExponent >= -maxFractional  {
+            pretty = bd.round(Rounding(.toNearestOrAwayFromZero, maxFractional+realExponent+1)).asString(.plain)
+        } else { //realExponent <= -maxFractional
+            pretty = "\(mantissaString)E\(realExponent)"
+        }
+        return pretty
+    }
+
     func testPrettyResult() throws {
-        let numStrings = [
-            "0.123456789",
-            "123456789.123456789",
-            "-123456789.123456789",
-            "0.000000000123456789",
-            "-0.0123",
-            "1000",
-            "-123E-45",
-            "-1.23E-5",
-            "123E-45",
-            "123E-12",
-            "2E5"
+        let testCases : [(String, String)] = [
+            ("2",""),
+            ("123456789",""),
+            ("12345.12345",""),
+            ("0.123456789",""),
+            ("123456789.123456789",""),
+            ("0.000000000123456789",""),
+            ("-0.0234",""),
+            ("0.00345",""),
+            ("0.000056002",""),
+            ("1000",""),
+            ("1000000",""),
+            ("-123E-45",""),
+            ("-1.23E-5",""),
+            ("123E-45",""),
+            ("123E+45",""),
+            ("123E-12",""),
+            ("2E5","")
         ]
 
         print(
-            String(
-                format: "%@%@%@%@%@%@%@%@", 
-                "input".padding(toLength: 25, withPad: " ", startingAt: 0), 
-                "raw".padding(toLength: 25, withPad: " ", startingAt: 0), 
-                "sign".padding(toLength: 5, withPad: " ", startingAt: 0), 
-                "exponent".padding(toLength: 10, withPad: " ", startingAt: 0), 
-                "digits".padding(toLength: 20, withPad: " ", startingAt: 0), 
-                "precision".padding(toLength: 10, withPad: " ", startingAt: 0),
-                "integral".padding(toLength: 20, withPad: " ", startingAt: 0),
-                "fractional".padding(toLength: 20, withPad: " ", startingAt: 0)
-            )
+            "input".padding(toLength: 20+1, withPad: " ", startingAt: 0) +
+            "bigdecimal".padding(toLength: 25+1, withPad: " ", startingAt: 0) + 
+            "*exponent".padding(toLength: 10+1, withPad: " ", startingAt: 0) +
+            "digits*10^exponent".padding(toLength: 30+1, withPad: " ", startingAt: 0) +
+            "precision".padding(toLength: 10+1, withPad: " ", startingAt: 0) +
+            "mantissa".padding(toLength: 20+1, withPad: " ", startingAt: 0) +
+            "--->PRETTY".padding(toLength: 20+1, withPad: " ", startingAt: 0)
         )
-        for numString in numStrings {
-            let num = BigDecimal(numString)
-            let input = numString.padding(toLength: 25, withPad: " ", startingAt: 0)
-            let raw = num.asString().padding(toLength: 25, withPad: " ", startingAt: 0)
-            let sign = (num.sign == .plus ? "+" : "-").padding(toLength: 5, withPad: " ", startingAt: 0)
-            let exponent = num.exponent
-            let digits = num.digits.asString().padding(toLength: 20, withPad: " ", startingAt: 0)
-            let integral = BigDecimal.integralPart(num).asString().padding(toLength: 20, withPad: " ", startingAt: 0)
-            let fractional = BigDecimal.fractionalPart(num).asString().padding(toLength: 20, withPad: " ", startingAt: 0)
-            print(String(format: "%@%@%@%-10d%@%-10d%@%@", input, raw, sign, exponent, digits, num.precision, integral, fractional))
-        }
-
-        let testCases : [(String, String)] = [
-            ("123456789",""),
-            ("0.123456789",""),
-            ("0.123456789",""),
-            ("0.000000000123456789",""),
-            ("123E-12",""),
-            ("",""),
-            ("",""),
-            ("",""),
-            ("",""),
-            ("","")
-        ]
         
-        let maxIntegralLength = 6
-        let maxFractionPartLength = 3
-
-        for (number, formated) in testCases {
-            let bd = BigDecimal(number)
+        for (numString, _) in testCases {
+            let num = BigDecimal(numString)
+            let input = numString.padding(toLength: 20, withPad: " ", startingAt: 0)
+            let bigdecimal = num.asString().padding(toLength: 25, withPad: " ", startingAt: 0)
+            let realExponent = num.precision + num.exponent - 1
+            let digits = ("\(num.digits.asString()) x10^ \(num.exponent)").padding(toLength: 30, withPad: " ", startingAt: 0)
+            let precision = num.precision
+            let mantissa = BigDecimal(num.digits).scale(-precision+1).round(.decimal128).asString(.plain).padding(toLength: 20, withPad: " ", startingAt: 0)
+            let pretty = prettyString(num, maxIntegral: 10, maxFractional: 6).padding(toLength: 20, withPad: " ", startingAt: 0)
+            print(String(format: "%@ %@ %-10d %@ %-10d %@ %@", input, bigdecimal, realExponent, digits, precision, mantissa, pretty))
         }
     }
 
