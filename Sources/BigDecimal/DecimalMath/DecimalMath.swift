@@ -1148,7 +1148,7 @@ extension BigDecimal {
         //System.out.println("logUsingExponent(" + x + " " + mathContext + ") precision " + mc);
 
         let exponent = x.exponent
-        let mantissa = x.significand
+        let mantissa = x.significand.scale(-x.precision+1)
 
         var result = logUsingTwoThree(mantissa, mc2)
         if exponent != 0 {
