@@ -440,7 +440,7 @@ extension BigDecimal {
         // try integral powers of y
         if fractionalPart(y) == 0 {
             if let longValue : Int = y.asInt() {
-                return x.pow(longValue).round(mc)
+                return x.pow(longValue, mc)
             } else {
                 return powInteger(x, y, mc)
             }
