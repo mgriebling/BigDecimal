@@ -19,8 +19,10 @@ final class TestLogarit: XCTestCase {
     }
 
     func testLogarit() throws {
-        let result = BigDecimal.log10(BigDecimal(10.01))
-        XCTAssertEqual(result.round(.decimal32).asString(), "10.00043")
+        let result1 = BigDecimal.log10(BigDecimal(10.01))
+        XCTAssertEqual(result1.round(.decimal32).asString(), "1.000434")
+        let result2 = BigDecimal.log(BigDecimal(10.01))
+        XCTAssertEqual(result2.round(.decimal32).asString(), "2.303585")
     }
 
     func testPerformanceExample() throws {
