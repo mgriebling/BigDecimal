@@ -39,7 +39,9 @@ extension BigDecimal {
         if n <= Self(I.min) { return nil }
         
         /// value must be in range of the return integer type
-        let digits = n.abs.round(Rounding(.towardZero, 0)) // truncate any fractions
+        //incorrect value, example BigDecimal("512").abs().round(Rounding(.towardZero, 0)) return 5E+2
+        //let digits = n.abs.round(Rounding(.towardZero, 0)) // truncate any fractions
+        let digits = BigDecimal.integralPart(n.abs)
         let coeff = digits.digits
         let power : BInt = BInt(10) ** digits.exponent
         if let int = (coeff * power).asInt() {
@@ -440,7 +442,7 @@ extension BigDecimal {
         // try integral powers of y
         if fractionalPart(y) == 0 {
             if let longValue : Int = y.asInt() {
-                return x.pow(longValue).round(mc)
+                return x.pow(longValue, mc)
             } else {
                 return powInteger(x, y, mc)
             }
@@ -1145,8 +1147,8 @@ extension BigDecimal {
         let mc2 = Rounding(mc.mode, mc.precision+4)
         //System.out.println("logUsingExponent(" + x + " " + mathContext + ") precision " + mc);
 
-        let exponent = x.exponent
-        let mantissa = x.significand
+        let exponent = x.precision + x.exponent - 1
+        let mantissa = x.significand.scale(-x.precision+1)
 
         var result = logUsingTwoThree(mantissa, mc2)
         if exponent != 0 {
