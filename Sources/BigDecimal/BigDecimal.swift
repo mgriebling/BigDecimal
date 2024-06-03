@@ -25,7 +25,7 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     // MARK: - Constants
     
     public static let maxExp = 9_999_999_999
-    public static let maxDigits = 200        // can be changed by recompiling
+    public static let maxDigits = 200       // can be changed by recompiling
     
     /// BigDecimal(0)
     public static let zero = Self(0)
@@ -170,7 +170,7 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     ///
     /// - Parameters:
     ///   - value: The Decimal value
-    public init(_ value: Decimal) {
+    public init(_ value: Foundation.Decimal) {
         
         var m = BInt(0)
         
@@ -739,13 +739,13 @@ extension BigDecimal {
     /// *self* as a Decimal (the Swift Foundation type)
     ///
     /// - Returns: *self* as a Decimal value
-    public func asDecimal() -> Decimal {
+    public func asDecimal() -> Foundation.Decimal {
         let maxExp = 127
         let minExp = -128
         let maxDec = Self(BInt("ffffffffffffffffffffffffffffffff", radix:16)!, maxExp)
         
         if self.isNaN || self.abs > maxDec {
-            return Decimal.nan
+            return Foundation.Decimal.nan
         }
         var exp = self.exponent
         var sig = self.digits.abs
@@ -762,7 +762,7 @@ extension BigDecimal {
             exp = minExp
         }
         if sig == 0 {
-            return Decimal(0)
+            return Foundation.Decimal(0)
         }
         assert(sig.words.count < 3)
         assert(minExp <= exp && exp <= maxExp)
@@ -792,7 +792,7 @@ extension BigDecimal {
             length += 1
         }
         assert(sig < 0x10000)
-        return Decimal(_exponent: Int32(exp), _length: length,
+        return Foundation.Decimal(_exponent: Int32(exp), _length: length,
                        _isNegative: self < 0 ? 1 : 0, _isCompact: 0,
                        _reserved: 0, _mantissa: (s0,s1,s2,s3,s4,s5,s6,s7))
     }

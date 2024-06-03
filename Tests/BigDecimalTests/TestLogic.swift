@@ -36,7 +36,7 @@ class TestLogic: XCTestCase {
                 BigDecimal(121), BigDecimal(97), BigDecimal(-25),
                 BigDecimal(-122), BigDecimal(-98))
         
-        let x = BigDecimal.setBit(1000, of: BigDecimal.zero)
+        let x = BigDecimal.setBit(100, of: BigDecimal.zero)
         print(x)
     }
 }
