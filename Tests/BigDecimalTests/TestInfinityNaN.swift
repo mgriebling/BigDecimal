@@ -190,7 +190,7 @@ final class TestInfinityNaN: XCTestCase {
 
     func testDiv() throws {
         for t in testsDiv {
-            XCTAssertEqual((BigDecimal(t.x) / BigDecimal(t.y)).asString(), t.result)
+            XCTAssertEqual((BigDecimal(t.x) ÷ BigDecimal(t.y)).asString(), t.result)
         }
         XCTAssertTrue(BigDecimal.nanFlag)
     }

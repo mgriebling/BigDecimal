@@ -531,6 +531,7 @@ extension BigDecimal : DecimalFloatingPoint {
     }
 }
 
+infix operator ÷ : MultiplicationPrecedence
 extension BigDecimal {
     
     // MARK: Computed properties
@@ -1018,8 +1019,12 @@ extension BigDecimal {
     ///   - x: Dividend
     ///   - y: Divisor
     /// - Returns: x / y truncated to an integer
-    public static func / (x: Self, y: Self) -> Self {
+    public static func ÷ (x: Self, y: Self) -> Self {
         x.quotientAndRemainder(y).quotient
+    }
+    
+    public static func / (x: Self, y: Self) -> Self {
+        return x.divide(y, Self.mc)
     }
 
     /// x = x / y
@@ -1028,7 +1033,7 @@ extension BigDecimal {
     ///   - x: Left hand dividend
     ///   - y: Right hand divisor
     public static func /= (x: inout Self, y: Self) {
-        x = x.quotientAndRemainder(y).quotient
+        x = x.divide(y, Self.mc)
     }
 
     func checkDivision(_ d: Self) -> (failure: Bool, q: Self, r: Self) {

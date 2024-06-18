@@ -1,0 +1,31 @@
+# Created by https://www.toptal.com/developers/gitignore/api/xcode,swiftpackagemanager
+# Edit at https://www.toptal.com/developers/gitignore?templates=xcode,swiftpackagemanager
+
+### SwiftPackageManager ###
+Packages
+.build/
+xcuserdata
+DerivedData/
+*.xcodeproj
+
+
+### Xcode ###
+## User settings
+xcuserdata/
+
+## Xcode 8 and earlier
+*.xcscmblueprint
+*.xccheckout
+
+### Xcode Patch ###
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+/*.gcno
+**/xcshareddata/WorkspaceSettings.xcsettings
+
+# End of https://www.toptal.com/developers/gitignore/api/xcode,swiftpackagemanager
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+Package.resolved
