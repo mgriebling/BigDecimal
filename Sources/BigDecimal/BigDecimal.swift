@@ -616,7 +616,7 @@ extension BigDecimal {
     /// - Returns: *self* encoded as a string in accordance with the display
     ///   `mode`.
     public func asString(_ mode: DisplayMode = .scientific) -> String {
-        let expSymbol = "E"
+        let expSymbol = "e"
         let dp = "."
         
         func pad(_ len:Int) -> String {
@@ -656,7 +656,7 @@ extension BigDecimal {
                 s.insert(contentsOf:dp, at: s.index(s.startIndex, offsetBy: 1))
             }
             s += expSymbol
-            if exp > 0 { s += "+" }
+//            if exp > 0 { s += "+" }
             s += exp.description
         } else {
             // Engineering notation
