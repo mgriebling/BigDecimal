@@ -636,7 +636,7 @@ extension BigDecimal {
         }
         var exp = self.precision + self.exponent - 1
         var s = self.digits.abs.asString()
-        if mode == .plain || (self.exponent <= 0 && exp >= -6) {
+        if mode == .plain {
             if self.exponent > 0 {
                 if !self.digits.isZero {
                     s += pad(self.exponent)
