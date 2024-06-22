@@ -107,7 +107,7 @@ extension SeriesCalculator {
             }
             
             sum = sum + step
-        } while step.abs.compare(acceptableError) > 0
+        } while !step.isNaN && step.abs.compare(acceptableError) > 0
         
         return sum.round(mc)
     }

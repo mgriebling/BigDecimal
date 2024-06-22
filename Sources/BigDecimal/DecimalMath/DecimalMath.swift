@@ -630,6 +630,10 @@ extension BigDecimal {
      *     specified in the `mc`
      */
     public static func sin(_ x:Self, _ mc:Rounding) -> Self {
+        guard !x.isNaN else {
+            return x
+        }
+        
         let mc2 = Rounding(mc.mode, mc.precision + 6)
         var x = x
 
@@ -690,6 +694,10 @@ extension BigDecimal {
      *      specified in the `mc`
      */
     public static func cos(_ x:Self, _ mc:Rounding) -> Self {
+        guard !x.isNaN else {
+            return x
+        }
+        
         let mc2 = Rounding(mc.mode, mc.precision + 6)
     
         var x = x
@@ -768,7 +776,6 @@ extension BigDecimal {
         x = x.divide(sqrt(one + x.multiply(x, mc2), mc2), mc2)
 
         let result = asin(x, mc2)
-        print(result)
         return result.round(mc)
     }
     

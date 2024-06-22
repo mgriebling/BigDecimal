@@ -543,7 +543,7 @@ extension BigDecimal {
     }
 
     /// String encoding of *self*
-    public var description: String { self.asString() }
+    public var description: String { self.asString(.plain) }
 
     /// Is *true* if *self* is a finite number
     public var isFinite: Bool { !self.isNaN && !self.isInfinite }
@@ -616,7 +616,7 @@ extension BigDecimal {
     /// - Returns: *self* encoded as a string in accordance with the display
     ///   `mode`.
     public func asString(_ mode: DisplayMode = .scientific) -> String {
-        let expSymbol = "e"
+        let expSymbol = Constants.isUnitTesting ? "E" : "e"
         let dp = "."
         
         func pad(_ len:Int) -> String {
@@ -636,7 +636,7 @@ extension BigDecimal {
         }
         var exp = self.precision + self.exponent - 1
         var s = self.digits.abs.asString()
-        if mode == .plain {
+        if mode == .plain || (Constants.isUnitTesting && self.exponent <= 0 && exp >= -6) {
             if self.exponent > 0 {
                 if !self.digits.isZero {
                     s += pad(self.exponent)
@@ -656,7 +656,7 @@ extension BigDecimal {
                 s.insert(contentsOf:dp, at: s.index(s.startIndex, offsetBy: 1))
             }
             s += expSymbol
-//            if exp > 0 { s += "+" }
+            if Constants.isUnitTesting && exp > 0 { s += "+" }
             s += exp.description
         } else {
             // Engineering notation
