@@ -469,6 +469,14 @@ extension BigDecimal {
      *            specified in the `mc`.
      */
     private static func powInteger(_ x:Self, _ integerY:Self, _ mc:Rounding) -> Self {
+        guard !integerY.isNaN else {
+            return integerY
+        }
+        
+        guard !x.isNaN else {
+            return x
+        }
+        
         var integerY = integerY
         var x = x
         if integerY != integralPart(integerY) {
