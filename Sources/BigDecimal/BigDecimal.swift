@@ -1001,7 +1001,12 @@ extension BigDecimal {
                 return x.signum == y.signum ? infinity : -infinity
             }
         }
-        return Self(x.digits * y.digits, x.exponent + y.exponent)
+        
+        let (exponent, overflowFlag) = x.exponent.addingReportingOverflow(y.exponent)
+        
+        guard !overflowFlag else { return .nan }
+        
+        return Self(x.digits * y.digits, exponent)
     }
 
     /// Multiplication
