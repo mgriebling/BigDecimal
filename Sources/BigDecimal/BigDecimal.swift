@@ -42,6 +42,9 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
     /// BigDecimal('Infinity')
     public static let infinity = Self(.infPos)
     
+    /// BigDecimal('neg Infinity')
+    public static let negInfinity = Self(.infNeg)
+    
     /// BigDecimal('sNaN')
     public static let signalingNaN = Self(.snanPos)
     
