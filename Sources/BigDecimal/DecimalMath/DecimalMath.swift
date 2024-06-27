@@ -1077,7 +1077,14 @@ extension BigDecimal {
      *              precision specified in the `mc`.
      */
     public static func log(_ x:Self, _ mc:Rounding) -> Self {
-        precondition(x.signum > 0, "Illegal log(x) for x <= 0: x = \(x)")
+        if x.signum == 0 {
+            return .negInfinity
+        }
+        
+        if x.signum < 0 {
+            return .nan
+        }
+        
         if x == one {
             return zero
         }
