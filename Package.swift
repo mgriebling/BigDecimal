@@ -18,7 +18,10 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.0"),
+        .package(
+            url: "https://github.com/mgriebling/BigInt.git",
+            revision: "78995be3d400bbcf2b041ad3503c1737e30d6702"
+        ),
         .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.0.0")
         // .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0") // playground incompatible
     ],

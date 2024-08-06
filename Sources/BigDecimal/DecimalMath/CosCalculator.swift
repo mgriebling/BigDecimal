@@ -18,7 +18,7 @@ import BigInt
  * No argument checking or optimizations are done.
  * This implementation is **not** intended to be called directly.
  */
-public struct CosCalculator : SeriesCalculator {
+public struct CosCalculator : SeriesCalculator, Sendable {
     public var calculateInPairs: Bool
     public var factors: [BigInt.BFraction]
     

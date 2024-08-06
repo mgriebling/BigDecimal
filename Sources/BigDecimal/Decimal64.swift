@@ -26,7 +26,7 @@ import BigInt
 ///
 /// Calculations convert Decimal64 numbers to BigDecimal format, perform
 /// the operation, and convert back to Decimal64 format.
-public struct Decimal64 : DecimalType, Codable, Hashable {
+public struct Decimal64 : DecimalType, Codable, Hashable, Sendable {
     
     // Decimal64 characteristics
     static let largestNumber = UInt64(9_999_999_999_999_999)
