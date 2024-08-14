@@ -39,7 +39,7 @@ extension Array where Element == Int {
     subscript(i: UInt32) -> UInt32 { UInt32(self[Int(i)]) }
 }
 
-extension FloatingPointClassification : CustomStringConvertible {
+extension FloatingPointClassification : @retroactive CustomStringConvertible {
   public var description: String {
     switch self {
       case .negativeInfinity: return "Negative Infinity"

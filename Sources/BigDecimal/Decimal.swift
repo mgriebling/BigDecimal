@@ -16,7 +16,7 @@
 
 import BigInt
 
-public struct RawDecimal : Codable, Hashable {
+public struct RawDecimal : Codable, Hashable, Sendable {
     var raw: BInt
 }
 

@@ -11,7 +11,7 @@ import Foundation
 /// The rounding modes
 public typealias RoundingRule = FloatingPointRoundingRule
 
-extension RoundingRule : CustomStringConvertible {
+extension RoundingRule : @retroactive CustomStringConvertible {
     public var description: String {
         switch self {
             case .awayFromZero:

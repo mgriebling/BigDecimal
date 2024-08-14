@@ -1,0 +1,22 @@
+{
+  "pins" : [
+    {
+      "identity" : "bigint",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mgriebling/BigInt.git",
+      "state" : {
+        "revision" : "78995be3d400bbcf2b041ad3503c1737e30d6702"
+      }
+    },
+    {
+      "identity" : "uint128",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mgriebling/UInt128.git",
+      "state" : {
+        "revision" : "59dac4f14d657fd60bacfdfb7398d38b450af74f",
+        "version" : "3.1.5"
+      }
+    }
+  ],
+  "version" : 2
+}
