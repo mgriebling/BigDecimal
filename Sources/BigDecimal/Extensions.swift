@@ -39,6 +39,7 @@ extension Array where Element == Int {
     subscript(i: UInt32) -> UInt32 { UInt32(self[Int(i)]) }
 }
 
+#if swift(>=6.0)
 extension FloatingPointClassification : @retroactive CustomStringConvertible {
   public var description: String {
     switch self {
@@ -55,6 +56,24 @@ extension FloatingPointClassification : @retroactive CustomStringConvertible {
     }
   }
 }
+#else
+extension FloatingPointClassification : CustomStringConvertible {
+  public var description: String {
+    switch self {
+      case .negativeInfinity: return "Negative Infinity"
+      case .negativeNormal: return "Negative Normal"
+      case .negativeSubnormal: return "Negative Subnormal"
+      case .negativeZero: return "Negative Zero"
+      case .positiveInfinity: return "Positive Infinity"
+      case .positiveNormal: return "Positive Normal"
+      case .positiveSubnormal: return "Positive Subnormal"
+      case .positiveZero: return "Positive Zero"
+      case .signalingNaN: return "Signaling Nan"
+      case .quietNaN: return "Quiet Nan"
+    }
+  }
+}
+#endif
 
 extension BinaryFloatingPoint {
     @inline(__always)
