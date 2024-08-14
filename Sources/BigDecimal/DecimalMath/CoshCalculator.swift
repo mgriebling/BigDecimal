@@ -18,7 +18,7 @@ import BigInt
  * No argument checking or optimizations are done.
  * This implementation is **not** intended to be called directly.
  */
-public struct CoshCalculator : SeriesCalculator {
+public struct CoshCalculator : SeriesCalculator, Sendable {
     public var calculateInPairs: Bool
     public var factors: [BigRational]
     

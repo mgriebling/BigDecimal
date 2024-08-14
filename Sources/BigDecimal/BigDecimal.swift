@@ -20,7 +20,7 @@ public typealias Sign = FloatingPointSign
 /// There are three special ``BigDecimal`` values: ``nan`` designating
 /// Not a Number, ``infinity`` designating Infinity, ``signalingNaN``
 /// designating a Signaling Not a Number.
-public struct BigDecimal : Comparable, Equatable, Hashable, Codable {
+public struct BigDecimal : Comparable, Equatable, Hashable, Codable, Sendable {
     
     // MARK: - Constants
     
