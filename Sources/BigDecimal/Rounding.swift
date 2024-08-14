@@ -11,8 +11,7 @@ import Foundation
 /// The rounding modes
 public typealias RoundingRule = FloatingPointRoundingRule
 
-#if swift(>=6.0)
-extension RoundingRule : @retroactive CustomStringConvertible {
+extension RoundingRule : Swift.CustomStringConvertible {
     public var description: String {
         switch self {
             case .awayFromZero:
@@ -33,29 +32,6 @@ extension RoundingRule : @retroactive CustomStringConvertible {
         }
     }
 }
-#else
-extension RoundingRule : CustomStringConvertible {
-    public var description: String {
-        switch self {
-            case .awayFromZero:
-                return "Round away from 0"
-            case .down:
-                return "Round towards -infinity"
-            case .towardZero:
-                return "Round towards 0"
-            case .toNearestOrEven:
-                return "Round to nearest, ties to even"
-            case .toNearestOrAwayFromZero:
-                return "Round to nearest, ties away from 0"
-            case .up:
-                return "Round towards +infinity"
-            @unknown default:
-                assertionFailure("Unknown \(Self.self) rounding mode")
-                return ""
-        }
-    }
-}
-#endif
 /// BigDecimal rounding object containing a rounding mode and a precision
 /// which is the number of digits in the rounded result
 public struct Rounding: Equatable {
