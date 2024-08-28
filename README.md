@@ -57,6 +57,15 @@ dependencies: [
 ]
 ```
 
+## Known Issues
+Tests for some of the Decimal32 conversions and opeations currently fail.
+If you would like to fix the commented-out tests I would encourage you to
+do so and feed back your fixes.  I don't think this is a huge deal for
+most people who have the Decimal64 and Decimal128 types to use.  Frankly,
+I'm only using the BigDecimal arbitrary precision so likely won't address
+this as being urgent. The key problems with Decimal32 seem to be in how
+it is being rounded after calculations. 
+
 ## Basics
 ### Creating BigDecimal's
 	  
@@ -130,7 +139,7 @@ print(String(x128, radix: 16)) // = 220780000000000000000000000000f0
 
 ### Comparing BigDecimal's
 
-The six standard operators == != < <= > >= are available to compare values. 
+The six standard operators ``== != < <= > >=`` are available to compare values. 
 The two operands may either be two ``BigDecimal``'s or a ``BigDecimal`` and 
 an integer. If neither of the operands is NaN, the operators perform as expected.
 For example, -``BigDecimal/infinity`` is less than any finite number which in 
