@@ -10,9 +10,9 @@ limit for performance) and fixed-precision decimal arithmetic in Swift.
 Its functionality falls in the following categories:
 - Arithmetic: addition, subtraction, multiplication, division, remainder and 
   exponentiation
-- Compliant with `DecimalFloatingPoint` and, optionally, `Real` protocols.
-- Support for complex decimal numbers via `swift-numerics` if `Real` protocol 
-  compliance is enabled.
+- Added arbitrary complex decimal number support with the `CBDecimal` type using
+  `swift-numerics`.
+- Compliant with `DecimalFloatingPoint` and `Real` protocols.
 - Constants: `pi`, `zero`, `one`, `ten`
 - Functions: exp, log, log10, log2, pow, sqrt, root, factorial, gamma, 
              trig + inverse, hyperbolic + inverse

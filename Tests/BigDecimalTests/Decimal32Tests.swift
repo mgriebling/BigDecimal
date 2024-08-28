@@ -5053,18 +5053,18 @@ final class Decimal32Tests: XCTestCase {
     var testID = 1
     var prevID = ""
     
-    let classMap : [FloatingPointClassification] = [
-      .signalingNaN, // 0
-      .quietNaN, // 1
-      .negativeInfinity, // 2
-      .negativeNormal, // 3
-      .negativeSubnormal, // 4
-      .negativeZero, // 5
-      .positiveZero, // 6
-      .positiveSubnormal, // 7
-      .positiveNormal, // 8
-      .positiveInfinity // 9
-    ]
+//    let classMap : [FloatingPointClassification] = [
+//      .signalingNaN, // 0
+//      .quietNaN, // 1
+//      .negativeInfinity, // 2
+//      .negativeNormal, // 3
+//      .negativeSubnormal, // 4
+//      .negativeZero, // 5
+//      .positiveZero, // 6
+//      .positiveSubnormal, // 7
+//      .positiveNormal, // 8
+//      .positiveInfinity // 9
+//    ]
     
     func checkValues(_ test: TestCase, _ x: UInt64, _ s: Status,
                      _ msg: String) {

@@ -16,7 +16,6 @@ limitations under the License.
 */
 
 import BigInt
-// import UInt128
 
 public typealias IntRange = ClosedRange<Int>
 

@@ -249,13 +249,12 @@ extension BigDecimal : Strideable {
 }
 
 extension BigDecimal : ExpressibleByIntegerLiteral {
-//    public init(integerLiteral value: StaticBigInt) {
-//        let bint = BInt(integerLiteral: value)
-//        self = Self(bint)
-//    }
-    public init(integerLiteral value: Int) {
-        self.init(value)
+    
+    public init(integerLiteral value: StaticBigInt) {
+        self = Self(BInt(integerLiteral: value))
     }
+    
+    public typealias IntegerLiteralType = StaticBigInt
 }
 
 extension BigDecimal : SignedNumeric {
