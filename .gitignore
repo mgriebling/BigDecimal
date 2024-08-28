@@ -6,5 +6,5 @@ xcuserdata/
 DerivedData/
 .swiftpm/config/registries.json
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.swiftpm/xcode/package.xcworkspace/xcuserdata/mikeg.xcuserdatad/UserInterfaceState.xcuserstate
 .netrc
-UserInterfaceState.xcuserstate
