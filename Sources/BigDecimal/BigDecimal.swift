@@ -7,7 +7,7 @@
 
 import Foundation   // For Data/Decimal data types
 import BigInt       // Basis for digit storage and conversions
-import UInt128      // For UInt128 data type
+// import UInt128      // For UInt128 data type
 
 public typealias Sign = FloatingPointSign
 

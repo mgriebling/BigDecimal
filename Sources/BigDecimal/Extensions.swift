@@ -15,12 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import UInt128
+// import UInt128
 import BigInt
 
 extension UInt128 {
   public init(w: [UInt64]) {
-    self.init((UInt128.High(w[1]), UInt128.Low(w[0])))
+    // self.init((UInt128.High(w[1]), UInt128.Low(w[0])))
+      self.init(_low: w[0], _high:w[1])
   }
 }
 

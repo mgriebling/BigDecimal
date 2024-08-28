@@ -1,6 +1,6 @@
 import XCTest
 @testable import BigDecimal
-@testable import UInt128
+// @testable import UInt128
 @testable import BigInt
 
 let verbose = true  // set to false to skip test-by-test passes
@@ -53,8 +53,8 @@ final class Decimal32Tests: XCTestCase {
     init(_ id: String, _ roundMode:Int, _ istr:String, _ res128:String, _ status:Int) {
       self.id = id
       let r128 = UInt128(res128.dropFirst(2), radix: 16)!
-      self.reshi = r128.components.high
-      self.reslo = r128.components.low
+      self.reshi = r128._high
+      self.reslo = r128._low
       self.res = 0
       self.istr = istr
       self.status = TestCase.toStatus(status)
@@ -5157,12 +5157,12 @@ final class Decimal32Tests: XCTestCase {
         case "bid32_to_bid128":
           let t1 = getNumber(test.istr)
           let b128 = Decimal128(t1)
-          let d128 = Decimal128(bid:UInt128(high: test.reshi, low: test.reslo))
+          let d128 = Decimal128(bid:UInt128(_low: test.reslo,_high: test.reshi))
           let error = String(format:
                             "0x%08X%08X[\(d128)] != 0x%08X%08X[\(b128)]",
                              test.reshi, test.reslo,
-                             b128.bid.components.high,
-                             b128.bid.components.low)
+                             b128.bid._high,
+                             b128.bid._low)
           checkValues(test, b128.bid, state, error)
         case "bid32_to_bid64":
           let t1 = getNumber(test.istr)
