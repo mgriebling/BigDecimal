@@ -39,12 +39,13 @@ BigDecimal requires Swift from macOS 15.0+, iOS 18.0+, macCatalyst 15.0+,
 tvOS 18.o+, or watchOS 11.0+. It also requires that the `Int` type be a 64-bit 
 type.
 
-The BigDecimal package depends on the BigInt package and now uses the built-in
-UInt128 which is now part of the new OS releases.
+The BigDecimal package depends on the `BigInt` and `swift-numerics` packages.
+It also uses the built-in UInt128 which is part of the new OS releases.
 
 ```
 dependencies: [
-  .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.0")
+  .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.0")        
+  .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
 ]
 ```
 
@@ -101,7 +102,16 @@ Because Double values cannot represent all decimal values exactly,
 one sees that BigDecimal(0.1) is not exactly equal to 1 / 10 as one might expect.
 On the other hand, BigDecimal("0.1") is in fact exactly equal to 1 / 10.
 
+### Creating Complex BigDecimals (CBDecimals)
+
+```swift
+let c = CBDecimal.i // imaginary component of 1
+let a = CBDecimal(BigDecimal(10.5)) // real component of 10.5
+let b = CBDecimal(stringLiteral: "-1.54321e10-25.4i") // exact real and imaginary parts
+```
+
 ### Converting BigDecimal's
+
 ``BigDecimal`` values can be converted to `String` values, `Double` values, 
 `Decimal` (the Swift Foundation type) values, and ``Decimal32``, ``Decimal64``,
 and ``Decimal128`` values.

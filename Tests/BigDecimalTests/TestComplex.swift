@@ -21,9 +21,10 @@ final class TestComplex: XCTestCase {
     func testExample() throws {
         let c = CBDecimal.i
         let a = CBDecimal(BigDecimal(10.5))
+        let b = CBDecimal(stringLiteral: "-1.54321e10-25.4i")
         let x = c * a
-        let s = x.description
-        print(s)
+        XCTAssertEqual("\(b)", "-15432100000-25.4i")
+        XCTAssertEqual("\(x)", "10.5i")
     }
 
     func testPerformanceExample() throws {

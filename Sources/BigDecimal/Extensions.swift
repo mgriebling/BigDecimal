@@ -17,18 +17,11 @@ limitations under the License.
 
 // import UInt128
 import BigInt
-import ComplexModule
-import RealModule
+import Foundation
 
-public typealias CBDecimal = Complex<BigDecimal>
-
-extension BigDecimal : Real {
-    // operations for this are already defined
-}
 
 extension UInt128 {
     public init(w: [UInt64]) {
-        // self.init((UInt128.High(w[1]), UInt128.Low(w[0])))
         self.init(_low: w[0], _high:w[1])
     }
 }
