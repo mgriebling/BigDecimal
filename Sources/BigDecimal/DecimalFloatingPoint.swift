@@ -16,11 +16,10 @@ limitations under the License.
 */
 
 import BigInt
-import UInt128
 
 public typealias IntRange = ClosedRange<Int>
 
-protocol DecimalType : Codable, Hashable {
+protocol DecimalType : Codable, Hashable, Sendable {
     
     associatedtype RawData : UnsignedInteger & FixedWidthInteger
     associatedtype RawBitPattern : UnsignedInteger & FixedWidthInteger

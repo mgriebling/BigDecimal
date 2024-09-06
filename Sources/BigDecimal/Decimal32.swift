@@ -26,7 +26,7 @@ import BigInt
 ///
 /// Calculations convert Decimal32 numbers to BigDecimal format, perform
 /// the operation, and convert back to Decimal32 format.
-public struct Decimal32 : DecimalType, Codable, Hashable {
+public struct Decimal32 : DecimalType, Codable, Hashable, Sendable {
     // Decimal32 characteristics
     static let largestNumber  = UInt32(9_999_999)
     static let exponentBias   = 101

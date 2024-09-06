@@ -7,7 +7,7 @@
 
 import BigInt
 
-public protocol SeriesCalculator {
+public protocol SeriesCalculator: Sendable {
     
     typealias BigRational = BigInt.BFraction
     

@@ -17,7 +17,7 @@ import BigInt
  * No argument checking or optimizations are done.
  * This implementation is **not** intended to be called directly.
  */
-public struct ExpCalculator : SeriesCalculator {    
+public struct ExpCalculator : SeriesCalculator, Sendable {    
     public static var instance = ExpCalculator()
     
     public var calculateInPairs: Bool

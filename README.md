@@ -10,9 +10,9 @@ limit for performance) and fixed-precision decimal arithmetic in Swift.
 Its functionality falls in the following categories:
 - Arithmetic: addition, subtraction, multiplication, division, remainder and 
   exponentiation
-- Compliant with `DecimalFloatingPoint` and, optionally, `Real` protocols.
-- Support for complex decimal numbers via `swift-numerics` if `Real` protocol 
-  compliance is enabled.
+- Added arbitrary complex decimal number support with the `CBDecimal` type using
+  `swift-numerics`.
+- Compliant with `DecimalFloatingPoint` and `Real` protocols.
 - Constants: `pi`, `zero`, `one`, `ten`
 - Functions: exp, log, log10, log2, pow, sqrt, root, factorial, gamma, 
              trig + inverse, hyperbolic + inverse
@@ -35,16 +35,17 @@ Its functionality falls in the following categories:
   latter having a `signaling` option.
 
 ## Dependencies
-BigDecimal requires Swift from macOS 13.3+, iOS 16.4+, macCatalyst 16.4+, 
-tvOS 16.4+, or watchOS 9.4+. It also requires that the `Int` type be a 64-bit 
+BigDecimal requires Swift from macOS 15.0+, iOS 18.0+, macCatalyst 15.0+, 
+tvOS 18.o+, or watchOS 11.0+. It also requires that the `Int` type be a 64-bit 
 type.
 
-The BigDecimal package depends on the BigInt and UInt128 packages.
+The BigDecimal package depends on the `BigInt` and `swift-numerics` packages.
+It also uses the built-in UInt128 which is part of the new OS releases.
 
 ```
 dependencies: [
-  .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.0"),
-  .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.0.0")
+  .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.0")        
+  .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
 ]
 ```
 
@@ -56,6 +57,15 @@ dependencies: [
   .package(url: "https://github.com/mgriebling/BigDecimal.git", from: "2.0.0"),
 ]
 ```
+
+## Known Issues
+Tests for some of the Decimal32 conversions and opeations currently fail.
+If you would like to fix the commented-out tests I would encourage you to
+do so and feed back your fixes.  I don't think this is a huge deal for
+most people who have the Decimal64 and Decimal128 types to use.  Frankly,
+I'm only using the BigDecimal arbitrary precision so likely won't address
+this as being urgent. The key problems with Decimal32 seem to be in how
+it is being rounded after calculations. 
 
 ## Basics
 ### Creating BigDecimal's
@@ -92,7 +102,16 @@ Because Double values cannot represent all decimal values exactly,
 one sees that BigDecimal(0.1) is not exactly equal to 1 / 10 as one might expect.
 On the other hand, BigDecimal("0.1") is in fact exactly equal to 1 / 10.
 
+### Creating Complex BigDecimals (CBDecimals)
+
+```swift
+let c = CBDecimal.i // imaginary component of 1
+let a = CBDecimal(BigDecimal(10.5)) // real component of 10.5
+let b = CBDecimal(stringLiteral: "-1.54321e10-25.4i") // exact real and imaginary parts
+```
+
 ### Converting BigDecimal's
+
 ``BigDecimal`` values can be converted to `String` values, `Double` values, 
 `Decimal` (the Swift Foundation type) values, and ``Decimal32``, ``Decimal64``,
 and ``Decimal128`` values.
@@ -130,7 +149,7 @@ print(String(x128, radix: 16)) // = 220780000000000000000000000000f0
 
 ### Comparing BigDecimal's
 
-The six standard operators == != < <= > >= are available to compare values. 
+The six standard operators ``== != < <= > >=`` are available to compare values. 
 The two operands may either be two ``BigDecimal``'s or a ``BigDecimal`` and 
 an integer. If neither of the operands is NaN, the operators perform as expected.
 For example, -``BigDecimal/infinity`` is less than any finite number which in 

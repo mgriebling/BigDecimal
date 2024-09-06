@@ -11,7 +11,7 @@ import Foundation
 /// The rounding modes
 public typealias RoundingRule = FloatingPointRoundingRule
 
-extension RoundingRule : CustomStringConvertible {
+extension RoundingRule : Swift.CustomStringConvertible {
     public var description: String {
         switch self {
             case .awayFromZero:
@@ -32,7 +32,6 @@ extension RoundingRule : CustomStringConvertible {
         }
     }
 }
-
 /// BigDecimal rounding object containing a rounding mode and a precision
 /// which is the number of digits in the rounded result
 public struct Rounding: Equatable {

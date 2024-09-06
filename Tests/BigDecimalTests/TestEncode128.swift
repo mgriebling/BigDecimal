@@ -12,7 +12,7 @@
 
 import XCTest
 @testable import BigDecimal
-import UInt128
+// import UInt128
 
 final class TestEncode128: XCTestCase {
 
@@ -23,8 +23,8 @@ final class TestEncode128: XCTestCase {
     static func U128(_ x: String) -> UInt128 {
         assert(x.count == 32)
         let mid = x.index(x.startIndex, offsetBy: 16)
-        return UInt128(high: UInt64(x[x.startIndex ..< mid], radix: 16)!,
-                       low: UInt64(x[mid ..< x.endIndex], radix: 16)!)
+        return UInt128(_low: UInt64(x[mid ..< x.endIndex], radix: 16)!,
+                       _high: UInt64(x[x.startIndex ..< mid], radix: 16)!)
     }
 
     struct test {
@@ -53,10 +53,10 @@ final class TestEncode128: XCTestCase {
     func test1() {
         for t in tests1 {
             XCTAssertEqual(Decimal128(t.dec, .dpd).asBigDecimal().asString(), t.x)
-            XCTAssertEqual(Decimal128(BigDecimal(t.x)).asUInt128(.dpd).components.high,
-                           t.dec.components.high)
-            XCTAssertEqual(Decimal128(BigDecimal(t.x)).asUInt128(.dpd).components.low,
-                           t.dec.components.low)
+            XCTAssertEqual(Decimal128(BigDecimal(t.x)).asUInt128(.dpd)._high,
+                           t.dec._high)
+            XCTAssertEqual(Decimal128(BigDecimal(t.x)).asUInt128(.dpd)._low,
+                           t.dec._low)
         }
         XCTAssertFalse(BigDecimal.nanFlag)
     }

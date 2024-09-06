@@ -15,13 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import UInt128
+// import UInt128
 import BigInt
+import Foundation
+
 
 extension UInt128 {
-  public init(w: [UInt64]) {
-    self.init((UInt128.High(w[1]), UInt128.Low(w[0])))
-  }
+    public init(w: [UInt64]) {
+        self.init(_low: w[0], _high:w[1])
+    }
 }
 
 extension FloatingPointSign {
@@ -39,7 +41,7 @@ extension Array where Element == Int {
     subscript(i: UInt32) -> UInt32 { UInt32(self[Int(i)]) }
 }
 
-extension FloatingPointClassification : CustomStringConvertible {
+extension FloatingPointClassification : Swift.CustomStringConvertible {
   public var description: String {
     switch self {
       case .negativeInfinity: return "Negative Infinity"
