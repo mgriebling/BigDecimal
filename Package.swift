@@ -18,7 +18,6 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.0.11"),
-        // .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.0.0")
         .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
     ],
     targets: [
