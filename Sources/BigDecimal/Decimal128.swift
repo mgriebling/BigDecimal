@@ -13,7 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-// import UInt128
+
+import UInt128
 import BigInt
 
 /// Implementation of the 128-bit Decimal128 floating-point operations from
@@ -26,7 +27,8 @@ import BigInt
 ///
 /// Calculations convert Decimal128 numbers to BigDecimal format, perform
 /// the operation, and convert back to Decimal128 format.
-public struct Decimal128 : DecimalType, Codable, Hashable, Sendable {    
+public struct Decimal128 : DecimalType, Codable, Hashable, Sendable {
+    
     // Decimal64 characteristics
     static let largestNumber = UInt128("9999999999999999999999999999999999")!
     static let exponentBias   = 6176
@@ -40,7 +42,7 @@ public struct Decimal128 : DecimalType, Codable, Hashable, Sendable {
     var bid: UInt128 = 0
     
     public init(bid: UInt128) { self.bid = bid }
-    init(bid: ID)             { self.bid = bid.asDecimal128(.bid)  }
+    init(bid: ID)              { self.bid = bid.asDecimal128(.bid)  }
     
     /// convenience method to get the BigDecimal version of `bid`
     var bd : BigDecimal { ID(self.bid, .bid) }

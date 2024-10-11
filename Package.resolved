@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mgriebling/BigInt.git",
       "state" : {
-        "revision" : "bd3f45f402138bd391669a3cc9118413f21d3dcc",
-        "version" : "2.1.0"
+        "revision" : "63a4619704c990a67ccd6ba6837c80ee863a2eec",
+        "version" : "2.2.4"
       }
     },
     {
@@ -16,6 +16,15 @@
       "state" : {
         "revision" : "0a5bc04095a675662cf24757cc0640aa2204253b",
         "version" : "1.0.2"
+      }
+    },
+    {
+      "identity" : "uint128",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mgriebling/UInt128.git",
+      "state" : {
+        "revision" : "59dac4f14d657fd60bacfdfb7398d38b450af74f",
+        "version" : "3.1.5"
       }
     }
   ],

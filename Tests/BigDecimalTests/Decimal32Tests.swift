@@ -1,6 +1,6 @@
 import XCTest
 @testable import BigDecimal
-// @testable import UInt128
+@testable import UInt128
 @testable import BigInt
 
 let verbose = true  // set to false to skip test-by-test passes

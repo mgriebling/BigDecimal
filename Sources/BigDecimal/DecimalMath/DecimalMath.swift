@@ -139,6 +139,12 @@ extension BigDecimal {
         return cache
     }()
     
+    /**
+     * Computes an integer factorial.
+     *
+     * - Parameter n: Factorial to calculate.
+     * - Returns: The BigDecimal factorial of `n`.
+     */
     public static func factorial(_ n: Int) -> BigDecimal {
         precondition(n >= 0, "Illegal factorial(n) for n < 0: n = \(n)")
         
