@@ -35,7 +35,7 @@ Its functionality falls in the following categories:
   latter having a `signaling` option.
 
 ## Dependencies
-BigDecimal requires Swift from macOS 15.0+, iOS 13.3+, macCatalyst 13.3+, 
+BigDecimal requires Swift from macOS 13.3+, iOS 16.4+, macCatalyst 13.3+, 
 tvOS 16.4+, or watchOS 9.4+. It also requires that the `Int` type be a 64-bit 
 type.
 
