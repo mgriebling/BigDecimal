@@ -21,7 +21,7 @@ public struct SinhCalculator : SeriesCalculator, Sendable {
     public var calculateInPairs: Bool
     public var factors: [BigRational]
     
-    static var instance = SinhCalculator()
+    static let instance = SinhCalculator()
     
     private var n = 0
     private var factorial2nPlus1 = BigRational.ONE

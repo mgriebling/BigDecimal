@@ -5,9 +5,9 @@
 //  Created by Mike Griebling on 28.08.2024.
 //
 
-import Foundation
-import ComplexModule
-import RealModule
+import Foundation       // Scanner
+import ComplexModule    // Complex definition
+import RealModule       // Real protocol
 
 public typealias CBDecimal = Complex<BigDecimal>
 
@@ -25,7 +25,7 @@ extension String.StringInterpolation {
 
 extension Complex where RealType == BigDecimal {
     
-    // FIXME: Decimal is not an unlimited-precision number
+    // FIXME: Decimal scanner is not an unlimited-precision number
     public init(stringLiteral s:String) {
         let s = s.replacingOccurrences(of: " ", with: "")
         guard !s.isEmpty else { self = .zero; return }
@@ -62,8 +62,8 @@ extension Complex where RealType == BigDecimal {
 
 // MARK: - Formatting
 extension Complex where RealType == BigDecimal {
-    
-    // Note: does not override default `description` when printing??
+    // Note: does not override default `description` when printing
+    // See below for a print interceptor that fixes this.
     public var description: String {
         guard isFinite else {
             return "inf"
@@ -104,5 +104,18 @@ extension Complex where RealType == BigDecimal {
         }
         return "\(r)+" + i + "i"
     }
-    
+}
+
+/// Need this to intercept CBDecimals printing because the Complex class
+/// defines a CustomStringConvertable implementation which cannot
+/// be overriden. If file output is needed, also intercept the print
+/// function with the "to: inout Target" as the last parameter.
+public func print(_ args:Any..., separator: String = " ", terminator: String = "\n") {
+    for arg in args {
+        if let c = arg as? CBDecimal {
+            Swift.print(c.description, separator: separator, terminator: terminator)
+        } else {
+            Swift.print(arg, separator: separator, terminator: terminator)
+        }
+    }
 }

@@ -27,7 +27,10 @@ let package = Package(
         .target(
             name: "BigDecimal",
             dependencies: ["BigInt", "UInt128",
-                      .product(name: "Numerics", package: "swift-numerics")]),
+                      .product(name: "Numerics", package: "swift-numerics")],
+            swiftSettings: [
+              .enableUpcomingFeature("StrictConcurrency")
+            ]),
         .testTarget(
             name: "BigDecimalTests",
             dependencies: ["BigDecimal"]),

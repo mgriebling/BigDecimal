@@ -12,7 +12,7 @@ import BigInt
 class TestConstructor: XCTestCase {
 
     override func setUpWithError() throws {
-        BigDecimal.nanFlag = false
+        //BigDecimal.nanFlag = false
     }
 
     let value = BInt(12345908)
@@ -22,7 +22,7 @@ class TestConstructor: XCTestCase {
         let big = BigDecimal(value)
         XCTAssertEqual(big.digits, value)
         XCTAssertEqual(big.exponent, 0)
-        XCTAssertFalse(BigDecimal.nanFlag)
+        //XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func test2() {
@@ -30,7 +30,7 @@ class TestConstructor: XCTestCase {
         XCTAssertEqual(big.digits, value2)
         XCTAssertEqual(big.exponent, -5)
         XCTAssertEqual(big.asString(), "123345.60000")
-        XCTAssertFalse(BigDecimal.nanFlag)
+        //XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func test3() throws {
@@ -49,7 +49,7 @@ class TestConstructor: XCTestCase {
         XCTAssertEqual(big.asDouble(), 0.00345)
         big = BigDecimal(-0.0)
         XCTAssertEqual(big.exponent, 0)
-        XCTAssertFalse(BigDecimal.nanFlag)
+       // XCTAssertFalse(BigDecimal.nanFlag)
     }
     
     func test4() throws {
@@ -67,7 +67,7 @@ class TestConstructor: XCTestCase {
         XCTAssertTrue(BigDecimal("").isNaN)
         XCTAssertTrue(BigDecimal("+35e+-2").isNaN)
         XCTAssertTrue(BigDecimal("-35e-+2").isNaN)
-        XCTAssertTrue(BigDecimal.nanFlag)
+        //XCTAssertTrue(BigDecimal.nanFlag)
     }
 
 }

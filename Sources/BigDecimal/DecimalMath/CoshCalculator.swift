@@ -22,7 +22,7 @@ public struct CoshCalculator : SeriesCalculator, Sendable {
     public var calculateInPairs: Bool
     public var factors: [BigRational]
     
-    static var instance = CoshCalculator()
+    static let instance = CoshCalculator()
     
     private var n = 0
     private var factorial2n = BigRational.ONE

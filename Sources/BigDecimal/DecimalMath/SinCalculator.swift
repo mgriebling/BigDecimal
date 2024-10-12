@@ -21,7 +21,7 @@ public struct SinCalculator : SeriesCalculator, Sendable {
     public var calculateInPairs: Bool
     public var factors: [BigRational]
     
-    static var instance = SinCalculator()
+    static let instance = SinCalculator()
     
     private var n = 0
     private var negative = false

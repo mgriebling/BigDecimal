@@ -352,7 +352,7 @@ extension BigDecimal : FloatingPoint {
     // MARK: - FloatingPoint Static Properties
     
     // Default precision and rounding same as Decimal128
-    public static var mc = Rounding.decimal128
+    public static let mc = Rounding.decimal128
     
     public static var radix: Int     { 10 }
     public static var pi: Self       { Self.pi(mc) }
@@ -598,12 +598,6 @@ extension BigDecimal {
         self.isFinite ? Self(BInt.ONE, self.exponent) : Self.flagNaN()
     }
 
-    
-    // MARK: Static variables
-
-    /// NaN flag - set to *true* whenever a NaN value is generated
-    /// Can be set to *false* by application code
-    public static var nanFlag = false
 
     // MARK: Conversion functions
     
@@ -1332,7 +1326,7 @@ extension BigDecimal {
         // detect nan, snan, and inf
         if sl.hasPrefix("nan") {
             sl.removeFirst(3)
-            Self.nanFlag = true // set flag
+//            Self.nanFlag = true // set flag
             if let payload = Int(sl) {
                 return Self(sign == .minus ? .nanNeg : .nanPos, payload)
             }
@@ -1417,7 +1411,8 @@ extension BigDecimal {
     
     static func flagNaN(_ signaling:Bool=false) -> Self {
         if signaling { return Self.signalingNaN }
-        Self.nanFlag = true
+        // FIXME: Where to put nanFlag?
+//        Self.nanFlag = true
         return Self.nan
     }
 }

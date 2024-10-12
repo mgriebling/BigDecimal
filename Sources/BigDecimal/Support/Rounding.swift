@@ -34,7 +34,7 @@ extension RoundingRule : Swift.CustomStringConvertible {
 }
 /// BigDecimal rounding object containing a rounding mode and a precision
 /// which is the number of digits in the rounded result
-public struct Rounding: Equatable {
+public struct Rounding: Equatable, Sendable {
     // MARK: Constants
 
     /// Decimal32 rounding: .toNearestOrEven, 7
@@ -163,9 +163,13 @@ public struct Rounding: Equatable {
     }
 }
 
-public struct Status: OptionSet, CustomStringConvertible {
+public struct Status: OptionSet, CustomStringConvertible, Sendable {
   
   public let rawValue: Int
+    
+  /// NaN flag - set to *true* whenever a NaN value is generated
+  /// Can be set to *false* by application code
+  public var nanFlag = false
   
   /* IEEE extended flags only */
   private static let DConversion_syntax    = 0x00000001

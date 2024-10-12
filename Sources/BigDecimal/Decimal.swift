@@ -175,14 +175,14 @@ extension RawDecimal : FixedWidthInteger {
 /// This implementation is entirely independent of Apple's Decimal data
 /// type implementation and would be suitable for incorporation into the
 /// new Foundation library.
-public struct Decimal : DecimalType, Codable, Hashable {
+public struct Decimal : DecimalType, Codable, Sendable, Hashable {
 
-    static var largestNumber = RawDecimal("0")!
+    static let largestNumber = RawDecimal("0")!
 
-    static var exponentBias = 0
-    static var exponentBits = 32
-    static var maxExponent = 128
-    static var maxDigits = 38
+    static let exponentBias = 0
+    static let exponentBits = 32
+    static let maxExponent = 128
+    static let maxDigits = 38
     
     public typealias ID = Decimal
     
