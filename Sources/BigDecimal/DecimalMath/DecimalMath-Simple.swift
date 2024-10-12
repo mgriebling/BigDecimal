@@ -5,11 +5,9 @@
 //  Created by Mike Griebling on 10.07.2023.
 //
 
-// import RealModule - temporarily removed due to playground incompatibility
-
 /// `Real` number protocol compliance using a simplified interface with
 /// a fixed precision given by a global rounding context: `BigDecimal.mc`.
-extension BigDecimal { // : Real {
+extension BigDecimal {
     
     @inlinable
     public static func atan2(y: BigDecimal, x: BigDecimal) -> BigDecimal {

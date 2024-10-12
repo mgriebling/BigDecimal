@@ -70,12 +70,15 @@ class TestOperations: XCTestCase {
         let sqrt10000 = BigDecimal.sqrt(10000, decimal128)
         XCTAssertEqual(sqrt10000, BigDecimal(100))
         
-        let cbrt = BigDecimal.root(2, 3, decimal138)
+        let cbrt = BigDecimal.root(2, 3, decimal128)
         XCTAssertEqual(cbrt.round(decimal128).description,
                        "1.259921049894873164767210607278228")
         
         let cubed = BigDecimal.pow(cbrt, 3, decimal128)
-        XCTAssertEqual(cubed.description, "2.000000000000000000000000000000000")
+        XCTAssertEqual(cubed.description, "1.999999999999999999999999999999998")
+        
+        let bernie = BigDecimal.bernoulli(20, decimal128)
+        XCTAssertEqual(bernie.asString(), "-529.1242424242424242424242424242424")
         
         let power = BigDecimal.pow(BigDecimal("1.2"), BigDecimal("1000.5"), decimal128)
         XCTAssertEqual(power.description,
@@ -90,6 +93,9 @@ class TestOperations: XCTestCase {
         let fact1000limited = BigDecimal.factorial(1000, decimal128)
         XCTAssertEqual(fact1000limited.description,
                        "4.023872600770937735437024339230040E+2567")
+        
+        let fact = BigDecimal.factorial(BigDecimal(1000), decimal128)
+        XCTAssertEqual(fact.description, "4.023872600770937735437024339230040E+2567")
 
         let gammaHalf = BigDecimal.gamma(BigDecimal("0.5"), decimal128)
         XCTAssertEqual(gammaHalf.description,

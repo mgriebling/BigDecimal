@@ -35,17 +35,17 @@ Its functionality falls in the following categories:
   latter having a `signaling` option.
 
 ## Dependencies
-BigDecimal requires Swift from macOS 15.0+, iOS 18.0+, macCatalyst 15.0+, 
-tvOS 18.0+, or watchOS 11.0+. It also requires that the `Int` type be a 64-bit 
+BigDecimal requires Swift from macOS 15.0+, iOS 13.3+, macCatalyst 13.3+, 
+tvOS 16.4+, or watchOS 9.4+. It also requires that the `Int` type be a 64-bit 
 type.
 
-The BigDecimal package depends on the BigInt and swift-numerics packages.
-It also uses the built-in UInt128 which is part of the new OS releases.
+The BigDecimal package depends on the BigInt, UInt128, and swift-numerics packages.
 
 ```
 dependencies: [
   .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.2.0")        
-  .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
+  .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
+  .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.1.5")
 ]
 ```
 
@@ -54,7 +54,7 @@ In your project's Package.swift file add a dependency like
 
 ```
 dependencies: [
-  .package(url: "https://github.com/mgriebling/BigDecimal.git", from: "2.2.0"),
+  .package(url: "https://github.com/mgriebling/BigDecimal.git", from: "3.0.2"),
 ]
 ```
 
