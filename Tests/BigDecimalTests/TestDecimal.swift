@@ -12,7 +12,7 @@ import BigInt
 final class TestDecimal: XCTestCase {
 
     override func setUpWithError() throws {
-        //BigDecimal.nanFlag = false
+        BigDecimal.nanFlag = false
     }
 
     func testBasic() throws {
@@ -28,7 +28,7 @@ final class TestDecimal: XCTestCase {
         let d10 = Decimal(10.0)
         let x10 = BigDecimal(d10)
         XCTAssertEqual(x10, BigDecimal.ten)
-        //XCTAssertFalse(BigDecimal.nanFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testMax() throws {
@@ -42,7 +42,7 @@ final class TestDecimal: XCTestCase {
 
         let d = (x + 1).asDecimal()
         XCTAssertEqual(d, Decimal.nan)
-        //XCTAssertFalse(BigDecimal.nanFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testMin() throws {
@@ -55,7 +55,7 @@ final class TestDecimal: XCTestCase {
 
         let d = BigDecimal(BInt.ONE, -129).asDecimal()
         XCTAssertEqual(d, 0.0)
-        //XCTAssertFalse(BigDecimal.nanFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func testNaN() throws {
@@ -64,7 +64,7 @@ final class TestDecimal: XCTestCase {
         XCTAssertTrue(x.isNaN)
         let d1 = BigDecimal.nan.asDecimal()
         XCTAssertEqual(d1, Decimal.nan)
-        //XCTAssertTrue(BigDecimal.nanFlag)
+        XCTAssertTrue(BigDecimal.nanFlag)
     }
 
     func test1() throws {

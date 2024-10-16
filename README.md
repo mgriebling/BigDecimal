@@ -50,7 +50,7 @@ dependencies: [
 ```
 
 ## Usage
-In your project's Package.swift file add a dependency like
+In your project's Package.swift file add a dependency like:
 
 ```
 dependencies: [

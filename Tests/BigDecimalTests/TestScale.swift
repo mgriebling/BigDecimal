@@ -12,8 +12,7 @@ import BigInt
 final class TestScale: XCTestCase {
 
     override func setUpWithError() throws {
-        // FIXME: where to put nanFlag?
-        // BigDecimal.nanFlag = false
+        BigDecimal.nanFlag = false
     }
 
     struct test {

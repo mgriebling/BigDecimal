@@ -17,15 +17,14 @@ import UInt128
 final class TestEncode128: XCTestCase {
 
     override func setUpWithError() throws {
-        // FIXME: where to put nanFlag?
-        // BigDecimal.nanFlag = false
+        BigDecimal.nanFlag = false
     }
 
     static func U128(_ x: String) -> UInt128 {
         assert(x.count == 32)
         let mid = x.index(x.startIndex, offsetBy: 16)
-        return UInt128(high:  UInt64(x[x.startIndex ..< mid], radix: 16)!,
-                       low:UInt64(x[mid ..< x.endIndex], radix: 16)!)
+        return UInt128((high:  UInt64(x[x.startIndex ..< mid], radix: 16)!,
+                         low:UInt64(x[mid ..< x.endIndex], radix: 16)!))
     }
 
     struct test {
@@ -54,13 +53,11 @@ final class TestEncode128: XCTestCase {
     func test1() {
         for t in tests1 {
             XCTAssertEqual(Decimal128(t.dec, .dpd).asBigDecimal().asString(), t.x)
-            XCTAssertEqual(Decimal128(BigDecimal(t.x)).asUInt128(.dpd)._high,
-                           t.dec._high)
-            XCTAssertEqual(Decimal128(BigDecimal(t.x)).asUInt128(.dpd)._low,
-                           t.dec._low)
+            let n = Decimal128(BigDecimal(t.x)).asUInt128(.dpd)
+            // XCTAssertTrue(n._high == t.dec._high)
+            XCTAssertEqual(n, t.dec)
         }
-        // FIXME: where to put nanFlag?
-       //  XCTAssertFalse(BigDecimal.nanFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     let tests2: [test] = [
@@ -78,7 +75,7 @@ final class TestEncode128: XCTestCase {
         for t in tests2 {
             XCTAssertEqual(Decimal128(t.dec, .dpd).asBigDecimal().asString(), t.x)
         }
-        // XCTAssertFalse(BigDecimal.nanFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     let tests3: [test] = [
@@ -98,7 +95,7 @@ final class TestEncode128: XCTestCase {
             XCTAssertTrue(bd.isInfinite || bd.isNaN)
         }
         XCTAssertTrue(Decimal128(BigDecimal.nan).asBigDecimal().isNaN)
-        // XCTAssertTrue(BigDecimal.nanFlag)
+        XCTAssertTrue(BigDecimal.nanFlag)
     }
 
 }

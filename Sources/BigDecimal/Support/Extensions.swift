@@ -18,10 +18,10 @@ limitations under the License.
 import UInt128
 import BigInt
 
-extension UInt128 {
-    public var _high: UInt64 { UInt64(self.components.high) }
-    public var _low: UInt64  { UInt64(self.components.low) }
-}
+//extension UInt128 {
+//    public var _high: UInt64 { UInt64(self.components.high) }
+//    public var _low: UInt64  { UInt64(self.components.low) }
+//}
 
 extension FloatingPointSign {
   public var toggle: Sign { self == .minus ? .plus : .minus }
@@ -57,8 +57,7 @@ extension FloatingPointClassification : Swift.CustomStringConvertible {
 
 extension BinaryFloatingPoint {
     @inline(__always)
-    public init<T: DecimalFloatingPoint>(_ source: T,
-                                    round: RoundingRule = .toNearestOrEven) {
+    public init<T: DecimalFloatingPoint>(_ source: T, round: RoundingRule = .toNearestOrEven) {
         if Self.self == Double.self {
             let t : Double
             if let x = source as? Decimal32 {

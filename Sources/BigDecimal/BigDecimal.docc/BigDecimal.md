@@ -372,7 +372,7 @@ print(numbers)
 // Prints "[-9.5, 2.5, 3.0, 21.25, nan]"
 ```
 
-There is a static boolean variable *BigDecimal.NaNFlag* which is set to 
+There is a static boolean variable *BigDecimal.nanFlag* which is set to 
 *true* whenever a NaN value is generated. It can be set to *false* by 
 application code. Therefore, to check if a sequence of code generates NaN,
 set NaNFlag to *false* before the code and check it after the code. Since 

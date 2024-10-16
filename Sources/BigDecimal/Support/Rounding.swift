@@ -68,7 +68,6 @@ public struct Rounding: Equatable, Sendable {
     
     /// The rounding precision - a positive number
     public internal(set) var precision: Int
-
     
     // MARK: Round function
     
@@ -81,9 +80,7 @@ public struct Rounding: Equatable, Sendable {
         if x.isNaN { let _ = BigDecimal.flagNaN(); return x }
         else if x.isInfinite { return x }
         let d = x.precision - self.precision
-        if d <= 0 {
-            return x
-        }
+        if d <= 0 { return x }
         let q = roundBInt(x.digits, d)
         let pr = q.abs.asString().count
         if pr > self.precision {
@@ -166,10 +163,6 @@ public struct Rounding: Equatable, Sendable {
 public struct Status: OptionSet, CustomStringConvertible, Sendable {
   
   public let rawValue: Int
-    
-  /// NaN flag - set to *true* whenever a NaN value is generated
-  /// Can be set to *false* by application code
-  public var nanFlag = false
   
   /* IEEE extended flags only */
   private static let DConversion_syntax    = 0x00000001

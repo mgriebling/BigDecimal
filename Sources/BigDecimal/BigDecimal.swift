@@ -45,6 +45,10 @@ public struct BigDecimal : Comparable, Equatable, Hashable, Codable, Sendable {
     /// BigDecimal('sNaN')
     public static let signalingNaN = Self(.snanPos)
     
+    /// NaN flag - set to *true* whenever a NaN value is generated
+    /// Can be set to *false* by application code
+    nonisolated(unsafe) public static var nanFlag = false
+    
     // MARK: - Special encodings for infinite, NaN, sNaN, and negative zero.
     
     /// Encodings for infinite, NaN, sNaN, and negative zero.
@@ -1409,10 +1413,9 @@ extension BigDecimal {
         return Self(w, e - scale)
     }
     
-    static func flagNaN(_ signaling:Bool=false) -> Self {
+    static func flagNaN(_ signaling: Bool = false) -> Self {
         if signaling { return Self.signalingNaN }
-        // FIXME: Where to put nanFlag?
-//        Self.nanFlag = true
+        Self.nanFlag = true
         return Self.nan
     }
 }

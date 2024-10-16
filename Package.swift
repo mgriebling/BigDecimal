@@ -19,7 +19,8 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/mgriebling/BigInt.git", from: "2.2.0"),
         .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
-        .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.1.5")
+        .package(url: "https://github.com/mgriebling/UInt128.git", from: "3.1.5"),
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -29,11 +30,12 @@ let package = Package(
             dependencies: ["BigInt", "UInt128",
                       .product(name: "Numerics", package: "swift-numerics")],
             swiftSettings: [
-              .enableUpcomingFeature("StrictConcurrency")
+				.enableExperimentalFeature("StrictConcurrency")
             ]),
         .testTarget(
             name: "BigDecimalTests",
             dependencies: ["BigDecimal"]),
-    ]
+    ],
+	swiftLanguageVersions: [.version("6"), .v5]
 )
 

@@ -11,13 +11,11 @@ import XCTest
 class TestProperties: XCTestCase {
 
     override func setUpWithError() throws {
-        // FIXME: where to put nanFlag?
-        //BigDecimal.nanFlag = false
+        BigDecimal.nanFlag = false
     }
 
     override func tearDownWithError() throws {
-        // FIXME: where to put nanFlag?
-        // XCTAssertFalse(BigDecimal.nanFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func doTest1(_ x: BigDecimal) {

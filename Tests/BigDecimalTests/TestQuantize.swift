@@ -11,8 +11,7 @@ import XCTest
 final class TestQuantize: XCTestCase {
 
     override func setUpWithError() throws {
-        // FIXME: where to put nanFlag?
-        // BigDecimal.nanFlag = false
+        BigDecimal.nanFlag = false
     }
 
     struct test {
@@ -76,8 +75,7 @@ final class TestQuantize: XCTestCase {
         for t in tests1 {
             XCTAssertEqual(BigDecimal(t.x).quantize(BigDecimal(t.y), rnd.mode).asString(), t.result)
         }
-        // FIXME: where to put nanFlag?
-        // XCTAssertTrue(BigDecimal.nanFlag)
+        XCTAssertTrue(BigDecimal.nanFlag)
     }
 
 }

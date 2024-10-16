@@ -16,11 +16,11 @@ import XCTest
 final class TestRemainder: XCTestCase {
 
     override func setUpWithError() throws {
-        //BigDecimal.nanFlag = false
+        BigDecimal.nanFlag = false
     }
 
     override func tearDownWithError() throws {
-        //XCTAssertFalse(BigDecimal.nanFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     struct test {

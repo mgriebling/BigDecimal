@@ -17,18 +17,18 @@ import UInt128
 class TestDecimal128Encoding: XCTestCase {
 
     override func setUpWithError() throws {
-        //BigDecimal.nanFlag = false
+        BigDecimal.nanFlag = false
     }
 
     override func tearDownWithError() throws {
-        //XCTAssertFalse(BigDecimal.nanFlag)
+        XCTAssertFalse(BigDecimal.nanFlag)
     }
 
     func string2UInt128(_ s: String) -> UInt128 {
         let b = BInt(s, radix: 16)!
         let lo = b.words[0]
         let hi = b.words.count == 1 ? 0 : b.words[1]
-        return UInt128(high: UInt64(hi), low: UInt64(lo))
+        return UInt128((high: UInt64(hi), low: UInt64(lo)))
     }
 
     struct test {
