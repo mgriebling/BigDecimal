@@ -25,8 +25,16 @@ final class TestEncode128: XCTestCase {
     static func U128(_ x: String) -> UInt128 {
         assert(x.count == 32)
         let mid = x.index(x.startIndex, offsetBy: 16)
-        return UInt128((high:  UInt64(x[x.startIndex ..< mid], radix: 16)!,
-                         low:UInt64(x[mid ..< x.endIndex], radix: 16)!))
+        #if canImport(UInt128)
+        return UInt128(
+            (high:  UInt64(x[x.startIndex ..< mid], radix: 16)!, low:UInt64(x[mid ..< x.endIndex], radix: 16)!)
+        )
+        #else
+        return UInt128(
+            _low: UInt64(x[mid ..< x.endIndex], radix: 16)!,
+            _high: UInt64(x[x.startIndex ..< mid], radix: 16)!
+        )
+        #endif
     }
 
     struct test {
