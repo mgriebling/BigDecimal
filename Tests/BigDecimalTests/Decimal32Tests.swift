@@ -1,6 +1,8 @@
 import XCTest
 @testable import BigDecimal
+#if canImport(UInt128)
 @testable import UInt128
+#endif
 @testable import BigInt
 
 let verbose = true  // set to false to skip test-by-test passes

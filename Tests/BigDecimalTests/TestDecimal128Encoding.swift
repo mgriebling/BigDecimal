@@ -12,7 +12,9 @@
 import XCTest
 @testable import BigDecimal
 import BigInt
+#if canImport(UInt128)
 import UInt128
+#endif
 
 class TestDecimal128Encoding: XCTestCase {
 
