@@ -31,6 +31,25 @@ extension FloatingPointSign {
 
 extension BInt {
     func comparedTo(_ x: BInt) -> Int { self < x ? -1 : ( self > x ? 1 : 0 ) }
+
+    // BInt only provides asInt -> Int, this function exports the bytes
+    // and builds an integer of type I
+    func asFixedWidthInteger<I:FixedWidthInteger>() -> I? {              
+        // get magnitude bytes, always <= MemoryLayout<I>.size
+        let bytes = asMagnitudeBytes()
+        // copy bytes to an integer of type I
+        var int: I = 0
+        withUnsafeMutableBytes(of: &int) { ptr in
+            #if _endian(big)
+            ptr.copyBytes(from: bytes)
+            #else
+            ptr.copyBytes(from: bytes.reversed())
+            #endif        
+        }
+        // If self is negative and all integer bits are consumed, negate the result
+        let signum = isNegative && self.bitWidth < I.bitWidth ? I(-1) : I(1)
+        return int * signum
+    }
 }
 
 extension Array where Element == Int {

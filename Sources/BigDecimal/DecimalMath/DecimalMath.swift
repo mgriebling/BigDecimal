@@ -25,23 +25,17 @@ extension BigDecimal {
     }
     
     public func asInt<I:FixedWidthInteger>() -> I? {
-        let n = self
-        if n.abs < 1 { return nil }  // check for fractions, magnitude >= 0
-        if n >= Self(I.max) { return nil }
-        if n <= Self(I.min) { return nil }
-        
-        /// value must be in range of the return integer type
-        //incorrect value, example BigDecimal("512").abs().round(Rounding(.towardZero, 0)) return 5E+2
-        //let digits = n.abs.round(Rounding(.towardZero, 0)) // truncate any fractions
-        let digits = BigDecimal.integralPart(n.abs)
-        let coeff = digits.digits
-        let power : BInt = BInt(10) ** digits.exponent
-        if let int = (coeff * power).asInt() {
-            return n.isNegative ? (0-I(int)) : I(int)
-        }
-        return nil
+        if isZero { return 0 }
+        let n = withExponent(0, .towardZero)
+        // reject fractions
+        if n != self { return nil }
+        /// value must be within I.min...I.max
+        if self > Self(I.max) { return nil }
+        if self < Self(I.min) { return nil }
+
+        return n.digits.asFixedWidthInteger()
     }
-    
+
     /**
      * Returns whether the specified ``BigDecimal`` value can be represented as
      * an `Int`.
