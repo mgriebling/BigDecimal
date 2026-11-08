@@ -51,7 +51,7 @@ class TestConstructor: XCTestCase {
         XCTAssertEqual(big.exponent, 0)
         XCTAssertFalse(BigDecimal.nanFlag)
     }
-    
+
     func test4() throws {
         var big = BigDecimal("345.23499600293850")
         XCTAssertEqual(big.asString(), "345.23499600293850")
@@ -69,5 +69,55 @@ class TestConstructor: XCTestCase {
         XCTAssertTrue(BigDecimal("-35e-+2").isNaN)
         XCTAssertTrue(BigDecimal.nanFlag)
     }
+
+    /// Based on test4
+    func test5() throws {
+        var big: BigDecimal = "345.23499600293850"
+        XCTAssertEqual(big, BigDecimal("345.23499600293850"))
+        XCTAssertEqual(big.asString(), "345.23499600293850")
+        XCTAssertEqual(big.exponent, -14)
+        big = "-12345"
+        XCTAssertEqual(big, BigDecimal("-12345"))
+        XCTAssertEqual(big.asString(), "-12345")
+        XCTAssertEqual(big.exponent, 0)
+        big = "123."
+        XCTAssertEqual(big, BigDecimal("123"))
+        XCTAssertEqual(big.asString(), "123")
+        XCTAssertEqual(big.exponent, 0)
+        _ = "1.234E02"
+        let notNaN: BigDecimal = "1.234E02"
+        let candidateNaN1: BigDecimal = ""
+        let candidateNaN2: BigDecimal = "+35e+-2"
+        let candidateNaN3: BigDecimal = "-35e-+2"
+
+        XCTAssertFalse(notNaN.isNaN)
+        XCTAssertTrue(candidateNaN1.isNaN)
+        XCTAssertTrue(candidateNaN2.isNaN)
+        XCTAssertTrue(candidateNaN3.isNaN)
+        XCTAssertTrue(BigDecimal.nanFlag)
+    }
+func test6() throws {
+  let values: [BigDecimal] = [
+    "123",
+    "123.0",
+    "123.00",
+    "123.000",
+    "123.0000",
+    "123.00000",
+    "123.000000",
+    "123.0000000",
+    "123.00000000",
+    "123.000000000",
+    BigDecimal(123).divide(100000, .decimal128).multiply(100000, .decimal128),
+    BigDecimal(123).multiply(100000, .decimal128).divide(100000, .decimal128)
+  ]
+
+  values.forEach {
+    XCTAssertEqual(BigDecimal(normalize: $0), $0)
+    XCTAssertEqual(BigDecimal(normalize: $0), 123)
+    XCTAssertEqual(BigDecimal(normalize: $0).asString(), "123")
+  }
+}
+
 
 }
