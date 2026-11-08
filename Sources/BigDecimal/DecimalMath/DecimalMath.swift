@@ -21,15 +21,7 @@ extension BigDecimal {
     /// Creates a BigDecimal for the integer _n_ where the
     /// integer can be any type conforming to the _BinaryInteger_ protocols.
     public init<T:BinaryInteger>(_ int: T) {
-        var x = Self.zero, m = Self.one
-        var n = BInt(int.magnitude), r = BInt.zero
-        let base = 1_000_000_000, rd = Self(base), id = BInt(base)
-        while n != 0 {
-            (n, r) = n.quotientAndRemainder(dividingBy: id)
-            if r != 0 { x = x.addingProduct(m, Self(r)) }
-            m *= rd
-        }
-        self = int.signum() < 0 ? -x : x
+        self.init(BInt(int), 0)
     }
     
     public func asInt<I:FixedWidthInteger>() -> I? {
